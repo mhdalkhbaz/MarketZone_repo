@@ -26,6 +26,8 @@ namespace MarketZone.Application.Features.Cash.Payments.Queries.GetPaymentById
             {
                 // Found in Payment table, convert to DTO using AutoMapper
                 var paymentDto = mapper.Map<PaymentDto>(payment);
+                var res = await paymentRepository.GetUserForInviceByIdAsync(paymentDto.InvoiceId.Value, paymentDto.InvoiceType.Value, cancellationToken);
+                paymentDto.User = res;
                 return BaseResult<PaymentDto>.Ok(paymentDto);
             }
 
@@ -76,9 +78,10 @@ namespace MarketZone.Application.Features.Cash.Payments.Queries.GetPaymentById
                 IsExpense = true
             };
 
-
+         
             return BaseResult<PaymentDto>.Ok(paymentDtoFromSalary);
         }
     }
 }
 
+    

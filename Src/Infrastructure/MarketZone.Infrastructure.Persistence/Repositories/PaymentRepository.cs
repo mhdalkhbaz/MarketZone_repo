@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using MarketZone.Application.DTOs;
 using MarketZone.Application.Interfaces.Repositories;
@@ -12,9 +7,15 @@ using MarketZone.Application.Wrappers;
 using MarketZone.Domain.Cash.DTOs;
 using MarketZone.Domain.Cash.Entities;
 using MarketZone.Domain.Cash.Enums;
-using MarketZone.Infrastructure.Persistence.Contexts;
-using Microsoft.EntityFrameworkCore;
 using MarketZone.Domain.Employees.Entities;
+using MarketZone.Infrastructure.Persistence.Contexts;
+using MarketZone.Infrastructure.Persistence.Migrations;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MarketZone.Infrastructure.Persistence.Repositories
 {
@@ -193,7 +194,30 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
             }
             return PagedResponse<PaymentDto>.Ok(new PaginationResponseDto<PaymentDto>(items, totalCount, filter.PageNumber, filter.PageSize));
 		}
-	}
+
+        public async Task<SelectList> GetUserForInviceByIdAsync(long invoiceId, InvoiceType invoiceType, CancellationToken cancellationToken)
+        {
+            var result = new SelectList();
+            switch (invoiceType)
+            {
+                case InvoiceType.SalesInvoice:
+                    result = dbContext.SalesInvoices.Where(x => x.Id == invoiceId).Select(x => new SelectList(x.CustomerId, x.Customer.Name)).FirstOrDefault();
+                    break;
+
+                case InvoiceType.PurchaseInvoice:
+                    result = dbContext.PurchaseInvoices.Where(x => x.Id == invoiceId).Select(x => new SelectList(x.SupplierId, x.Supplier.Name)).FirstOrDefault();
+
+                    break;
+
+                case InvoiceType.RoastingInvoice:
+                    result = dbContext.RoastingInvoices.Where(x => x.Id == invoiceId).Select(x => new SelectList(x.EmployeeId.Value,
+						dbContext.Employees.FirstOrDefault(e=>e.Id == x.EmployeeId.Value).FirstName
+						+" "+ dbContext.Employees.FirstOrDefault(e => e.Id == x.EmployeeId.Value).LastName)).FirstOrDefault();
+                    break;
+            }
+			return result;
+        }
+    }
 }
 
 

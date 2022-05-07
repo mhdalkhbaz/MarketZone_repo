@@ -16,12 +16,14 @@ namespace MarketZone.Application.Features.Roasting.Queries.GetRoastingInvoiceByI
         private readonly IRoastingInvoiceRepository _repository;
         private readonly IMapper _mapper;
         private readonly IEmployeeRepository _employeeRepository;
+        private readonly IProductRepository _productRepository;
 
-        public GetRoastingInvoiceByIdQueryHandler(IRoastingInvoiceRepository repository, IMapper mapper, IEmployeeRepository employeeRepository)
+        public GetRoastingInvoiceByIdQueryHandler(IRoastingInvoiceRepository repository, IMapper mapper, IEmployeeRepository employeeRepository, IProductRepository productRepository)
         {
             _repository = repository;
             _mapper = mapper;
             _employeeRepository = employeeRepository;
+            _productRepository = productRepository;
         }
 
         public async Task<BaseResult<RoastingInvoiceDto>> Handle(GetRoastingInvoiceByIdQuery request, CancellationToken cancellationToken)
@@ -44,7 +46,15 @@ namespace MarketZone.Application.Features.Roasting.Queries.GetRoastingInvoiceByI
                 }
             }
 
-            return new BaseResult<RoastingInvoiceDto> { Success = true, Data = invoiceDto };
+                foreach (var detail in invoiceDto.Details)
+                {
+                    foreach (var rec in detail.Receipts)
+                    {
+                        rec.ReadyProductName = _productRepository.GetByIdAsync(rec.ReadyProductId).GetAwaiter().GetResult()?.Name ?? "";
+                    }
+                }
+
+                return new BaseResult<RoastingInvoiceDto> { Success = true, Data = invoiceDto };
         }
     }
 }

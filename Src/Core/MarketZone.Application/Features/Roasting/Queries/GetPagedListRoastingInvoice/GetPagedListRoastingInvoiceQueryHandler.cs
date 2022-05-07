@@ -19,17 +19,20 @@ namespace MarketZone.Application.Features.Roasting.Queries.GetPagedListRoastingI
         private readonly IMapper _mapper;
         private readonly IProductBalanceRepository _productBalanceRepository;
         private readonly IEmployeeRepository _employeeRepository;
+        private readonly IProductRepository _productRepository;
 
         public GetPagedListRoastingInvoiceQueryHandler(
-            IRoastingInvoiceRepository repository, 
-            IMapper mapper, 
+            IRoastingInvoiceRepository repository,
+            IMapper mapper,
             IProductBalanceRepository productBalanceRepository,
-            IEmployeeRepository employeeRepository)
+            IEmployeeRepository employeeRepository,
+            IProductRepository productRepository)
         {
             _repository = repository;
             _mapper = mapper;
             _productBalanceRepository = productBalanceRepository;
             _employeeRepository = employeeRepository;
+            _productRepository = productRepository;
         }
 
         public async Task<PagedResponse<RoastingInvoiceDto>> Handle(GetPagedListRoastingInvoiceQuery request, CancellationToken cancellationToken)
@@ -68,6 +71,11 @@ namespace MarketZone.Application.Features.Roasting.Queries.GetPagedListRoastingI
                 {
                     if (balanceByProductId.TryGetValue(detail.RawProductId, out var bal))
                         detail.PurchasePrice = bal.AverageCost;
+
+                    foreach (var rec in detail.Receipts)
+                    {
+                        rec.ReadyProductName =  _productRepository.GetByIdAsync(rec.ReadyProductId).GetAwaiter().GetResult()?.Name ?? "";
+                    }
                 }
 
                 // Fill Currency from employee
@@ -76,6 +84,7 @@ namespace MarketZone.Application.Features.Roasting.Queries.GetPagedListRoastingI
                     invoice.Currency = currency;
                 }
             }
+          
 
             return PagedResponse<RoastingInvoiceDto>.Ok(new PaginationResponseDto<RoastingInvoiceDto>(mappedData, pagedResult.Count, pagedResult.PageNumber, pagedResult.PageSize));
         }

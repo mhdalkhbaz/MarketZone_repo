@@ -53,6 +53,7 @@ namespace MarketZone.Domain.Cash.DTOs
 		public PaymentStatus Status { get; set; }
 		public bool IsIncome { get; set; }
 		public bool IsExpense { get; set; }
+		public SelectList User { get; set; }
 	}
 }
 

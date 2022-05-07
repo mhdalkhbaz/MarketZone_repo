@@ -46,7 +46,6 @@ namespace MarketZone.Domain.Employees.Entities
         public SalaryType SalaryType { get; private set; }
         public decimal? SalaryPercentage { get; private set; }
         public Currency? Currency { get; private set; }
-
         public void Update(string firstName, string lastName, string phone, string whatsAppPhone, string? email, string address, string jobTitle, decimal salary, DateTime hireDate, bool isActive, decimal? syrianMoney = null, decimal? dollarMoney = null, SalaryType? salaryType = null, decimal? salaryPercentage = null, Currency? currency = null)
         {
             FirstName = firstName;
