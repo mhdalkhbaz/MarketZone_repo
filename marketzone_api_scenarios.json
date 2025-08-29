@@ -1,0 +1,1177 @@
+{
+  "application": "MarketZone",
+  "description": "Complete API scenarios and request/response examples for MarketZone application",
+  "version": "1.0",
+  "apiScenarios": {
+    "authentication": {
+      "login": {
+        "endpoint": "POST /api/account/login",
+        "description": "User authentication",
+        "request": {
+          "userName": "admin",
+          "password": "password123"
+        },
+        "response": {
+          "success": true,
+          "errors": [],
+          "data": {
+            "id": "12345678-1234-1234-1234-123456789012",
+            "userName": "admin",
+            "email": "admin@marketzone.com",
+            "roles": ["Admin"],
+            "isVerified": true,
+            "jwToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          }
+        }
+      },
+      "getUsers": {
+        "endpoint": "GET /api/account/users",
+        "description": "Get paged list of users",
+        "request": {
+          "pageNumber": 1,
+          "pageSize": 10,
+          "name": "admin"
+        },
+        "response": {
+          "success": true,
+          "errors": [],
+          "data": [
+            {
+              "id": "12345678-1234-1234-1234-123456789012",
+              "userName": "admin",
+              "name": "Administrator",
+              "email": "admin@marketzone.com",
+              "phoneNumber": "+1234567890",
+              "created": "2024-01-01T00:00:00Z"
+            }
+          ],
+          "pageNumber": 1,
+          "pageSize": 10,
+          "totalPages": 1,
+          "totalItems": 1
+        }
+      }
+    },
+    "categories": {
+      "getPagedList": {
+        "endpoint": "GET /api/categories",
+        "description": "Get paged list of categories",
+        "request": {
+          "pageNumber": 1,
+          "pageSize": 10,
+          "name": "Coffee"
+        },
+        "response": {
+          "success": true,
+          "errors": [],
+          "data": [
+            {
+              "id": 1,
+              "name": "Coffee Beans",
+              "description": "Raw coffee beans",
+              "createdDateTime": "2024-01-01T00:00:00Z"
+            }
+          ],
+          "pageNumber": 1,
+          "pageSize": 10,
+          "totalPages": 1,
+          "totalItems": 1
+        }
+      },
+      "getById": {
+        "endpoint": "GET /api/categories/{id}",
+        "description": "Get category by ID",
+        "request": {
+          "id": 1
+        },
+        "response": {
+          "success": true,
+          "errors": [],
+          "data": {
+            "id": 1,
+            "name": "Coffee Beans",
+            "description": "Raw coffee beans",
+            "createdDateTime": "2024-01-01T00:00:00Z"
+          }
+        }
+      },
+      "create": {
+        "endpoint": "POST /api/categories",
+        "description": "Create new category",
+        "request": {
+          "name": "Tea",
+          "description": "Various tea products"
+        },
+        "response": {
+          "success": true,
+          "errors": [],
+          "data": 2
+        }
+      },
+      "update": {
+        "endpoint": "PUT /api/categories",
+        "description": "Update existing category",
+        "request": {
+          "id": 1,
+          "name": "Premium Coffee Beans",
+          "description": "High-quality raw coffee beans"
+        },
+        "response": {
+          "success": true,
+          "errors": []
+        }
+      },
+      "delete": {
+        "endpoint": "DELETE /api/categories/{id}",
+        "description": "Delete category",
+        "request": {
+          "id": 1
+        },
+        "response": {
+          "success": true,
+          "errors": []
+        }
+      }
+    },
+    "products": {
+      "getPagedList": {
+        "endpoint": "GET /api/products",
+        "description": "Get paged list of products",
+        "request": {
+          "pageNumber": 1,
+          "pageSize": 10,
+          "name": "Arabica"
+        },
+        "response": {
+          "success": true,
+          "errors": [],
+          "data": [
+            {
+              "id": 1,
+              "categoryId": 1,
+              "name": "Arabica Coffee Beans",
+              "description": "Premium Arabica coffee beans",
+              "unitOfMeasure": "kg",
+              "purchasePrice": 15.50,
+              "salePrice": 25.00,
+              "minStockLevel": 10.0,
+              "isActive": true,
+              "needsRoasting": true,
+              "roastingCost": 5.00,
+              "barCode": "1234567890123",
+              "createdDateTime": "2024-01-01T00:00:00Z"
+            }
+          ],
+          "pageNumber": 1,
+          "pageSize": 10,
+          "totalPages": 1,
+          "totalItems": 1
+        }
+      },
+      "getById": {
+        "endpoint": "GET /api/products/{id}",
+        "description": "Get product by ID",
+        "request": {
+          "id": 1
+        },
+        "response": {
+          "success": true,
+          "errors": [],
+          "data": {
+            "id": 1,
+            "categoryId": 1,
+            "name": "Arabica Coffee Beans",
+            "description": "Premium Arabica coffee beans",
+            "unitOfMeasure": "kg",
+            "purchasePrice": 15.50,
+            "salePrice": 25.00,
+            "minStockLevel": 10.0,
+            "isActive": true,
+            "needsRoasting": true,
+            "roastingCost": 5.00,
+            "barCode": "1234567890123",
+            "createdDateTime": "2024-01-01T00:00:00Z"
+          }
+        }
+      },
+      "create": {
+        "endpoint": "POST /api/products",
+        "description": "Create new product",
+        "request": {
+          "categoryId": 1,
+          "name": "Robusta Coffee Beans",
+          "description": "Robusta coffee beans",
+          "unitOfMeasure": "kg",
+          "purchasePrice": 12.00,
+          "salePrice": 20.00,
+          "minStockLevel": 8.0,
+          "isActive": true,
+          "needsRoasting": true,
+          "roastingCost": 4.50,
+          "barCode": "1234567890124"
+        },
+        "response": {
+          "success": true,
+          "errors": [],
+          "data": 2
+        }
+      },
+      "update": {
+        "endpoint": "PUT /api/products",
+        "description": "Update existing product",
+        "request": {
+          "id": 1,
+          "categoryId": 1,
+          "name": "Premium Arabica Coffee Beans",
+          "description": "High-quality Arabica coffee beans",
+          "unitOfMeasure": "kg",
+          "purchasePrice": 16.00,
+          "salePrice": 26.00,
+          "minStockLevel": 12.0,
+          "isActive": true,
+          "needsRoasting": true,
+          "roastingCost": 5.50,
+          "barCode": "1234567890123"
+        },
+        "response": {
+          "success": true,
+          "errors": []
+        }
+      },
+      "delete": {
+        "endpoint": "DELETE /api/products/{id}",
+        "description": "Delete product",
+        "request": {
+          "id": 1
+        },
+        "response": {
+          "success": true,
+          "errors": []
+        }
+      }
+    },
+    "customers": {
+      "getPagedList": {
+        "endpoint": "GET /api/customers",
+        "description": "Get paged list of customers",
+        "request": {
+          "pageNumber": 1,
+          "pageSize": 10,
+          "name": "John"
+        },
+        "response": {
+          "success": true,
+          "errors": [],
+          "data": [
+            {
+              "id": 1,
+              "name": "John Doe",
+              "phone": "+1234567890",
+              "whatsAppPhone": "+1234567890",
+              "email": "john@example.com",
+              "address": "123 Main St, City",
+              "isActive": true,
+              "createdDateTime": "2024-01-01T00:00:00Z"
+            }
+          ],
+          "pageNumber": 1,
+          "pageSize": 10,
+          "totalPages": 1,
+          "totalItems": 1
+        }
+      },
+      "getById": {
+        "endpoint": "GET /api/customers/{id}",
+        "description": "Get customer by ID",
+        "request": {
+          "id": 1
+        },
+        "response": {
+          "success": true,
+          "errors": [],
+          "data": {
+            "id": 1,
+            "name": "John Doe",
+            "phone": "+1234567890",
+            "whatsAppPhone": "+1234567890",
+            "email": "john@example.com",
+            "address": "123 Main St, City",
+            "isActive": true,
+            "createdDateTime": "2024-01-01T00:00:00Z"
+          }
+        }
+      },
+      "create": {
+        "endpoint": "POST /api/customers",
+        "description": "Create new customer",
+        "request": {
+          "name": "Jane Smith",
+          "phone": "+0987654321",
+          "whatsAppPhone": "+0987654321",
+          "email": "jane@example.com",
+          "address": "456 Oak Ave, Town",
+          "isActive": true
+        },
+        "response": {
+          "success": true,
+          "errors": [],
+          "data": 2
+        }
+      },
+      "update": {
+        "endpoint": "PUT /api/customers",
+        "description": "Update existing customer",
+        "request": {
+          "id": 1,
+          "name": "John Doe Updated",
+          "phone": "+1234567890",
+          "whatsAppPhone": "+1234567890",
+          "email": "john.updated@example.com",
+          "address": "789 Pine St, City",
+          "isActive": true
+        },
+        "response": {
+          "success": true,
+          "errors": []
+        }
+      },
+      "delete": {
+        "endpoint": "DELETE /api/customers/{id}",
+        "description": "Delete customer",
+        "request": {
+          "id": 1
+        },
+        "response": {
+          "success": true,
+          "errors": []
+        }
+      }
+    },
+    "suppliers": {
+      "getPagedList": {
+        "endpoint": "GET /api/suppliers",
+        "description": "Get paged list of suppliers",
+        "request": {
+          "pageNumber": 1,
+          "pageSize": 10,
+          "name": "Coffee"
+        },
+        "response": {
+          "success": true,
+          "errors": [],
+          "data": [
+            {
+              "id": 1,
+              "name": "Coffee Supplier Co",
+              "phone": "+1234567890",
+              "whatsAppPhone": "+1234567890",
+              "email": "info@coffeesupplier.com",
+              "address": "123 Supplier St, City",
+              "isActive": true,
+              "createdDateTime": "2024-01-01T00:00:00Z"
+            }
+          ],
+          "pageNumber": 1,
+          "pageSize": 10,
+          "totalPages": 1,
+          "totalItems": 1
+        }
+      },
+      "getById": {
+        "endpoint": "GET /api/suppliers/{id}",
+        "description": "Get supplier by ID",
+        "request": {
+          "id": 1
+        },
+        "response": {
+          "success": true,
+          "errors": [],
+          "data": {
+            "id": 1,
+            "name": "Coffee Supplier Co",
+            "phone": "+1234567890",
+            "whatsAppPhone": "+1234567890",
+            "email": "info@coffeesupplier.com",
+            "address": "123 Supplier St, City",
+            "isActive": true,
+            "createdDateTime": "2024-01-01T00:00:00Z"
+          }
+        }
+      },
+      "create": {
+        "endpoint": "POST /api/suppliers",
+        "description": "Create new supplier",
+        "request": {
+          "name": "Tea Supplier Ltd",
+          "phone": "+0987654321",
+          "whatsAppPhone": "+0987654321",
+          "email": "info@teasupplier.com",
+          "address": "456 Supplier Ave, Town",
+          "isActive": true
+        },
+        "response": {
+          "success": true,
+          "errors": [],
+          "data": 2
+        }
+      },
+      "update": {
+        "endpoint": "PUT /api/suppliers",
+        "description": "Update existing supplier",
+        "request": {
+          "id": 1,
+          "name": "Premium Coffee Supplier Co",
+          "phone": "+1234567890",
+          "whatsAppPhone": "+1234567890",
+          "email": "info@premiumcoffeesupplier.com",
+          "address": "789 Premium St, City",
+          "isActive": true
+        },
+        "response": {
+          "success": true,
+          "errors": []
+        }
+      },
+      "delete": {
+        "endpoint": "DELETE /api/suppliers/{id}",
+        "description": "Delete supplier",
+        "request": {
+          "id": 1
+        },
+        "response": {
+          "success": true,
+          "errors": []
+        }
+      }
+    },
+    "employees": {
+      "getPagedList": {
+        "endpoint": "GET /api/employees",
+        "description": "Get paged list of employees",
+        "request": {
+          "pageNumber": 1,
+          "pageSize": 10,
+          "firstName": "John"
+        },
+        "response": {
+          "success": true,
+          "errors": [],
+          "data": [
+            {
+              "id": 1,
+              "firstName": "John",
+              "lastName": "Manager",
+              "phone": "+1234567890",
+              "whatsAppPhone": "+1234567890",
+              "email": "john.manager@marketzone.com",
+              "address": "123 Employee St, City",
+              "jobTitle": "Store Manager",
+              "salary": 5000.00,
+              "hireDate": "2024-01-01T00:00:00Z",
+              "isActive": true,
+              "createdDateTime": "2024-01-01T00:00:00Z"
+            }
+          ],
+          "pageNumber": 1,
+          "pageSize": 10,
+          "totalPages": 1,
+          "totalItems": 1
+        }
+      },
+      "getById": {
+        "endpoint": "GET /api/employees/{id}",
+        "description": "Get employee by ID",
+        "request": {
+          "id": 1
+        },
+        "response": {
+          "success": true,
+          "errors": [],
+          "data": {
+            "id": 1,
+            "firstName": "John",
+            "lastName": "Manager",
+            "phone": "+1234567890",
+            "whatsAppPhone": "+1234567890",
+            "email": "john.manager@marketzone.com",
+            "address": "123 Employee St, City",
+            "jobTitle": "Store Manager",
+            "salary": 5000.00,
+            "hireDate": "2024-01-01T00:00:00Z",
+            "isActive": true,
+            "createdDateTime": "2024-01-01T00:00:00Z"
+          }
+        }
+      },
+      "create": {
+        "endpoint": "POST /api/employees",
+        "description": "Create new employee",
+        "request": {
+          "firstName": "Jane",
+          "lastName": "Assistant",
+          "phone": "+0987654321",
+          "whatsAppPhone": "+0987654321",
+          "email": "jane.assistant@marketzone.com",
+          "address": "456 Employee Ave, Town",
+          "jobTitle": "Sales Assistant",
+          "salary": 3000.00,
+          "hireDate": "2024-01-15T00:00:00Z",
+          "isActive": true
+        },
+        "response": {
+          "success": true,
+          "errors": [],
+          "data": 2
+        }
+      },
+      "update": {
+        "endpoint": "PUT /api/employees",
+        "description": "Update existing employee",
+        "request": {
+          "id": 1,
+          "firstName": "John",
+          "lastName": "Senior Manager",
+          "phone": "+1234567890",
+          "whatsAppPhone": "+1234567890",
+          "email": "john.senior@marketzone.com",
+          "address": "789 Senior St, City",
+          "jobTitle": "Senior Store Manager",
+          "salary": 6000.00,
+          "hireDate": "2024-01-01T00:00:00Z",
+          "isActive": true
+        },
+        "response": {
+          "success": true,
+          "errors": []
+        }
+      },
+      "delete": {
+        "endpoint": "DELETE /api/employees/{id}",
+        "description": "Delete employee",
+        "request": {
+          "id": 1
+        },
+        "response": {
+          "success": true,
+          "errors": []
+        }
+      }
+    },
+    "cash": {
+      "cashRegisters": {
+        "getPagedList": {
+          "endpoint": "GET /api/cash/registers",
+          "description": "Get paged list of cash registers",
+          "request": {
+            "pageNumber": 1,
+            "pageSize": 10,
+            "name": "Main"
+          },
+          "response": {
+            "success": true,
+            "errors": [],
+            "data": [
+              {
+                "id": 1,
+                "name": "Main Register",
+                "openingBalance": 1000.00,
+                "openingBalanceDollar": 100.00,
+                "currentBalance": 1500.00,
+                "currentBalanceDollar": 150.00,
+                "createdDateTime": "2024-01-01T00:00:00Z"
+              }
+            ],
+            "pageNumber": 1,
+            "pageSize": 10,
+            "totalPages": 1,
+            "totalItems": 1
+          }
+        },
+        "create": {
+          "endpoint": "POST /api/cash/registers",
+          "description": "Create new cash register",
+          "request": {
+            "name": "Secondary Register",
+            "openingBalance": 500.00,
+            "openingBalanceDollar": 50.00
+          },
+          "response": {
+            "success": true,
+            "errors": [],
+            "data": 2
+          }
+        }
+      },
+      "transactions": {
+        "getPagedList": {
+          "endpoint": "GET /api/cash/transactions",
+          "description": "Get paged list of cash transactions",
+          "request": {
+            "pageNumber": 1,
+            "pageSize": 10,
+            "cashRegisterId": 1
+          },
+          "response": {
+            "success": true,
+            "errors": [],
+            "data": [
+              {
+                "id": 1,
+                "cashRegisterId": 1,
+                "transactionType": 0,
+                "amount": 500.00,
+                "transactionDate": "2024-01-01T10:00:00Z",
+                "referenceType": 1,
+                "referenceId": 1,
+                "description": "Sales invoice payment",
+                "createdDateTime": "2024-01-01T10:00:00Z"
+              }
+            ],
+            "pageNumber": 1,
+            "pageSize": 10,
+            "totalPages": 1,
+            "totalItems": 1
+          }
+        },
+        "create": {
+          "endpoint": "POST /api/cash/transactions",
+          "description": "Create new cash transaction",
+          "request": {
+            "cashRegisterId": 1,
+            "transactionType": 0,
+            "amount": 250.00,
+            "transactionDate": "2024-01-01T14:00:00Z",
+            "referenceType": 1,
+            "referenceId": 2,
+            "description": "Sales invoice payment"
+          },
+          "response": {
+            "success": true,
+            "errors": [],
+            "data": 2
+          }
+        }
+      },
+      "expenses": {
+        "getPagedList": {
+          "endpoint": "GET /api/cash/expenses",
+          "description": "Get paged list of expenses",
+          "request": {
+            "pageNumber": 1,
+            "pageSize": 10,
+            "name": "Rent"
+          },
+          "response": {
+            "success": true,
+            "errors": [],
+            "data": [
+              {
+                "id": 1,
+                "name": "Monthly Rent",
+                "amount": 2000.00,
+                "date": "2024-01-01T00:00:00Z",
+                "description": "Monthly store rent payment",
+                "createdDateTime": "2024-01-01T00:00:00Z"
+              }
+            ],
+            "pageNumber": 1,
+            "pageSize": 10,
+            "totalPages": 1,
+            "totalItems": 1
+          }
+        },
+        "create": {
+          "endpoint": "POST /api/cash/expenses",
+          "description": "Create new expense",
+          "request": {
+            "name": "Utilities",
+            "amount": 300.00,
+            "date": "2024-01-01T00:00:00Z",
+            "description": "Monthly utilities payment"
+          },
+          "response": {
+            "success": true,
+            "errors": [],
+            "data": 2
+          }
+        }
+      }
+    },
+    "purchases": {
+      "invoices": {
+        "getPagedList": {
+          "endpoint": "GET /api/purchases/invoices",
+          "description": "Get paged list of purchase invoices",
+          "request": {
+            "pageNumber": 1,
+            "pageSize": 10,
+            "supplierId": 1
+          },
+          "response": {
+            "success": true,
+            "errors": [],
+            "data": [
+              {
+                "id": 1,
+                "invoiceNumber": "PI-2024-001",
+                "supplierId": 1,
+                "supplier": {
+                  "id": 1,
+                  "name": "Coffee Supplier Co",
+                  "phone": "+1234567890",
+                  "email": "info@coffeesupplier.com"
+                },
+                "invoiceDate": "2024-01-01T00:00:00Z",
+                "totalAmount": 1550.00,
+                "discount": 50.00,
+                "notes": "Monthly coffee beans order",
+                "status": 1,
+                "paymentStatus": 0,
+                "details": [
+                  {
+                    "id": 1,
+                    "productId": 1,
+                    "product": {
+                      "id": 1,
+                      "name": "Arabica Coffee Beans"
+                    },
+                    "quantity": 100.0,
+                    "unitPrice": 15.50,
+                    "totalPrice": 1550.00,
+                    "notes": "Premium Arabica beans"
+                  }
+                ],
+                "createdDateTime": "2024-01-01T00:00:00Z"
+              }
+            ],
+            "pageNumber": 1,
+            "pageSize": 10,
+            "totalPages": 1,
+            "totalItems": 1
+          }
+        },
+        "create": {
+          "endpoint": "POST /api/purchases/invoices",
+          "description": "Create new purchase invoice",
+          "request": {
+            "invoiceNumber": "PI-2024-002",
+            "supplierId": 1,
+            "invoiceDate": "2024-01-15T00:00:00Z",
+            "totalAmount": 1200.00,
+            "discount": 0.00,
+            "notes": "Additional coffee beans order",
+            "details": [
+              {
+                "productId": 1,
+                "quantity": 80.0,
+                "unitPrice": 15.00,
+                "totalPrice": 1200.00,
+                "notes": "Robusta beans"
+              }
+            ]
+          },
+          "response": {
+            "success": true,
+            "errors": [],
+            "data": 2
+          }
+        }
+      }
+    },
+    "sales": {
+      "invoices": {
+        "getPagedList": {
+          "endpoint": "GET /api/sales/invoices",
+          "description": "Get paged list of sales invoices",
+          "request": {
+            "pageNumber": 1,
+            "pageSize": 10,
+            "customerId": 1
+          },
+          "response": {
+            "success": true,
+            "errors": [],
+            "data": [
+              {
+                "id": 1,
+                "invoiceNumber": "SI-2024-001",
+                "customerId": 1,
+                "customer": {
+                  "id": 1,
+                  "name": "John Doe",
+                  "phone": "+1234567890",
+                  "email": "john@example.com"
+                },
+                "invoiceDate": "2024-01-01T00:00:00Z",
+                "totalAmount": 500.00,
+                "discount": 25.00,
+                "paymentMethod": "Cash",
+                "notes": "Regular customer order",
+                "status": 1,
+                "details": [
+                  {
+                    "id": 1,
+                    "productId": 1,
+                    "product": {
+                      "id": 1,
+                      "name": "Arabica Coffee Beans"
+                    },
+                    "quantity": 20.0,
+                    "unitPrice": 25.00,
+                    "subTotal": 500.00,
+                    "notes": "Premium roasted beans"
+                  }
+                ],
+                "createdDateTime": "2024-01-01T00:00:00Z"
+              }
+            ],
+            "pageNumber": 1,
+            "pageSize": 10,
+            "totalPages": 1,
+            "totalItems": 1
+          }
+        },
+        "create": {
+          "endpoint": "POST /api/sales/invoices",
+          "description": "Create new sales invoice",
+          "request": {
+            "invoiceNumber": "SI-2024-002",
+            "customerId": 1,
+            "invoiceDate": "2024-01-15T00:00:00Z",
+            "totalAmount": 300.00,
+            "discount": 0.00,
+            "paymentMethod": "Credit Card",
+            "notes": "Online order",
+            "details": [
+              {
+                "productId": 1,
+                "quantity": 12.0,
+                "unitPrice": 25.00,
+                "subTotal": 300.00,
+                "notes": "Medium roast beans"
+              }
+            ]
+          },
+          "response": {
+            "success": true,
+            "errors": [],
+            "data": 2
+          }
+        }
+      }
+    },
+    "logistics": {
+      "cars": {
+        "getPagedList": {
+          "endpoint": "GET /api/logistics/cars",
+          "description": "Get paged list of cars",
+          "request": {
+            "pageNumber": 1,
+            "pageSize": 10,
+            "name": "Delivery"
+          },
+          "response": {
+            "success": true,
+            "errors": [],
+            "data": [
+              {
+                "id": 1,
+                "name": "Delivery Van 1",
+                "plateNumber": "ABC123",
+                "model": "Ford Transit",
+                "year": 2020,
+                "capacityKg": 1000.0,
+                "isAvailable": true,
+                "createdDateTime": "2024-01-01T00:00:00Z"
+              }
+            ],
+            "pageNumber": 1,
+            "pageSize": 10,
+            "totalPages": 1,
+            "totalItems": 1
+          }
+        },
+        "create": {
+          "endpoint": "POST /api/logistics/cars",
+          "description": "Create new car",
+          "request": {
+            "name": "Delivery Van 2",
+            "plateNumber": "XYZ789",
+            "model": "Mercedes Sprinter",
+            "year": 2021,
+            "capacityKg": 1500.0,
+            "isAvailable": true
+          },
+          "response": {
+            "success": true,
+            "errors": [],
+            "data": 2
+          }
+        }
+      },
+      "trips": {
+        "getPagedList": {
+          "endpoint": "GET /api/logistics/trips",
+          "description": "Get paged list of distribution trips",
+          "request": {
+            "pageNumber": 1,
+            "pageSize": 10,
+            "employeeId": 1
+          },
+          "response": {
+            "success": true,
+            "errors": [],
+            "data": [
+              {
+                "id": 1,
+                "employeeId": 1,
+                "employee": {
+                  "id": 1,
+                  "firstName": "John",
+                  "lastName": "Driver"
+                },
+                "carId": 1,
+                "car": {
+                  "id": 1,
+                  "name": "Delivery Van 1"
+                },
+                "regionId": 1,
+                "region": {
+                  "id": 1,
+                  "name": "Downtown"
+                },
+                "tripDate": "2024-01-01T08:00:00Z",
+                "loadQty": 500.0,
+                "notes": "Morning delivery route",
+                "details": [
+                  {
+                    "id": 1,
+                    "productId": 1,
+                    "product": {
+                      "id": 1,
+                      "name": "Arabica Coffee Beans"
+                    },
+                    "quantity": 500.0,
+                    "notes": "Customer delivery"
+                  }
+                ],
+                "createdDateTime": "2024-01-01T08:00:00Z"
+              }
+            ],
+            "pageNumber": 1,
+            "pageSize": 10,
+            "totalPages": 1,
+            "totalItems": 1
+          }
+        },
+        "create": {
+          "endpoint": "POST /api/logistics/trips",
+          "description": "Create new distribution trip",
+          "request": {
+            "employeeId": 1,
+            "carId": 1,
+            "regionId": 1,
+            "tripDate": "2024-01-15T08:00:00Z",
+            "loadQty": 300.0,
+            "notes": "Afternoon delivery route",
+            "details": [
+              {
+                "productId": 1,
+                "quantity": 300.0,
+                "notes": "Customer delivery"
+              }
+            ]
+          },
+          "response": {
+            "success": true,
+            "errors": [],
+            "data": 2
+          }
+        }
+      }
+    },
+    "roasting": {
+      "operations": {
+        "getPagedList": {
+          "endpoint": "GET /api/roasting/operations",
+          "description": "Get paged list of roasting operations",
+          "request": {
+            "pageNumber": 1,
+            "pageSize": 10,
+            "productId": 1
+          },
+          "response": {
+            "success": true,
+            "errors": [],
+            "data": [
+              {
+                "id": 1,
+                "productId": 1,
+                "product": {
+                  "id": 1,
+                  "name": "Arabica Coffee Beans"
+                },
+                "quantityKg": 100.0,
+                "roastPricePerKg": 5.00,
+                "totalCost": 500.00,
+                "roastDate": "2024-01-01T06:00:00Z",
+                "notes": "Medium roast batch",
+                "createdDateTime": "2024-01-01T06:00:00Z"
+              }
+            ],
+            "pageNumber": 1,
+            "pageSize": 10,
+            "totalPages": 1,
+            "totalItems": 1
+          }
+        },
+        "create": {
+          "endpoint": "POST /api/roasting/operations",
+          "description": "Create new roasting operation",
+          "request": {
+            "productId": 1,
+            "quantityKg": 80.0,
+            "roastPricePerKg": 5.50,
+            "roastDate": "2024-01-15T06:00:00Z",
+            "notes": "Dark roast batch"
+          },
+          "response": {
+            "success": true,
+            "errors": [],
+            "data": 2
+          }
+        }
+      }
+    },
+    "inventory": {
+      "balances": {
+        "getPagedList": {
+          "endpoint": "GET /api/inventory/balances",
+          "description": "Get paged list of product balances",
+          "request": {
+            "pageNumber": 1,
+            "pageSize": 10,
+            "productId": 1
+          },
+          "response": {
+            "success": true,
+            "errors": [],
+            "data": [
+              {
+                "id": 1,
+                "productId": 1,
+                "product": {
+                  "id": 1,
+                  "name": "Arabica Coffee Beans"
+                },
+                "qty": 500.0,
+                "availableQty": 450.0,
+                "createdDateTime": "2024-01-01T00:00:00Z"
+              }
+            ],
+            "pageNumber": 1,
+            "pageSize": 10,
+            "totalPages": 1,
+            "totalItems": 1
+          }
+        }
+      },
+      "history": {
+        "getPagedList": {
+          "endpoint": "GET /api/inventory/history",
+          "description": "Get paged list of inventory history",
+          "request": {
+            "pageNumber": 1,
+            "pageSize": 10,
+            "productId": 1
+          },
+          "response": {
+            "success": true,
+            "errors": [],
+            "data": [
+              {
+                "id": 1,
+                "productId": 1,
+                "product": {
+                  "id": 1,
+                  "name": "Arabica Coffee Beans"
+                },
+                "transactionType": "Purchase",
+                "referenceId": 1,
+                "quantity": 100.0,
+                "date": "2024-01-01T00:00:00Z",
+                "notes": "Purchase invoice receipt",
+                "createdDateTime": "2024-01-01T00:00:00Z"
+              }
+            ],
+            "pageNumber": 1,
+            "pageSize": 10,
+            "totalPages": 1,
+            "totalItems": 1
+          }
+        }
+      }
+    }
+  },
+  "errorResponses": {
+    "validationError": {
+      "success": false,
+      "errors": [
+        {
+          "code": "ValidationError",
+          "message": "The Name field is required."
+        }
+      ],
+      "data": null
+    },
+    "notFoundError": {
+      "success": false,
+      "errors": [
+        {
+          "code": "NotFound",
+          "message": "Product with ID 999 was not found."
+        }
+      ],
+      "data": null
+    },
+    "unauthorizedError": {
+      "success": false,
+      "errors": [
+        {
+          "code": "Unauthorized",
+          "message": "Access denied. Authentication required."
+        }
+      ],
+      "data": null
+    },
+    "serverError": {
+      "success": false,
+      "errors": [
+        {
+          "code": "InternalServerError",
+          "message": "An unexpected error occurred while processing your request."
+        }
+      ],
+      "data": null
+    }
+  },
+  "pagination": {
+    "requestFormat": {
+      "pageNumber": 1,
+      "pageSize": 10,
+      "searchTerm": "optional search term"
+    },
+    "responseFormat": {
+      "success": true,
+      "errors": [],
+      "data": [],
+      "pageNumber": 1,
+      "pageSize": 10,
+      "totalPages": 1,
+      "totalItems": 0
+    }
+  }
+}
+
+
+

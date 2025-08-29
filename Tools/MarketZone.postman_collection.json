@@ -1,0 +1,292 @@
+{
+  "info": {
+    "_postman_id": "d5d5b6a6-7a9f-4b31-9d8b-0e2c2b4f0a01",
+    "name": "MarketZone API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000" },
+    { "key": "token", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Account",
+      "item": [
+        {
+          "name": "Authenticate",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"UserName\": \"abd\",\n  \"Password\": \"123123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/Account/Authenticate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "Account", "Authenticate"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) {}",
+                  "if (json && json.data && json.data.jwToken) {",
+                  "  pm.collectionVariables.set('token', json.data.jwToken);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "name": "Product",
+      "item": [
+        {
+          "name": "GetPagedListProduct",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/Product/GetPagedListProduct?pageNumber=1&pageSize=20&name=",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "Product", "GetPagedListProduct"],
+              "query": [
+                { "key": "pageNumber", "value": "1" },
+                { "key": "pageSize", "value": "20" },
+                { "key": "name", "value": "" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GetProductById",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/Product/GetProductById?id=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "Product", "GetProductById"],
+              "query": [ { "key": "id", "value": "1" } ]
+            }
+          }
+        },
+        {
+          "name": "CreateProduct",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"categoryId\": 1,\n  \"name\": \"Coffee Beans\",\n  \"description\": \"\",\n  \"unitOfMeasure\": \"kg\",\n  \"purchasePrice\": 10,\n  \"salePrice\": 12,\n  \"minStockLevel\": 5,\n  \"isActive\": true,\n  \"needsRoasting\": false,\n  \"roastingCost\": null,\n  \"barCode\": \"\",\n  \"barCode2\": \"\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/Product/CreateProduct",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "Product", "CreateProduct"]
+            }
+          }
+        },
+        {
+          "name": "UpdateProduct",
+          "request": {
+            "method": "PUT",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"categoryId\": 1,\n  \"name\": \"Coffee Beans Premium\",\n  \"description\": \"\",\n  \"unitOfMeasure\": \"kg\",\n  \"purchasePrice\": 10,\n  \"salePrice\": 13,\n  \"minStockLevel\": 5,\n  \"isActive\": true,\n  \"needsRoasting\": false,\n  \"roastingCost\": null,\n  \"barCode\": \"\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/Product/UpdateProduct",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "Product", "UpdateProduct"]
+            }
+          }
+        },
+        {
+          "name": "DeleteProduct",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/Product/DeleteProduct?id=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "Product", "DeleteProduct"],
+              "query": [ { "key": "id", "value": "1" } ]
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "Category",
+      "item": [
+        {
+          "name": "GetPagedListCategory",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/Category/GetPagedListCategory?pageNumber=1&pageSize=20&name=", "host": ["{{baseUrl}}"], "path": ["api","Category","GetPagedListCategory"], "query": [ {"key":"pageNumber","value":"1"}, {"key":"pageSize","value":"20"}, {"key":"name","value":""} ] } }
+        },
+        {
+          "name": "GetCategoryById",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/Category/GetCategoryById?id=1", "host": ["{{baseUrl}}"], "path": ["api","Category","GetCategoryById"], "query": [ {"key":"id","value":"1"} ] } }
+        },
+        {
+          "name": "CreateCategory",
+          "request": { "method": "POST", "header": [ {"key":"Content-Type","value":"application/json"} ], "body": { "mode":"raw", "raw": "{\n  \"name\": \"Coffee\",\n  \"description\": \"\"\n}", "options": {"raw": {"language":"json"}} }, "url": { "raw": "{{baseUrl}}/api/Category/CreateCategory", "host": ["{{baseUrl}}"], "path": ["api","Category","CreateCategory"] } }
+        },
+        {
+          "name": "UpdateCategory",
+          "request": { "method": "PUT", "header": [ {"key":"Content-Type","value":"application/json"} ], "body": { "mode":"raw", "raw": "{\n  \"id\": 1,\n  \"name\": \"Coffee\",\n  \"description\": \"Updated\"\n}", "options": {"raw": {"language":"json"}} }, "url": { "raw": "{{baseUrl}}/api/Category/UpdateCategory", "host": ["{{baseUrl}}"], "path": ["api","Category","UpdateCategory"] } }
+        },
+        {
+          "name": "DeleteCategory",
+          "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/Category/DeleteCategory?id=1", "host": ["{{baseUrl}}"], "path": ["api","Category","DeleteCategory"], "query": [ {"key":"id","value":"1"} ] } }
+        }
+      ]
+    },
+
+    {
+      "name": "Customer",
+      "item": [
+        { "name": "GetPagedListCustomer", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/Customer/GetPagedListCustomer?pageNumber=1&pageSize=20&name=", "host":["{{baseUrl}}"], "path":["api","Customer","GetPagedListCustomer"], "query":[ {"key":"pageNumber","value":"1"},{"key":"pageSize","value":"20"},{"key":"name","value":""} ] } } },
+        { "name": "GetCustomerById", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/Customer/GetCustomerById?id=1", "host":["{{baseUrl}}"], "path":["api","Customer","GetCustomerById"], "query":[ {"key":"id","value":"1"} ] } } },
+        { "name": "CreateCustomer", "request": { "method": "POST", "header":[{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw": "{\n  \"name\": \"ACME\",\n  \"phone\": \"\",\n  \"whatsAppPhone\": \"\",\n  \"email\": \"\",\n  \"address\": \"\",\n  \"isActive\": true\n}", "options": {"raw":{"language":"json"}} }, "url": { "raw": "{{baseUrl}}/api/Customer/CreateCustomer", "host":["{{baseUrl}}"], "path":["api","Customer","CreateCustomer"] } } },
+        { "name": "UpdateCustomer", "request": { "method": "PUT", "header":[{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw": "{\n  \"id\": 1,\n  \"name\": \"ACME\",\n  \"phone\": \"\",\n  \"whatsAppPhone\": \"\",\n  \"email\": \"\",\n  \"address\": \"\",\n  \"isActive\": true\n}", "options": {"raw":{"language":"json"}} }, "url": { "raw": "{{baseUrl}}/api/Customer/UpdateCustomer", "host":["{{baseUrl}}"], "path":["api","Customer","UpdateCustomer"] } } },
+        { "name": "DeleteCustomer", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/Customer/DeleteCustomer?id=1", "host":["{{baseUrl}}"], "path":["api","Customer","DeleteCustomer"], "query":[ {"key":"id","value":"1"} ] } } },
+        { "name": "GetActiveCustomersSelectList", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/Customer/GetActiveCustomersSelectList", "host":["{{baseUrl}}"], "path":["api","Customer","GetActiveCustomersSelectList"] } } }
+      ]
+    },
+
+    {
+      "name": "Supplier",
+      "item": [
+        { "name": "GetPagedListSupplier", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/Supplier/GetPagedListSupplier?pageNumber=1&pageSize=20&name=", "host":["{{baseUrl}}"], "path":["api","Supplier","GetPagedListSupplier"], "query":[ {"key":"pageNumber","value":"1"},{"key":"pageSize","value":"20"},{"key":"name","value":""} ] } } },
+        { "name": "GetSupplierById", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/Supplier/GetSupplierById?id=1", "host":["{{baseUrl}}"], "path":["api","Supplier","GetSupplierById"], "query":[ {"key":"id","value":"1"} ] } } },
+        { "name": "CreateSupplier", "request": { "method": "POST", "header":[{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw": "{\n  \"name\": \"Supplier A\",\n  \"phone\": \"\",\n  \"whatsAppPhone\": \"\",\n  \"email\": \"\",\n  \"address\": \"\",\n  \"isActive\": true\n}", "options": {"raw":{"language":"json"}} }, "url": { "raw": "{{baseUrl}}/api/Supplier/CreateSupplier", "host":["{{baseUrl}}"], "path":["api","Supplier","CreateSupplier"] } } },
+        { "name": "UpdateSupplier", "request": { "method": "PUT", "header":[{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw": "{\n  \"id\": 1,\n  \"name\": \"Supplier A\",\n  \"phone\": \"\",\n  \"whatsAppPhone\": \"\",\n  \"email\": \"\",\n  \"address\": \"\",\n  \"isActive\": true\n}", "options": {"raw":{"language":"json"}} }, "url": { "raw": "{{baseUrl}}/api/Supplier/UpdateSupplier", "host":["{{baseUrl}}"], "path":["api","Supplier","UpdateSupplier"] } } },
+        { "name": "DeleteSupplier", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/Supplier/DeleteSupplier?id=1", "host":["{{baseUrl}}"], "path":["api","Supplier","DeleteSupplier"], "query":[ {"key":"id","value":"1"} ] } } },
+        { "name": "GetActiveSuppliersSelectList", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/Supplier/GetActiveSuppliersSelectList", "host":["{{baseUrl}}"], "path":["api","Supplier","GetActiveSuppliersSelectList"] } } }
+      ]
+    },
+
+    {
+      "name": "Employee",
+      "item": [
+        { "name": "GetPagedListEmployee", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/Employee/GetPagedListEmployee?pageNumber=1&pageSize=20&name=", "host":["{{baseUrl}}"], "path":["api","Employee","GetPagedListEmployee"], "query":[ {"key":"pageNumber","value":"1"},{"key":"pageSize","value":"20"},{"key":"name","value":""} ] } } },
+        { "name": "GetEmployeeById", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/Employee/GetEmployeeById?id=1", "host":["{{baseUrl}}"], "path":["api","Employee","GetEmployeeById"], "query":[ {"key":"id","value":"1"} ] } } },
+        { "name": "CreateEmployee", "request": { "method": "POST", "header":[{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"phone\": \"\",\n  \"whatsAppPhone\": \"\",\n  \"email\": \"\",\n  \"address\": \"\",\n  \"jobTitle\": \"Driver\",\n  \"salary\": 1000,\n  \"hireDate\": \"2025-01-01\",\n  \"isActive\": true\n}", "options": {"raw":{"language":"json"}} }, "url": { "raw": "{{baseUrl}}/api/Employee/CreateEmployee", "host":["{{baseUrl}}"], "path":["api","Employee","CreateEmployee"] } } },
+        { "name": "UpdateEmployee", "request": { "method": "PUT", "header":[{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw": "{\n  \"id\": 1,\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"phone\": \"\",\n  \"whatsAppPhone\": \"\",\n  \"email\": \"\",\n  \"address\": \"\",\n  \"jobTitle\": \"Driver\",\n  \"salary\": 1200,\n  \"hireDate\": \"2025-01-01\",\n  \"isActive\": true\n}", "options": {"raw":{"language":"json"}} }, "url": { "raw": "{{baseUrl}}/api/Employee/UpdateEmployee", "host":["{{baseUrl}}"], "path":["api","Employee","UpdateEmployee"] } } },
+        { "name": "DeleteEmployee", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/Employee/DeleteEmployee?id=1", "host":["{{baseUrl}}"], "path":["api","Employee","DeleteEmployee"], "query":[ {"key":"id","value":"1"} ] } } },
+        { "name": "GetActiveEmployeesSelectList", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/Employee/GetActiveEmployeesSelectList", "host":["{{baseUrl}}"], "path":["api","Employee","GetActiveEmployeesSelectList"] } } }
+      ]
+    },
+
+    {
+      "name": "Cash",
+      "item": [
+        { "name": "GetPagedListCashRegister", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/Cash/GetPagedListCashRegister?pageNumber=1&pageSize=10&name=", "host":["{{baseUrl}}"], "path":["api","Cash","GetPagedListCashRegister"], "query":[ {"key":"pageNumber","value":"1"}, {"key":"pageSize","value":"10"}, {"key":"name","value":""} ] } } },
+        { "name": "CreateCashRegister", "request": { "method": "POST", "header":[{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw": "{\n  \"name\": \"Main Register\",\n  \"openingBalance\": 0,\n  \"openingBalanceDollar\": 0\n}", "options": {"raw":{"language":"json"}} }, "url": { "raw": "{{baseUrl}}/api/Cash/CreateCashRegister", "host":["{{baseUrl}}"], "path":["api","Cash","CreateCashRegister"] } } },
+        { "name": "UpdateCashRegister", "request": { "method": "PUT", "header":[{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw": "{\n  \"id\": 1,\n  \"name\": \"Main Register\"\n}", "options": {"raw":{"language":"json"}} }, "url": { "raw": "{{baseUrl}}/api/Cash/UpdateCashRegister", "host":["{{baseUrl}}"], "path":["api","Cash","UpdateCashRegister"] } } },
+
+        { "name": "GetPagedListCashTransaction", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/Cash/GetPagedListCashTransaction?pageNumber=1&pageSize=10&cashRegisterId=", "host":["{{baseUrl}}"], "path":["api","Cash","GetPagedListCashTransaction"], "query":[ {"key":"pageNumber","value":"1"}, {"key":"pageSize","value":"10"}, {"key":"cashRegisterId","value":""} ] } } },
+        { "name": "CreateCashTransaction", "request": { "method": "POST", "header":[{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw": "{\n  \"cashRegisterId\": 1,\n  \"transactionType\": 0,\n  \"amount\": 100,\n  \"transactionDate\": \"2025-01-01\",\n  \"referenceType\": null,\n  \"referenceId\": null,\n  \"description\": \"Deposit\"\n}", "options": {"raw":{"language":"json"}} }, "url": { "raw": "{{baseUrl}}/api/Cash/CreateCashTransaction", "host":["{{baseUrl}}"], "path":["api","Cash","CreateCashTransaction"] } } },
+
+        { "name": "CreatePayment", "request": { "method": "POST", "header":[{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw": "{\n  \"cashRegisterId\": 1,\n  \"invoiceId\": 1,\n  \"paymentDate\": \"2025-01-01\",\n  \"amount\": 100,\n  \"notes\": \"\",\n  \"receivedBy\": \"Admin\",\n  \"isConfirmed\": true,\n  \"referenceType\": 0\n}", "options": {"raw":{"language":"json"}} }, "url": { "raw": "{{baseUrl}}/api/Cash/CreatePayment", "host":["{{baseUrl}}"], "path":["api","Cash","CreatePayment"] } } },
+        { "name": "PostPayment", "request": { "method": "PUT", "header":[{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw": "{\n  \"id\": 1\n}", "options": {"raw":{"language":"json"}} }, "url": { "raw": "{{baseUrl}}/api/Cash/PostPayment", "host":["{{baseUrl}}"], "path":["api","Cash","PostPayment"] } } },
+
+        { "name": "CreateExpense", "request": { "method": "POST", "header":[{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw": "{\n  \"amount\": 10,\n  \"expenseDate\": \"2025-01-01\",\n  \"description\": \"Stationery\"\n}", "options": {"raw":{"language":"json"}} }, "url": { "raw": "{{baseUrl}}/api/Cash/CreateExpense", "host":["{{baseUrl}}"], "path":["api","Cash","CreateExpense"] } } },
+        { "name": "UpdateExpense", "request": { "method": "PUT", "header":[{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw": "{\n  \"id\": 1,\n  \"amount\": 12,\n  \"expenseDate\": \"2025-01-02\",\n  \"description\": \"Stationery updated\",\n  \"status\": 0\n}", "options": {"raw":{"language":"json"}} }, "url": { "raw": "{{baseUrl}}/api/Cash/UpdateExpense", "host":["{{baseUrl}}"], "path":["api","Cash","UpdateExpense"] } } }
+      ]
+    },
+
+    {
+      "name": "Car",
+      "item": [
+        { "name": "GetPagedListCar", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/Car/GetPagedListCar?pageNumber=1&pageSize=10&name=", "host":["{{baseUrl}}"], "path":["api","Car","GetPagedListCar"], "query":[ {"key":"pageNumber","value":"1"},{"key":"pageSize","value":"10"},{"key":"name","value":""} ] } } },
+        { "name": "CreateCar", "request": { "method": "POST", "header":[{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw": "{\n  \"name\": \"Truck 1\",\n  \"plateNumber\": \"XYZ-123\",\n  \"model\": \"Ford\",\n  \"year\": 2020,\n  \"capacityKg\": 1000,\n  \"isAvailable\": true\n}", "options": {"raw":{"language":"json"}} }, "url": { "raw": "{{baseUrl}}/api/Car/CreateCar", "host":["{{baseUrl}}"], "path":["api","Car","CreateCar"] } } },
+        { "name": "UpdateCar", "request": { "method": "PUT", "header":[{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw": "{\n  \"id\": 1,\n  \"name\": \"Truck 1\",\n  \"plateNumber\": \"XYZ-123\",\n  \"model\": \"Ford\",\n  \"year\": 2021,\n  \"capacityKg\": 1200,\n  \"isAvailable\": true\n}", "options": {"raw":{"language":"json"}} }, "url": { "raw": "{{baseUrl}}/api/Car/UpdateCar", "host":["{{baseUrl}}"], "path":["api","Car","UpdateCar"] } } },
+        { "name": "DeleteCar", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/Car/DeleteCar?id=1", "host":["{{baseUrl}}"], "path":["api","Car","DeleteCar"], "query":[ {"key":"id","value":"1"} ] } } }
+      ]
+    },
+
+    {
+      "name": "Region",
+      "item": [
+        { "name": "GetPagedListRegion", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/Region/GetPagedListRegion?pageNumber=1&pageSize=10&name=", "host":["{{baseUrl}}"], "path":["api","Region","GetPagedListRegion"], "query":[ {"key":"pageNumber","value":"1"},{"key":"pageSize","value":"10"},{"key":"name","value":""} ] } } },
+        { "name": "CreateRegion", "request": { "method": "POST", "header":[{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw": "{\n  \"name\": \"Central\",\n  \"description\": \"\",\n  \"isActive\": true\n}", "options": {"raw":{"language":"json"}} }, "url": { "raw": "{{baseUrl}}/api/Region/CreateRegion", "host":["{{baseUrl}}"], "path":["api","Region","CreateRegion"] } } },
+        { "name": "UpdateRegion", "request": { "method": "PUT", "header":[{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw": "{\n  \"id\": 1,\n  \"name\": \"Central\",\n  \"description\": \"Updated\",\n  \"isActive\": true\n}", "options": {"raw":{"language":"json"}} }, "url": { "raw": "{{baseUrl}}/api/Region/UpdateRegion", "host":["{{baseUrl}}"], "path":["api","Region","UpdateRegion"] } } }
+      ]
+    },
+
+    {
+      "name": "DistributionTrip",
+      "item": [
+        { "name": "GetPagedListDistributionTrip", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/DistributionTrip/GetPagedListDistributionTrip?pageNumber=1&pageSize=10&carId=&regionId=", "host":["{{baseUrl}}"], "path":["api","DistributionTrip","GetPagedListDistributionTrip"], "query":[ {"key":"pageNumber","value":"1"}, {"key":"pageSize","value":"10"}, {"key":"carId","value":""}, {"key":"regionId","value":""} ] } } },
+        { "name": "CreateDistributionTrip", "request": { "method": "POST", "header":[{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw": "{\n  \"employeeId\": 1,\n  \"carId\": 1,\n  \"regionId\": 1,\n  \"tripDate\": \"2025-01-01\",\n  \"loadQty\": 100,\n  \"notes\": \"\",\n  \"details\": [ { \"productId\": 1, \"qty\": 10, \"expectedPrice\": 5 } ]\n}", "options": {"raw":{"language":"json"}} }, "url": { "raw": "{{baseUrl}}/api/DistributionTrip/CreateDistributionTrip", "host":["{{baseUrl}}"], "path":["api","DistributionTrip","CreateDistributionTrip"] } } },
+        { "name": "UpdateDistributionTrip", "request": { "method": "PUT", "header":[{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw": "{\n  \"id\": 1,\n  \"employeeId\": 1,\n  \"carId\": 1,\n  \"regionId\": 1,\n  \"tripDate\": \"2025-01-02\",\n  \"loadQty\": 120,\n  \"notes\": \"\",\n  \"details\": [ { \"id\": 1, \"productId\": 1, \"qty\": 12, \"expectedPrice\": 5, \"isDeleted\": false } ]\n}", "options": {"raw":{"language":"json"}} }, "url": { "raw": "{{baseUrl}}/api/DistributionTrip/UpdateDistributionTrip", "host":["{{baseUrl}}"], "path":["api","DistributionTrip","UpdateDistributionTrip"] } } }
+      ]
+    },
+
+    {
+      "name": "Lookup",
+      "item": [
+        { "name": "GetProductSelectList", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/Lookup/GetProductSelectList", "host":["{{baseUrl}}"], "path":["api","Lookup","GetProductSelectList"] } } },
+        { "name": "GetCustomerSelectList", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/Lookup/GetCustomerSelectList", "host":["{{baseUrl}}"], "path":["api","Lookup","GetCustomerSelectList"] } } },
+        { "name": "GetSupplierSelectList", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/Lookup/GetSupplierSelectList", "host":["{{baseUrl}}"], "path":["api","Lookup","GetSupplierSelectList"] } } },
+        { "name": "GetEmployeeSelectList", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/Lookup/GetEmployeeSelectList", "host":["{{baseUrl}}"], "path":["api","Lookup","GetEmployeeSelectList"] } } },
+        { "name": "GetInStockProductSelectList", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/Lookup/GetInStockProductSelectList", "host":["{{baseUrl}}"], "path":["api","Lookup","GetInStockProductSelectList"] } } }
+      ]
+    },
+
+    {
+      "name": "PurchaseInvoice",
+      "item": [
+        { "name": "GetPagedListPurchaseInvoice", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/PurchaseInvoice/GetPagedListPurchaseInvoice?pageNumber=1&pageSize=20&invoiceNumber=", "host":["{{baseUrl}}"], "path":["api","PurchaseInvoice","GetPagedListPurchaseInvoice"], "query":[ {"key":"pageNumber","value":"1"},{"key":"pageSize","value":"20"},{"key":"invoiceNumber","value":""} ] } } },
+        { "name": "GetPurchaseInvoiceById", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/PurchaseInvoice/GetPurchaseInvoiceById?id=1", "host":["{{baseUrl}}"], "path":["api","PurchaseInvoice","GetPurchaseInvoiceById"], "query":[ {"key":"id","value":"1"} ] } } },
+        { "name": "CreatePurchaseInvoice", "request": { "method": "POST", "header":[{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw": "{\n  \"invoiceNumber\": \"PI-0001\",\n  \"supplierId\": 1,\n  \"invoiceDate\": \"2025-01-01\",\n  \"totalAmount\": 100,\n  \"discount\": 0,\n  \"notes\": \"\",\n  \"details\": [ { \"productId\": 1, \"quantity\": 10, \"unitPrice\": 10, \"totalPrice\": 100, \"notes\": \"\" } ]\n}", "options": {"raw":{"language":"json"}} }, "url": { "raw": "{{baseUrl}}/api/PurchaseInvoice/CreatePurchaseInvoice", "host":["{{baseUrl}}"], "path":["api","PurchaseInvoice","CreatePurchaseInvoice"] } } },
+        { "name": "UpdatePurchaseInvoice", "request": { "method": "PUT", "header":[{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw": "{\n  \"id\": 1,\n  \"invoiceNumber\": \"PI-0001\",\n  \"supplierId\": 1,\n  \"invoiceDate\": \"2025-01-01\",\n  \"totalAmount\": 110,\n  \"discount\": 5,\n  \"notes\": \"\",\n  \"status\": 0,\n  \"paymentStatus\": 0,\n  \"details\": [ { \"id\": 1, \"productId\": 1, \"quantity\": 11, \"unitPrice\": 10, \"totalPrice\": 110, \"notes\": \"\", \"isDeleted\": false } ]\n}", "options": {"raw":{"language":"json"}} }, "url": { "raw": "{{baseUrl}}/api/PurchaseInvoice/UpdatePurchaseInvoice", "host":["{{baseUrl}}"], "path":["api","PurchaseInvoice","UpdatePurchaseInvoice"] } } },
+        { "name": "PostPurchaseInvoice", "request": { "method": "PUT", "header":[{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw": "{\n  \"id\": 1\n}", "options": {"raw":{"language":"json"}} }, "url": { "raw": "{{baseUrl}}/api/PurchaseInvoice/PostPurchaseInvoice", "host":["{{baseUrl}}"], "path":["api","PurchaseInvoice","PostPurchaseInvoice"] } } },
+        { "name": "DeletePurchaseInvoice", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/PurchaseInvoice/DeletePurchaseInvoice?id=1", "host":["{{baseUrl}}"], "path":["api","PurchaseInvoice","DeletePurchaseInvoice"], "query":[ {"key":"id","value":"1"} ] } } }
+      ]
+    },
+
+    {
+      "name": "SalesInvoice",
+      "item": [
+        { "name": "GetPagedListSalesInvoice", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/SalesInvoice/GetPagedListSalesInvoice?pageNumber=1&pageSize=20&invoiceNumber=", "host":["{{baseUrl}}"], "path":["api","SalesInvoice","GetPagedListSalesInvoice"], "query":[ {"key":"pageNumber","value":"1"},{"key":"pageSize","value":"20"},{"key":"invoiceNumber","value":""} ] } } },
+        { "name": "GetSalesInvoiceById", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/SalesInvoice/GetSalesInvoiceById?id=1", "host":["{{baseUrl}}"], "path":["api","SalesInvoice","GetSalesInvoiceById"], "query":[ {"key":"id","value":"1"} ] } } },
+        { "name": "CreateSalesInvoice", "request": { "method": "POST", "header":[{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw": "{\n  \"invoiceNumber\": \"SI-0001\",\n  \"customerId\": 1,\n  \"invoiceDate\": \"2025-01-01\",\n  \"totalAmount\": 100,\n  \"discount\": 0,\n  \"paymentMethod\": \"Cash\",\n  \"notes\": \"\",\n  \"details\": [ { \"productId\": 1, \"quantity\": 10, \"unitPrice\": 10, \"subTotal\": 100, \"notes\": \"\" } ]\n}", "options": {"raw":{"language":"json"}} }, "url": { "raw": "{{baseUrl}}/api/SalesInvoice/CreateSalesInvoice", "host":["{{baseUrl}}"], "path":["api","SalesInvoice","CreateSalesInvoice"] } } },
+        { "name": "UpdateSalesInvoice", "request": { "method": "PUT", "header":[{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw": "{\n  \"id\": 1,\n  \"invoiceNumber\": \"SI-0001\",\n  \"customerId\": 1,\n  \"invoiceDate\": \"2025-01-01\",\n  \"totalAmount\": 110,\n  \"discount\": 5,\n  \"paymentMethod\": \"Cash\",\n  \"notes\": \"\"\n}", "options": {"raw":{"language":"json"}} }, "url": { "raw": "{{baseUrl}}/api/SalesInvoice/UpdateSalesInvoice", "host":["{{baseUrl}}"], "path":["api","SalesInvoice","UpdateSalesInvoice"] } } },
+        { "name": "PostSalesInvoice", "request": { "method": "PUT", "header":[{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw": "{\n  \"id\": 1\n}", "options": {"raw":{"language":"json"}} }, "url": { "raw": "{{baseUrl}}/api/SalesInvoice/PostSalesInvoice", "host":["{{baseUrl}}"], "path":["api","SalesInvoice","PostSalesInvoice"] } } },
+        { "name": "DeleteSalesInvoice", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/SalesInvoice/DeleteSalesInvoice?id=1", "host":["{{baseUrl}}"], "path":["api","SalesInvoice","DeleteSalesInvoice"], "query":[ {"key":"id","value":"1"} ] } } }
+      ]
+    },
+
+    {
+      "name": "Category/Lookup Shortcuts",
+      "item": [
+        { "name": "GetProductSelectList (Lookup)", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/Lookup/GetProductSelectList", "host":["{{baseUrl}}"], "path":["api","Lookup","GetProductSelectList"] } } }
+      ]
+    }
+  ]
+}

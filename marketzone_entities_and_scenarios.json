@@ -1,0 +1,879 @@
+{
+  "application": "MarketZone",
+  "description": "Complete entity definitions and API scenarios for MarketZone application",
+  "version": "1.0",
+  "baseResponseFormat": {
+    "success": true,
+    "errors": [],
+    "data": {}
+  },
+  "entities": {
+    "baseEntities": {
+      "BaseEntity": {
+        "properties": {
+          "Id": {
+            "type": "long",
+            "description": "Primary key identifier"
+          }
+        }
+      },
+      "AuditableBaseEntity": {
+        "inherits": "BaseEntity",
+        "properties": {
+          "CreatedBy": {
+            "type": "Guid",
+            "description": "User who created the record"
+          },
+          "Created": {
+            "type": "DateTime",
+            "description": "Creation timestamp"
+          },
+          "LastModifiedBy": {
+            "type": "Guid?",
+            "description": "User who last modified the record"
+          },
+          "LastModified": {
+            "type": "DateTime?",
+            "description": "Last modification timestamp"
+          }
+        }
+      }
+    },
+    "categories": {
+      "Category": {
+        "inherits": "AuditableBaseEntity",
+        "properties": {
+          "Name": {
+            "type": "string",
+            "maxLength": 100,
+            "required": true,
+            "description": "Category name"
+          },
+          "Description": {
+            "type": "string",
+            "maxLength": 500,
+            "description": "Category description"
+          }
+        }
+      }
+    },
+    "products": {
+      "Product": {
+        "inherits": "AuditableBaseEntity",
+        "properties": {
+          "CategoryId": {
+            "type": "long",
+            "required": true,
+            "description": "Foreign key to Category"
+          },
+          "Category": {
+            "type": "Category",
+            "description": "Navigation property to Category"
+          },
+          "Name": {
+            "type": "string",
+            "maxLength": 100,
+            "required": true,
+            "description": "Product name"
+          },
+          "Description": {
+            "type": "string",
+            "maxLength": 500,
+            "description": "Product description"
+          },
+          "UnitOfMeasure": {
+            "type": "string",
+            "maxLength": 100,
+            "defaultValue": "kg",
+            "description": "Unit of measurement"
+          },
+          "PurchasePrice": {
+            "type": "decimal?",
+            "description": "Purchase price per unit"
+          },
+          "SalePrice": {
+            "type": "decimal?",
+            "description": "Sale price per unit"
+          },
+          "MinStockLevel": {
+            "type": "decimal",
+            "defaultValue": 5,
+            "description": "Minimum stock level"
+          },
+          "IsActive": {
+            "type": "bool",
+            "defaultValue": true,
+            "description": "Product active status"
+          },
+          "NeedsRoasting": {
+            "type": "bool",
+            "defaultValue": false,
+            "description": "Whether product needs roasting"
+          },
+          "RoastingCost": {
+            "type": "decimal?",
+            "description": "Roasting cost per unit"
+          },
+          "BarCode": {
+            "type": "string",
+            "description": "Product barcode"
+          },
+          "BarCode2": {
+            "type": "string",
+            "description": "Secondary barcode"
+          }
+        }
+      }
+    },
+    "customers": {
+      "Customer": {
+        "inherits": "AuditableBaseEntity",
+        "properties": {
+          "Name": {
+            "type": "string",
+            "required": true,
+            "description": "Customer name"
+          },
+          "Phone": {
+            "type": "string",
+            "required": true,
+            "description": "Phone number"
+          },
+          "WhatsAppPhone": {
+            "type": "string?",
+            "description": "WhatsApp phone number"
+          },
+          "Email": {
+            "type": "string?",
+            "description": "Email address"
+          },
+          "Address": {
+            "type": "string?",
+            "description": "Customer address"
+          },
+          "IsActive": {
+            "type": "bool",
+            "defaultValue": true,
+            "description": "Customer active status"
+          }
+        }
+      }
+    },
+    "suppliers": {
+      "Supplier": {
+        "inherits": "AuditableBaseEntity",
+        "properties": {
+          "Name": {
+            "type": "string",
+            "required": true,
+            "description": "Supplier name"
+          },
+          "Phone": {
+            "type": "string",
+            "required": true,
+            "description": "Phone number"
+          },
+          "WhatsAppPhone": {
+            "type": "string?",
+            "description": "WhatsApp phone number"
+          },
+          "Email": {
+            "type": "string?",
+            "description": "Email address"
+          },
+          "Address": {
+            "type": "string",
+            "description": "Supplier address"
+          },
+          "IsActive": {
+            "type": "bool",
+            "defaultValue": true,
+            "description": "Supplier active status"
+          }
+        }
+      }
+    },
+    "employees": {
+      "Employee": {
+        "inherits": "AuditableBaseEntity",
+        "properties": {
+          "FirstName": {
+            "type": "string",
+            "required": true,
+            "description": "Employee first name"
+          },
+          "LastName": {
+            "type": "string",
+            "required": true,
+            "description": "Employee last name"
+          },
+          "Phone": {
+            "type": "string",
+            "required": true,
+            "description": "Phone number"
+          },
+          "WhatsAppPhone": {
+            "type": "string?",
+            "description": "WhatsApp phone number"
+          },
+          "Email": {
+            "type": "string?",
+            "description": "Email address"
+          },
+          "Address": {
+            "type": "string",
+            "description": "Employee address"
+          },
+          "JobTitle": {
+            "type": "string",
+            "required": true,
+            "description": "Job title"
+          },
+          "Salary": {
+            "type": "decimal",
+            "required": true,
+            "description": "Employee salary"
+          },
+          "HireDate": {
+            "type": "DateTime",
+            "required": true,
+            "description": "Hire date"
+          },
+          "IsActive": {
+            "type": "bool",
+            "defaultValue": true,
+            "description": "Employee active status"
+          }
+        }
+      }
+    },
+    "cash": {
+      "CashRegister": {
+        "inherits": "AuditableBaseEntity",
+        "properties": {
+          "Name": {
+            "type": "string",
+            "required": true,
+            "description": "Cash register name"
+          },
+          "OpeningBalance": {
+            "type": "decimal",
+            "defaultValue": 0,
+            "description": "Opening balance"
+          },
+          "OpeningBalanceDollar": {
+            "type": "decimal",
+            "defaultValue": 0,
+            "description": "Opening balance in dollars"
+          },
+          "CurrentBalance": {
+            "type": "decimal",
+            "defaultValue": 0,
+            "description": "Current balance"
+          },
+          "CurrentBalanceDollar": {
+            "type": "decimal",
+            "defaultValue": 0,
+            "description": "Current balance in dollars"
+          }
+        }
+      },
+      "CashTransaction": {
+        "inherits": "AuditableBaseEntity",
+        "properties": {
+          "CashRegisterId": {
+            "type": "long",
+            "required": true,
+            "description": "Foreign key to CashRegister"
+          },
+          "TransactionType": {
+            "type": "TransactionType",
+            "required": true,
+            "description": "Type of transaction"
+          },
+          "Amount": {
+            "type": "decimal",
+            "required": true,
+            "description": "Transaction amount"
+          },
+          "TransactionDate": {
+            "type": "DateTime",
+            "required": true,
+            "description": "Transaction date"
+          },
+          "ReferenceType": {
+            "type": "ReferenceType?",
+            "description": "Reference type"
+          },
+          "ReferenceId": {
+            "type": "long?",
+            "description": "Reference ID"
+          },
+          "Description": {
+            "type": "string",
+            "description": "Transaction description"
+          }
+        }
+      },
+      "Expense": {
+        "inherits": "AuditableBaseEntity",
+        "properties": {
+          "Name": {
+            "type": "string",
+            "required": true,
+            "description": "Expense name"
+          },
+          "Amount": {
+            "type": "decimal",
+            "required": true,
+            "description": "Expense amount"
+          },
+          "Date": {
+            "type": "DateTime",
+            "required": true,
+            "description": "Expense date"
+          },
+          "Description": {
+            "type": "string",
+            "description": "Expense description"
+          }
+        }
+      },
+      "Payment": {
+        "inherits": "AuditableBaseEntity",
+        "properties": {
+          "Amount": {
+            "type": "decimal",
+            "required": true,
+            "description": "Payment amount"
+          },
+          "PaymentDate": {
+            "type": "DateTime",
+            "required": true,
+            "description": "Payment date"
+          },
+          "PaymentMethod": {
+            "type": "string",
+            "required": true,
+            "description": "Payment method"
+          },
+          "ReferenceType": {
+            "type": "ReferenceType",
+            "required": true,
+            "description": "Reference type"
+          },
+          "ReferenceId": {
+            "type": "long",
+            "required": true,
+            "description": "Reference ID"
+          },
+          "Description": {
+            "type": "string",
+            "description": "Payment description"
+          }
+        }
+      }
+    },
+    "purchases": {
+      "PurchaseInvoice": {
+        "inherits": "AuditableBaseEntity",
+        "properties": {
+          "InvoiceNumber": {
+            "type": "string",
+            "required": true,
+            "description": "Invoice number"
+          },
+          "SupplierId": {
+            "type": "long",
+            "required": true,
+            "description": "Foreign key to Supplier"
+          },
+          "Supplier": {
+            "type": "Supplier",
+            "description": "Navigation property to Supplier"
+          },
+          "InvoiceDate": {
+            "type": "DateTime",
+            "required": true,
+            "description": "Invoice date"
+          },
+          "TotalAmount": {
+            "type": "decimal",
+            "required": true,
+            "description": "Total invoice amount"
+          },
+          "Discount": {
+            "type": "decimal",
+            "defaultValue": 0,
+            "description": "Discount amount"
+          },
+          "Notes": {
+            "type": "string",
+            "description": "Invoice notes"
+          },
+          "Status": {
+            "type": "PurchaseInvoiceStatus",
+            "defaultValue": "Draft",
+            "description": "Invoice status"
+          },
+          "PaymentStatus": {
+            "type": "PurchasePaymentStatus?",
+            "defaultValue": "InProgress",
+            "description": "Payment status"
+          },
+          "Details": {
+            "type": "List<PurchaseInvoiceDetail>",
+            "description": "Invoice details"
+          }
+        }
+      },
+      "PurchaseInvoiceDetail": {
+        "inherits": "AuditableBaseEntity",
+        "properties": {
+          "InvoiceId": {
+            "type": "long",
+            "required": true,
+            "description": "Foreign key to PurchaseInvoice"
+          },
+          "Invoice": {
+            "type": "PurchaseInvoice",
+            "description": "Navigation property to PurchaseInvoice"
+          },
+          "ProductId": {
+            "type": "long",
+            "required": true,
+            "description": "Foreign key to Product"
+          },
+          "Product": {
+            "type": "Product",
+            "description": "Navigation property to Product"
+          },
+          "Quantity": {
+            "type": "decimal",
+            "required": true,
+            "description": "Quantity purchased"
+          },
+          "UnitPrice": {
+            "type": "decimal",
+            "required": true,
+            "description": "Unit price"
+          },
+          "TotalPrice": {
+            "type": "decimal",
+            "required": true,
+            "description": "Total price for this item"
+          },
+          "Notes": {
+            "type": "string",
+            "description": "Item notes"
+          }
+        }
+      }
+    },
+    "sales": {
+      "SalesInvoice": {
+        "inherits": "AuditableBaseEntity",
+        "properties": {
+          "InvoiceNumber": {
+            "type": "string",
+            "required": true,
+            "description": "Invoice number"
+          },
+          "CustomerId": {
+            "type": "long?",
+            "description": "Foreign key to Customer"
+          },
+          "Customer": {
+            "type": "Customer",
+            "description": "Navigation property to Customer"
+          },
+          "InvoiceDate": {
+            "type": "DateTime",
+            "required": true,
+            "description": "Invoice date"
+          },
+          "TotalAmount": {
+            "type": "decimal",
+            "required": true,
+            "description": "Total invoice amount"
+          },
+          "Discount": {
+            "type": "decimal",
+            "defaultValue": 0,
+            "description": "Discount amount"
+          },
+          "PaymentMethod": {
+            "type": "string",
+            "required": true,
+            "description": "Payment method"
+          },
+          "Notes": {
+            "type": "string",
+            "description": "Invoice notes"
+          },
+          "Status": {
+            "type": "SalesInvoiceStatus",
+            "defaultValue": "Draft",
+            "description": "Invoice status"
+          },
+          "Details": {
+            "type": "List<SalesInvoiceDetail>",
+            "description": "Invoice details"
+          }
+        }
+      },
+      "SalesInvoiceDetail": {
+        "inherits": "AuditableBaseEntity",
+        "properties": {
+          "InvoiceId": {
+            "type": "long",
+            "required": true,
+            "description": "Foreign key to SalesInvoice"
+          },
+          "Invoice": {
+            "type": "SalesInvoice",
+            "description": "Navigation property to SalesInvoice"
+          },
+          "ProductId": {
+            "type": "long",
+            "required": true,
+            "description": "Foreign key to Product"
+          },
+          "Product": {
+            "type": "Product",
+            "description": "Navigation property to Product"
+          },
+          "Quantity": {
+            "type": "decimal",
+            "required": true,
+            "description": "Quantity sold"
+          },
+          "UnitPrice": {
+            "type": "decimal",
+            "required": true,
+            "description": "Unit price"
+          },
+          "SubTotal": {
+            "type": "decimal",
+            "required": true,
+            "description": "Subtotal for this item"
+          },
+          "Notes": {
+            "type": "string",
+            "description": "Item notes"
+          }
+        }
+      }
+    },
+    "logistics": {
+      "Car": {
+        "inherits": "AuditableBaseEntity",
+        "properties": {
+          "Name": {
+            "type": "string",
+            "required": true,
+            "description": "Car name"
+          },
+          "PlateNumber": {
+            "type": "string?",
+            "description": "License plate number"
+          },
+          "Model": {
+            "type": "string?",
+            "description": "Car model"
+          },
+          "Year": {
+            "type": "int?",
+            "description": "Manufacturing year"
+          },
+          "CapacityKg": {
+            "type": "decimal?",
+            "description": "Load capacity in kg"
+          },
+          "IsAvailable": {
+            "type": "bool",
+            "defaultValue": true,
+            "description": "Car availability status"
+          }
+        }
+      },
+      "Region": {
+        "inherits": "AuditableBaseEntity",
+        "properties": {
+          "Name": {
+            "type": "string",
+            "required": true,
+            "description": "Region name"
+          },
+          "Description": {
+            "type": "string",
+            "description": "Region description"
+          }
+        }
+      },
+      "DistributionTrip": {
+        "inherits": "AuditableBaseEntity",
+        "properties": {
+          "EmployeeId": {
+            "type": "long",
+            "required": true,
+            "description": "Foreign key to Employee"
+          },
+          "Employee": {
+            "type": "Employee",
+            "description": "Navigation property to Employee"
+          },
+          "CarId": {
+            "type": "long",
+            "required": true,
+            "description": "Foreign key to Car"
+          },
+          "Car": {
+            "type": "Car",
+            "description": "Navigation property to Car"
+          },
+          "RegionId": {
+            "type": "long",
+            "required": true,
+            "description": "Foreign key to Region"
+          },
+          "Region": {
+            "type": "Region",
+            "description": "Navigation property to Region"
+          },
+          "TripDate": {
+            "type": "DateTime",
+            "required": true,
+            "description": "Trip date"
+          },
+          "LoadQty": {
+            "type": "decimal?",
+            "description": "Load quantity"
+          },
+          "Notes": {
+            "type": "string",
+            "description": "Trip notes"
+          },
+          "Details": {
+            "type": "List<DistributionTripDetail>",
+            "description": "Trip details"
+          }
+        }
+      },
+      "DistributionTripDetail": {
+        "inherits": "AuditableBaseEntity",
+        "properties": {
+          "TripId": {
+            "type": "long",
+            "required": true,
+            "description": "Foreign key to DistributionTrip"
+          },
+          "Trip": {
+            "type": "DistributionTrip",
+            "description": "Navigation property to DistributionTrip"
+          },
+          "ProductId": {
+            "type": "long",
+            "required": true,
+            "description": "Foreign key to Product"
+          },
+          "Product": {
+            "type": "Product",
+            "description": "Navigation property to Product"
+          },
+          "Quantity": {
+            "type": "decimal",
+            "required": true,
+            "description": "Quantity distributed"
+          },
+          "Notes": {
+            "type": "string",
+            "description": "Detail notes"
+          }
+        }
+      }
+    },
+    "inventory": {
+      "ProductBalance": {
+        "inherits": "AuditableBaseEntity",
+        "properties": {
+          "ProductId": {
+            "type": "long",
+            "required": true,
+            "description": "Foreign key to Product"
+          },
+          "Product": {
+            "type": "Product",
+            "description": "Navigation property to Product"
+          },
+          "Qty": {
+            "type": "decimal",
+            "defaultValue": 0,
+            "description": "Total quantity"
+          },
+          "AvailableQty": {
+            "type": "decimal",
+            "defaultValue": 0,
+            "description": "Available quantity"
+          }
+        }
+      },
+      "InventoryHistory": {
+        "inherits": "AuditableBaseEntity",
+        "properties": {
+          "ProductId": {
+            "type": "long",
+            "required": true,
+            "description": "Foreign key to Product"
+          },
+          "Product": {
+            "type": "Product",
+            "description": "Navigation property to Product"
+          },
+          "TransactionType": {
+            "type": "string",
+            "required": true,
+            "description": "Type of inventory transaction"
+          },
+          "ReferenceId": {
+            "type": "long?",
+            "description": "Reference ID"
+          },
+          "Quantity": {
+            "type": "decimal",
+            "required": true,
+            "description": "Transaction quantity"
+          },
+          "Date": {
+            "type": "DateTime",
+            "required": true,
+            "description": "Transaction date"
+          },
+          "Notes": {
+            "type": "string",
+            "description": "Transaction notes"
+          }
+        }
+      },
+      "UnroastedInventory": {
+        "inherits": "AuditableBaseEntity",
+        "properties": {
+          "ProductId": {
+            "type": "long",
+            "required": true,
+            "description": "Foreign key to Product"
+          },
+          "Product": {
+            "type": "Product",
+            "description": "Navigation property to Product"
+          },
+          "Qty": {
+            "type": "decimal",
+            "defaultValue": 0,
+            "description": "Unroasted quantity"
+          }
+        }
+      },
+      "UnroastedProdcutBalance": {
+        "inherits": "AuditableBaseEntity",
+        "properties": {
+          "ProductId": {
+            "type": "long",
+            "required": true,
+            "description": "Foreign key to Product"
+          },
+          "Product": {
+            "type": "Product",
+            "description": "Navigation property to Product"
+          },
+          "Qty": {
+            "type": "decimal",
+            "defaultValue": 0,
+            "description": "Unroasted product balance"
+          }
+        }
+      }
+    },
+    "roasting": {
+      "RoastingOperation": {
+        "inherits": "AuditableBaseEntity",
+        "properties": {
+          "ProductId": {
+            "type": "long",
+            "required": true,
+            "description": "Foreign key to Product"
+          },
+          "Product": {
+            "type": "Product",
+            "description": "Navigation property to Product"
+          },
+          "QuantityKg": {
+            "type": "decimal",
+            "required": true,
+            "description": "Quantity to roast in kg"
+          },
+          "RoastPricePerKg": {
+            "type": "decimal",
+            "required": true,
+            "description": "Roasting price per kg"
+          },
+          "TotalCost": {
+            "type": "decimal",
+            "required": true,
+            "description": "Total roasting cost"
+          },
+          "RoastDate": {
+            "type": "DateTime",
+            "required": true,
+            "description": "Roasting date"
+          },
+          "Notes": {
+            "type": "string",
+            "description": "Roasting notes"
+          }
+        }
+      }
+    }
+  },
+  "enums": {
+    "TransactionType": {
+      "values": {
+        "Income": 0,
+        "Expense": 1
+      }
+    },
+    "ReferenceType": {
+      "values": {
+        "PurchaseInvoice": 0,
+        "SalesInvoice": 1,
+        "Expense": 2,
+        "Salaries": 3,
+        "Payment": 4
+      }
+    },
+    "PurchaseInvoiceStatus": {
+      "values": {
+        "Draft": 0,
+        "Confirmed": 1,
+        "Cancelled": 2
+      }
+    },
+    "PurchasePaymentStatus": {
+      "values": {
+        "InProgress": 0,
+        "Paid": 1,
+        "Partial": 2
+      }
+    },
+    "SalesInvoiceStatus": {
+      "values": {
+        "Draft": 0,
+        "Confirmed": 1,
+        "Cancelled": 2
+      }
+    }
+  }
+}
+
+
+
