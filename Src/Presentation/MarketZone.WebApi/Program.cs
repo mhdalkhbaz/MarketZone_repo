@@ -6,6 +6,7 @@ using MarketZone.Infrastructure.Identity.Models;
 using MarketZone.Infrastructure.Identity.Seeds;
 using MarketZone.Infrastructure.Persistence;
 using MarketZone.Infrastructure.Persistence.Contexts;
+using MarketZone.Infrastructure.Persistence.Seeds;
 using MarketZone.Infrastructure.Resources;
 using MarketZone.WebApi.Infrastructure.Extensions;
 using MarketZone.WebApi.Infrastructure.Middlewares;
@@ -52,7 +53,7 @@ using (var scope = app.Services.CreateScope())
     //Seed Data
     await DefaultRoles.SeedAsync(services.GetRequiredService<RoleManager<ApplicationRole>>());
     await DefaultBasicUser.SeedAsync(services.GetRequiredService<UserManager<ApplicationUser>>());
-    //await DefaultData.SeedAsync(services.GetRequiredService<ApplicationDbContext>());
+    await DefaultData.SeedAsync(services.GetRequiredService<ApplicationDbContext>());
 }
 
 app.UseCustomLocalization();

@@ -36,7 +36,7 @@ namespace MarketZone.WebApi.Endpoints
 
 		async Task<BaseResult> UpdateCategory(IMediator mediator, UpdateCategoryCommand model)
 			=> await mediator.Send<UpdateCategoryCommand, BaseResult>(model);
-
+		 
 		async Task<BaseResult> DeleteCategory(IMediator mediator, [AsParameters] DeleteCategoryCommand model)
 			=> await mediator.Send<DeleteCategoryCommand, BaseResult>(model);
 	}

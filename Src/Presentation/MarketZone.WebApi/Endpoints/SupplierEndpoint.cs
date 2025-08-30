@@ -11,6 +11,7 @@ using MarketZone.Domain.Suppliers.DTOs;
 using MarketZone.WebApi.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -35,10 +36,10 @@ namespace MarketZone.WebApi.Endpoints
         async Task<BaseResult<SupplierDto>> GetSupplierById(IMediator mediator, [AsParameters] GetSupplierByIdQuery model)
             => await mediator.Send<GetSupplierByIdQuery, BaseResult<SupplierDto>>(model);
 
-        async Task<BaseResult<long>> CreateSupplier(IMediator mediator, CreateSupplierCommand model)
+        async Task<BaseResult<long>> CreateSupplier(IMediator mediator, [FromBody] CreateSupplierCommand model)
             => await mediator.Send<CreateSupplierCommand, BaseResult<long>>(model);
 
-        async Task<BaseResult> UpdateSupplier(IMediator mediator, UpdateSupplierCommand model)
+        async Task<BaseResult> UpdateSupplier(IMediator mediator, [FromBody] UpdateSupplierCommand model)
             => await mediator.Send<UpdateSupplierCommand, BaseResult>(model);
 
         async Task<BaseResult> DeleteSupplier(IMediator mediator, [AsParameters] DeleteSupplierCommand model)

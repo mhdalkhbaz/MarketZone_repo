@@ -13,11 +13,12 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 
         public async Task<RoastingInvoice> GetWithDetailsByIdAsync(long id)
         {
-            return await dbContext.RoastingInvoices
+            var data = await dbContext.RoastingInvoices
                 .Include(x => x.Details)
                 .ThenInclude(x => x.Product)
                 .Include(x => x.Payments)
                 .FirstOrDefaultAsync(x => x.Id == id);
+            return data;
         }
 
         public async Task<PaginationResponseDto<RoastingInvoice>> GetPagedListAsync(int pageNumber, int pageSize)

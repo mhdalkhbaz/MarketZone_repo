@@ -11,12 +11,14 @@ using MarketZone.Domain.Roasting.DTOs;
 using MarketZone.WebApi.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 
 namespace MarketZone.WebApi.Endpoints
 {
     public class RoastingInvoiceEndpoint : EndpointGroupBase
     {
+        
         public override void Map(RouteGroupBuilder builder)
         {
             builder.MapGet(GetPagedList);
@@ -33,16 +35,16 @@ namespace MarketZone.WebApi.Endpoints
         async Task<BaseResult<RoastingInvoiceDto>> GetById(IMediator mediator, [AsParameters] GetRoastingInvoiceByIdQuery model)
             => await mediator.Send<GetRoastingInvoiceByIdQuery, BaseResult<RoastingInvoiceDto>>(model);
 
-        async Task<BaseResult<long>> Create(IMediator mediator, CreateRoastingInvoiceCommand model)
+        async Task<BaseResult<long>> Create(IMediator mediator, [FromBody] CreateRoastingInvoiceCommand model)
             => await mediator.Send<CreateRoastingInvoiceCommand, BaseResult<long>>(model);
 
-        async Task<BaseResult<long>> Update(IMediator mediator, UpdateRoastingInvoiceCommand model)
+        async Task<BaseResult<long>> Update(IMediator mediator, [FromBody] UpdateRoastingInvoiceCommand model)
             => await mediator.Send<UpdateRoastingInvoiceCommand, BaseResult<long>>(model);
 
-        async Task<BaseResult> Delete(IMediator mediator, DeleteRoastingInvoiceCommand model)
+        async Task<BaseResult> Delete(IMediator mediator, [AsParameters] DeleteRoastingInvoiceCommand model)
             => await mediator.Send<DeleteRoastingInvoiceCommand, BaseResult>(model);
 
-        async Task<BaseResult<long>> Post(IMediator mediator, PostRoastingInvoiceCommand model)
+        async Task<BaseResult<long>> Post(IMediator mediator, [FromBody] PostRoastingInvoiceCommand model)
             => await mediator.Send<PostRoastingInvoiceCommand, BaseResult<long>>(model);
     }
 }

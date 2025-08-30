@@ -1,0 +1,502 @@
+{
+	"info": {
+		"_postman_id": "marketzone-all-invoices-collection",
+		"name": "MarketZone - All Invoices API",
+		"description": "Complete API collection for MarketZone Invoice management system. Includes all CRUD operations for Purchase, Sales, and Roasting invoices with posting functionality and detailed examples.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "marketzone-all-invoices"
+	},
+	"item": [
+		{
+			"name": "🛒 Purchase Invoices",
+			"item": [
+				{
+					"name": "Get Paged List Purchase Invoices",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"url": {
+							"raw": "{{baseUrl}}/api/PurchaseInvoice/GetPagedListPurchaseInvoice?pageNumber=1&pageSize=10&invoiceNumber=",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "PurchaseInvoice", "GetPagedListPurchaseInvoice"],
+							"query": [
+								{"key": "pageNumber", "value": "1", "description": "Page number (starts from 1)"},
+								{"key": "pageSize", "value": "10", "description": "Number of items per page"},
+								{"key": "invoiceNumber", "value": "", "description": "Filter by invoice number (optional)"}
+							]
+						},
+						"description": "Retrieve a paginated list of purchase invoices"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Purchase Invoice By ID",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"url": {
+							"raw": "{{baseUrl}}/api/PurchaseInvoice/GetPurchaseInvoiceById?id=1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "PurchaseInvoice", "GetPurchaseInvoiceById"],
+							"query": [{"key": "id", "value": "1", "description": "Purchase invoice ID"}]
+						},
+						"description": "Retrieve a specific purchase invoice by its ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Purchase Invoice",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"invoiceNumber\": \"SM-2024-00001\",\n  \"supplierId\": 1,\n  \"invoiceDate\": \"2024-01-15T10:00:00Z\",\n  \"totalAmount\": 5000.00,\n  \"discount\": 250.00,\n  \"notes\": \"فاتورة شراء البن البرازيلي\",\n  \"details\": [\n    {\n      \"productId\": 1,\n      \"quantity\": 100.0,\n      \"unitPrice\": 15.50,\n      \"totalPrice\": 1550.00,\n      \"notes\": \"بن برازيلي عالي الجودة\"\n    },\n    {\n      \"productId\": 2,\n      \"quantity\": 150.0,\n      \"unitPrice\": 12.00,\n      \"totalPrice\": 1800.00,\n      \"notes\": \"بن إثيوبي أرابيكا\"\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/PurchaseInvoice/CreatePurchaseInvoice",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "PurchaseInvoice", "CreatePurchaseInvoice"]
+						},
+						"description": "Create a new purchase invoice. Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Purchase Invoice",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": 1,\n  \"invoiceNumber\": \"SM-2024-00001-UPDATED\",\n  \"supplierId\": 1,\n  \"invoiceDate\": \"2024-01-15T10:00:00Z\",\n  \"totalAmount\": 5200.00,\n  \"discount\": 300.00,\n  \"notes\": \"فاتورة شراء محدثة للبن البرازيلي\",\n  \"details\": [\n    {\n      \"id\": 1,\n      \"productId\": 1,\n      \"quantity\": 110.0,\n      \"unitPrice\": 15.50,\n      \"totalPrice\": 1705.00,\n      \"notes\": \"بن برازيلي عالي الجودة محدث\",\n      \"isDeleted\": false\n    },\n    {\n      \"id\": 2,\n      \"productId\": 2,\n      \"quantity\": 150.0,\n      \"unitPrice\": 12.00,\n      \"totalPrice\": 1800.00,\n      \"notes\": \"بن إثيوبي أرابيكا\",\n      \"isDeleted\": true\n    },\n    {\n      \"productId\": 3,\n      \"quantity\": 50.0,\n      \"unitPrice\": 18.00,\n      \"totalPrice\": 900.00,\n      \"notes\": \"بن كولومبي جديد\",\n      \"isDeleted\": false\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/PurchaseInvoice/UpdatePurchaseInvoice",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "PurchaseInvoice", "UpdatePurchaseInvoice"]
+						},
+						"description": "Update an existing purchase invoice. Cannot update posted invoices. Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "Post Purchase Invoice",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/PurchaseInvoice/PostPurchaseInvoice",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "PurchaseInvoice", "PostPurchaseInvoice"]
+						},
+						"description": "Post a purchase invoice. This finalizes the purchase and updates inventory. Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Purchase Invoice",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/PurchaseInvoice/DeletePurchaseInvoice?id=1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "PurchaseInvoice", "DeletePurchaseInvoice"],
+							"query": [{"key": "id", "value": "1", "description": "Purchase invoice ID to delete"}]
+						},
+						"description": "Delete a purchase invoice. Cannot delete posted invoices. Requires authentication."
+					},
+					"response": []
+				}
+			],
+			"description": "Purchase invoice management operations"
+		},
+		{
+			"name": "💰 Sales Invoices",
+			"item": [
+				{
+					"name": "Get Paged List Sales Invoices",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"url": {
+							"raw": "{{baseUrl}}/api/SalesInvoice/GetPagedListSalesInvoice?pageNumber=1&pageSize=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "SalesInvoice", "GetPagedListSalesInvoice"],
+							"query": [
+								{"key": "pageNumber", "value": "1", "description": "Page number (starts from 1)"},
+								{"key": "pageSize", "value": "10", "description": "Number of items per page"}
+							]
+						},
+						"description": "Retrieve a paginated list of sales invoices"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Sales Invoice By ID",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"url": {
+							"raw": "{{baseUrl}}/api/SalesInvoice/GetSalesInvoiceById?id=1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "SalesInvoice", "GetSalesInvoiceById"],
+							"query": [{"key": "id", "value": "1", "description": "Sales invoice ID"}]
+						},
+						"description": "Retrieve a specific sales invoice by its ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Sales Invoice",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"invoiceNumber\": \"SS-2024-00001\",\n  \"customerId\": 1,\n  \"invoiceDate\": \"2024-01-15T10:00:00Z\",\n  \"totalAmount\": 3000.00,\n  \"discount\": 150.00,\n  \"paymentMethod\": \"نقدي\",\n  \"notes\": \"فاتورة بيع للعميل أحمد محمد\",\n  \"details\": [\n    {\n      \"productId\": 1,\n      \"quantity\": 20.0,\n      \"unitPrice\": 25.00,\n      \"subTotal\": 500.00,\n      \"notes\": \"بن برازيلي محمص\"\n    },\n    {\n      \"productId\": 2,\n      \"quantity\": 15.0,\n      \"unitPrice\": 30.00,\n      \"subTotal\": 450.00,\n      \"notes\": \"بن إثيوبي محمص\"\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/SalesInvoice/CreateSalesInvoice",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "SalesInvoice", "CreateSalesInvoice"]
+						},
+						"description": "Create a new sales invoice. Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Sales Invoice",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": 1,\n  \"invoiceNumber\": \"SS-2024-00001-UPDATED\",\n  \"customerId\": 1,\n  \"invoiceDate\": \"2024-01-15T10:00:00Z\",\n  \"totalAmount\": 3200.00,\n  \"discount\": 200.00,\n  \"paymentMethod\": \"بطاقة ائتمان\",\n  \"notes\": \"فاتورة بيع محدثة للعميل أحمد محمد\",\n  \"details\": [\n    {\n      \"id\": 1,\n      \"productId\": 1,\n      \"quantity\": 25.0,\n      \"unitPrice\": 25.00,\n      \"subTotal\": 625.00,\n      \"notes\": \"بن برازيلي محمص محدث\",\n      \"isDeleted\": false\n    },\n    {\n      \"id\": 2,\n      \"productId\": 2,\n      \"quantity\": 15.0,\n      \"unitPrice\": 30.00,\n      \"subTotal\": 450.00,\n      \"notes\": \"بن إثيوبي محمص\",\n      \"isDeleted\": true\n    },\n    {\n      \"productId\": 3,\n      \"quantity\": 10.0,\n      \"unitPrice\": 35.00,\n      \"subTotal\": 350.00,\n      \"notes\": \"بن كولومبي محمص جديد\",\n      \"isDeleted\": false\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/SalesInvoice/UpdateSalesInvoice",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "SalesInvoice", "UpdateSalesInvoice"]
+						},
+						"description": "Update an existing sales invoice. Cannot update posted invoices. Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "Post Sales Invoice",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/SalesInvoice/PostSalesInvoice",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "SalesInvoice", "PostSalesInvoice"]
+						},
+						"description": "Post a sales invoice. This finalizes the sale and updates inventory. Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Sales Invoice",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/SalesInvoice/DeleteSalesInvoice?id=1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "SalesInvoice", "DeleteSalesInvoice"],
+							"query": [{"key": "id", "value": "1", "description": "Sales invoice ID to delete"}]
+						},
+						"description": "Delete a sales invoice. Cannot delete posted invoices. Requires authentication."
+					},
+					"response": []
+				}
+			],
+			"description": "Sales invoice management operations"
+		},
+		{
+			"name": "🔥 Roasting Invoices",
+			"item": [
+				{
+					"name": "Get Paged List Roasting Invoices",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"url": {
+							"raw": "{{baseUrl}}/api/RoastingInvoice/GetPagedList?pageNumber=1&pageSize=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "RoastingInvoice", "GetPagedList"],
+							"query": [
+								{"key": "pageNumber", "value": "1", "description": "Page number (starts from 1)"},
+								{"key": "pageSize", "value": "10", "description": "Number of items per page"}
+							]
+						},
+						"description": "Retrieve a paginated list of roasting invoices"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Roasting Invoice By ID",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"url": {
+							"raw": "{{baseUrl}}/api/RoastingInvoice/GetById?id=1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "RoastingInvoice", "GetById"],
+							"query": [{"key": "id", "value": "1", "description": "Roasting invoice ID"}]
+						},
+						"description": "Retrieve a specific roasting invoice by its ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Roasting Invoice",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"invoiceNumber\": \"ROAST-2024-00001\",\n  \"invoiceDate\": \"2024-01-15T10:00:00Z\",\n  \"totalAmount\": 1250.00,\n  \"notes\": \"فاتورة تحميص للبن البرازيلي\",\n  \"details\": [\n    {\n      \"productId\": 1,\n      \"quantityKg\": 50.0,\n      \"roastPricePerKg\": 2.5,\n      \"notes\": \"تحميص درجة متوسطة\"\n    },\n    {\n      \"productId\": 2,\n      \"quantityKg\": 30.0,\n      \"roastPricePerKg\": 3.0,\n      \"notes\": \"تحميص درجة خفيفة\"\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/RoastingInvoice/Create",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "RoastingInvoice", "Create"]
+						},
+						"description": "Create a new roasting invoice. Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Roasting Invoice",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": 1,\n  \"invoiceNumber\": \"ROAST-2024-00001-UPDATED\",\n  \"invoiceDate\": \"2024-01-15T10:00:00Z\",\n  \"totalAmount\": 1300.00,\n  \"notes\": \"فاتورة تحميص محدثة للبن البرازيلي\",\n  \"details\": [\n    {\n      \"id\": 1,\n      \"productId\": 1,\n      \"quantityKg\": 55.0,\n      \"roastPricePerKg\": 2.5,\n      \"notes\": \"تحميص درجة متوسطة محدث\",\n      \"isDeleted\": false\n    },\n    {\n      \"id\": 2,\n      \"productId\": 2,\n      \"quantityKg\": 30.0,\n      \"roastPricePerKg\": 3.0,\n      \"notes\": \"تحميص درجة خفيفة\",\n      \"isDeleted\": true\n    },\n    {\n      \"productId\": 3,\n      \"quantityKg\": 25.0,\n      \"roastPricePerKg\": 2.8,\n      \"notes\": \"تحميص درجة داكنة جديد\",\n      \"isDeleted\": false\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/RoastingInvoice/Update",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "RoastingInvoice", "Update"]
+						},
+						"description": "Update an existing roasting invoice. Cannot update posted invoices. Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "Post Roasting Invoice",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": 1,\n  \"details\": [\n    {\n      \"detailId\": 1,\n      \"actualQuantityAfterRoasting\": 47.5\n    },\n    {\n      \"detailId\": 2,\n      \"actualQuantityAfterRoasting\": 28.5\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/RoastingInvoice/Post",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "RoastingInvoice", "Post"]
+						},
+						"description": "Post a roasting invoice with actual quantities after roasting. This finalizes the roasting process. Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Roasting Invoice",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/RoastingInvoice/Delete?id=1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "RoastingInvoice", "Delete"],
+							"query": [{"key": "id", "value": "1", "description": "Roasting invoice ID to delete"}]
+						},
+						"description": "Delete a roasting invoice. Cannot delete posted invoices. Requires authentication."
+					},
+					"response": []
+				}
+			],
+			"description": "Roasting invoice management operations"
+		},
+		{
+			"name": "🔧 Authentication",
+			"item": [
+				{
+					"name": "Authenticate User",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@marketzone.com\",\n  \"password\": \"Admin123!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Account/Authenticate",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "Account", "Authenticate"]
+						},
+						"description": "Authenticate user to get access token for protected endpoints"
+					},
+					"response": []
+				}
+			],
+			"description": "Authentication endpoints for getting access tokens"
+		},
+		{
+			"name": "📋 Lookup Data",
+			"item": [
+				{
+					"name": "Get Product Select List",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"url": {
+							"raw": "{{baseUrl}}/api/Lookup/GetProductSelectList",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "Lookup", "GetProductSelectList"]
+						},
+						"description": "Get all products for selection"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Customer Select List",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"url": {
+							"raw": "{{baseUrl}}/api/Lookup/GetCustomerSelectList",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "Lookup", "GetCustomerSelectList"]
+						},
+						"description": "Get all customers for selection"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Supplier Select List",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"url": {
+							"raw": "{{baseUrl}}/api/Lookup/GetSupplierSelectList",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "Lookup", "GetSupplierSelectList"]
+						},
+						"description": "Get all suppliers for selection"
+					},
+					"response": []
+				},
+				{
+					"name": "Get In Stock Product Select List",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"url": {
+							"raw": "{{baseUrl}}/api/Lookup/GetInStockProductSelectList",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "Lookup", "GetInStockProductSelectList"]
+						},
+						"description": "Get products with available stock for selection"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Unroasted Products",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"url": {
+							"raw": "{{baseUrl}}/api/Lookup/GetUnroastedProducts",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "Lookup", "GetUnroastedProducts"]
+						},
+						"description": "Get list of products available for roasting"
+					},
+					"response": []
+				}
+			],
+			"description": "Lookup endpoints for getting reference data"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [""]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [""]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "https://localhost:7001",
+			"type": "string",
+			"description": "Base URL for the MarketZone API"
+		},
+		{
+			"key": "authToken",
+			"value": "",
+			"type": "string",
+			"description": "Authentication token (set after login)"
+		}
+	]
+}

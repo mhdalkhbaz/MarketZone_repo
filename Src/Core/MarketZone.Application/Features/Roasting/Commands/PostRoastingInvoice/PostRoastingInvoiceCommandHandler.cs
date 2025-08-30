@@ -16,15 +16,21 @@ namespace MarketZone.Application.Features.Roasting.Commands.PostRoastingInvoice
         {
             private readonly IRoastingInvoiceRepository _repository;
             private readonly IUnroastedProdcutBalanceRepository _unroastedRepository;
+            private readonly IProductBalanceRepository _productBalanceRepository;
+            private readonly IInventoryHistoryRepository _inventoryHistoryRepository;
             private readonly IUnitOfWork _unitOfWork;
 
             public PostRoastingInvoiceCommandHandler(
                 IRoastingInvoiceRepository repository,
                 IUnroastedProdcutBalanceRepository unroastedRepository,
+                IProductBalanceRepository productBalanceRepository,
+                IInventoryHistoryRepository inventoryHistoryRepository,
                 IUnitOfWork unitOfWork)
             {
                 _repository = repository;
                 _unroastedRepository = unroastedRepository;
+                _productBalanceRepository = productBalanceRepository;
+                _inventoryHistoryRepository = inventoryHistoryRepository;
                 _unitOfWork = unitOfWork;
             }
 
@@ -105,18 +111,32 @@ namespace MarketZone.Application.Features.Roasting.Commands.PostRoastingInvoice
 
         private async Task AddRoastedProductToInventory(long productId, decimal actualQuantity, CancellationToken cancellationToken)
         {
-            // This method should add the roasted product to ProductBalance
-            // For now, we'll use a simple approach - you might want to inject IProductBalanceRepository
-            // or use the existing RoastingService logic
-            
-            // TODO: Implement proper inventory management for roasted products
-            // This could involve:
-            // 1. Adding to ProductBalance table
-            // 2. Creating InventoryHistory records
-            // 3. Updating product availability
-            
-            // For demonstration, we'll just log or handle this in a service
-            // You can implement this based on your existing inventory management logic
+            // Get or create ProductBalance for the roasted product
+            var balance = await _productBalanceRepository.GetByProductIdAsync(productId, cancellationToken);
+
+            if (balance == null)
+            {
+                // Create new ProductBalance for roasted product
+                balance = new ProductBalance(productId, actualQuantity, actualQuantity);
+                await _productBalanceRepository.AddAsync(balance);
+            }
+            else
+            {
+                // Adjust existing ProductBalance
+                balance.Adjust(actualQuantity, actualQuantity);
+                _productBalanceRepository.Update(balance);
+            }
+
+            // Create InventoryHistory record for tracking
+            var inventoryHistory = new InventoryHistory(
+                productId, 
+                "Roast", 
+                null, 
+                actualQuantity, 
+                DateTime.UtcNow, 
+                $"Roasted product added to inventory - Actual quantity: {actualQuantity}kg");
+
+            await _inventoryHistoryRepository.AddAsync(inventoryHistory);
         }
     }
 }

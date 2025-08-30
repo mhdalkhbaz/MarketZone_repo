@@ -10,6 +10,7 @@ using MarketZone.Domain.Products.DTOs;
 using MarketZone.WebApi.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 
 namespace MarketZone.WebApi.Endpoints
@@ -35,10 +36,10 @@ namespace MarketZone.WebApi.Endpoints
         async Task<BaseResult<ProductDto>> GetProductById(IMediator mediator, [AsParameters] GetProductByIdQuery model)
             => await mediator.Send<GetProductByIdQuery, BaseResult<ProductDto>>(model);
 
-        async Task<BaseResult<long>> CreateProduct(IMediator mediator, CreateProductCommand model)
+        async Task<BaseResult<long>> CreateProduct(IMediator mediator, [FromBody] CreateProductCommand model)
             => await mediator.Send<CreateProductCommand, BaseResult<long>>(model);
 
-        async Task<BaseResult> UpdateProduct(IMediator mediator, UpdateProductCommand model)
+        async Task<BaseResult> UpdateProduct(IMediator mediator, [FromBody] UpdateProductCommand model)
             => await mediator.Send<UpdateProductCommand, BaseResult>(model);
 
         async Task<BaseResult> DeleteProduct(IMediator mediator, [AsParameters] DeleteProductCommand model)
