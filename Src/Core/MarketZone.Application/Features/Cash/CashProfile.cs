@@ -4,8 +4,6 @@ using MarketZone.Application.Features.Cash.CashRegisters.Commands.UpdateCashRegi
 using MarketZone.Application.Features.Cash.CashTransactions.Commands.CreateCashTransaction;
 using MarketZone.Application.Features.Cash.Payments.Commands.CreatePayment;
 using MarketZone.Application.Features.Cash.Payments.Commands.UpdatePayment;
-using MarketZone.Application.Features.Cash.Expenses.Commands.CreateExpense;
-using MarketZone.Application.Features.Cash.Expenses.Commands.UpdateExpense;
 using MarketZone.Domain.Cash.DTOs;
 using MarketZone.Domain.Cash.Entities;
 
@@ -27,14 +25,8 @@ namespace MarketZone.Application.Features.Cash
 
 			CreateMap<Payment, PaymentDto>();
 			CreateMap<CreatePaymentCommand, Payment>()
-				.ConstructUsing(s => new Payment(s.InvoiceId, s.Amount, s.PaymentDate, s.Notes, s.ReceivedBy, s.IsConfirmed));
+				.ConstructUsing(s => new Payment(s.InvoiceId.Value, s.Amount, s.PaymentDate, s.Notes, s.ReceivedBy, s.IsConfirmed));
 			CreateMap<UpdatePaymentCommand, Payment>()
-				.ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-
-			CreateMap<Expense, ExpenseDto>();
-			CreateMap<CreateExpenseCommand, Expense>()
-				.ConstructUsing(s => new Expense(s.Amount, s.ExpenseDate, s.Description));
-			CreateMap<UpdateExpenseCommand, Expense>()
 				.ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 		}
 	}

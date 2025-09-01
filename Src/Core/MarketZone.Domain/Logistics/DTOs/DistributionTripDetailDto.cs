@@ -15,7 +15,7 @@ namespace MarketZone.Domain.Logistics.DTOs
 			Qty = detail.Qty;
 			ExpectedPrice = detail.ExpectedPrice;
 			ReturnedQty = detail.ReturnedQty;
-			SoldQty = detail.SoldQty; // محسوب من فواتير المبيعات
+			SoldQty = detail.SoldQty; // تُحدث عند إضافة فواتير المبيعات
 		}
 
 		public long Id { get; set; }
@@ -23,7 +23,7 @@ namespace MarketZone.Domain.Logistics.DTOs
 		public decimal Qty { get; set; }           // الكمية المحملة
 		public decimal ExpectedPrice { get; set; } // السعر المتوقع
 		public decimal ReturnedQty { get; set; }   // الكمية المرجعة
-		public decimal SoldQty { get; set; }       // الكمية المباعة (محسوبة)
+		public decimal SoldQty { get; set; }       // الكمية المباعة (تُحدث عند إضافة فواتير)
 	}
 }
 

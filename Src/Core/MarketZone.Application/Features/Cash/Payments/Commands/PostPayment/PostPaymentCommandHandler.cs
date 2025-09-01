@@ -33,15 +33,29 @@ namespace MarketZone.Application.Features.Cash.Payments.Commands.PostPayment
 			if (!payment.CashRegisterId.HasValue)
 				return new Error(ErrorCode.FieldDataInvalid, "CashRegisterId is required to post a payment", nameof(payment.CashRegisterId));
 
-			// For purchase invoice payments, cash goes OUT → Expense transaction
+			string transactionDescription;
+			ReferenceType referenceType;
+
+			if (payment.PaymentType == PaymentType.InvoicePayment)
+			{
+				transactionDescription = $"Payment for invoice {payment.InvoiceId}";
+				referenceType = ReferenceType.Payment;
+			}
+			else // PaymentType.Expense
+			{
+				transactionDescription = payment.Description ?? "Expense payment";
+				referenceType = ReferenceType.Expense;
+			}
+
+			// Create cash transaction (cash goes OUT → Expense transaction)
 			var cashTransaction = new CashTransaction(
 				payment.CashRegisterId.Value,
 				TransactionType.Expense,
 				payment.Amount,
 				payment.PaymentDate,
-				ReferenceType.Payment,
+				referenceType,
 				payment.Id,
-				$"Payment for purchase invoice {payment.InvoiceId}");
+				transactionDescription);
 
 			await cashTransactionRepository.AddAsync(cashTransaction);
 
@@ -49,14 +63,17 @@ namespace MarketZone.Application.Features.Cash.Payments.Commands.PostPayment
 			var cashRegister = await cashRegisterRepository.GetByIdAsync(payment.CashRegisterId.Value);
 			cashRegister?.Adjust(-payment.Amount);
 
-			// Update invoice payment status (Purchase invoice assumed)
-			var invoice = await purchaseInvoiceRepository.GetByIdAsync(payment.InvoiceId);
-			if (invoice != null)
+			// Update invoice payment status (only for invoice payments)
+			if (payment.PaymentType == PaymentType.InvoicePayment && payment.InvoiceId.HasValue)
 			{
-				var totalPosted = await paymentRepository.GetPostedTotalForInvoiceAsync(payment.InvoiceId, cancellationToken);
-				var totalAfter = totalPosted + payment.Amount;
-				var due = invoice.TotalAmount - invoice.Discount;
-				invoice.SetPaymentStatus(totalAfter >= due ? PurchasePaymentStatus.CompletePayment : PurchasePaymentStatus.PartialPayment);
+				var invoice = await purchaseInvoiceRepository.GetByIdAsync(payment.InvoiceId.Value);
+				if (invoice != null)
+				{
+					var totalPosted = await paymentRepository.GetPostedTotalForInvoiceAsync(payment.InvoiceId.Value, cancellationToken);
+					var totalAfter = totalPosted + payment.Amount;
+					var due = invoice.TotalAmount - invoice.Discount;
+					invoice.SetPaymentStatus(totalAfter >= due ? PurchasePaymentStatus.CompletePayment : PurchasePaymentStatus.PartialPayment);
+				}
 			}
 
 			payment.Post();

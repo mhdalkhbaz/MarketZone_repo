@@ -1,6 +1,5 @@
 using MarketZone.Domain.Common;
 using MarketZone.Domain.Products.Entities;
-using System.Linq;
 
 namespace MarketZone.Domain.Logistics.Entities
 {
@@ -17,6 +16,7 @@ namespace MarketZone.Domain.Logistics.Entities
 			Qty = qty;
 			ExpectedPrice = expectedPrice;
 			ReturnedQty = 0; // سيتم تحديثه عند استلام البضاعة
+			SoldQty = 0; // سيتم تحديثه عند إضافة فواتير المبيعات
 		}
 
 		public long TripId { get; private set; }
@@ -26,13 +26,7 @@ namespace MarketZone.Domain.Logistics.Entities
 		public decimal Qty { get; private set; }           // الكمية المحملة
 		public decimal ExpectedPrice { get; private set; } // السعر المتوقع
 		public decimal ReturnedQty { get; private set; }   // الكمية المرجعة
-
-		// الكمية المباعة تُحسب من فواتير المبيعات المرتبطة بالرحلة
-		public decimal SoldQty => Trip?.DistributionTripSalesInvoices?
-			.Where(invoice => invoice.Type == MarketZone.Domain.Sales.Enums.SalesInvoiceType.Distributor)
-			.SelectMany(invoice => invoice.Details)
-			.Where(detail => detail.ProductId == ProductId)
-			.Sum(detail => detail.Quantity) ?? 0;
+		public decimal SoldQty { get; private set; }       // الكمية المباعة (تُحدث عند إضافة فواتير)
 
 		public void Update(long productId, decimal qty, decimal expectedPrice)
 		{
@@ -44,6 +38,11 @@ namespace MarketZone.Domain.Logistics.Entities
 		public void UpdateReturnedQty(decimal returnedQty)
 		{
 			ReturnedQty = returnedQty;
+		}
+
+		public void AddSoldQty(decimal soldQty)
+		{
+			SoldQty += soldQty;
 		}
 
 		public void SetTrip(DistributionTrip trip)

@@ -3,10 +3,6 @@ using MarketZone.Application.Features.Cash.CashRegisters.Commands.UpdateCashRegi
 using MarketZone.Application.Features.Cash.CashRegisters.Queries.GetPagedListCashRegister;
 using MarketZone.Application.Features.Cash.CashTransactions.Commands.CreateCashTransaction;
 using MarketZone.Application.Features.Cash.CashTransactions.Queries.GetPagedListCashTransaction;
-using MarketZone.Application.Features.Cash.Expenses.Commands.CreateExpense;
-using MarketZone.Application.Features.Cash.Expenses.Commands.UpdateExpense;
-using MarketZone.Application.Features.Cash.Expenses.Queries.GetPagedListExpense;
-using MarketZone.Application.Features.Cash.Expenses.Queries.GetExpenseById;
 using MarketZone.Application.Features.Cash.Payments.Commands.CreatePayment;
 using MarketZone.Application.Features.Cash.Payments.Commands.PostPayment;
 using MarketZone.Application.Interfaces;
@@ -36,12 +32,6 @@ namespace MarketZone.WebApi.Endpoints
             // Payments
             builder.MapPost(CreatePayment).RequireAuthorization();
             builder.MapPut(PostPayment).RequireAuthorization();
-
-            // Expenses
-            builder.MapGet(GetPagedListExpense);
-            builder.MapGet(GetExpenseById);
-            builder.MapPost(CreateExpense).RequireAuthorization();
-            builder.MapPut(UpdateExpense).RequireAuthorization();
         }
 
         // CashRegisters
@@ -67,19 +57,6 @@ namespace MarketZone.WebApi.Endpoints
 
         async Task<BaseResult> PostPayment(IMediator mediator, PostPaymentCommand model)
             => await mediator.Send<PostPaymentCommand, BaseResult>(model);
-
-        // Expenses
-        async Task<PagedResponse<ExpenseDto>> GetPagedListExpense(IMediator mediator, [AsParameters] GetPagedListExpenseQuery model)
-            => await mediator.Send<GetPagedListExpenseQuery, PagedResponse<ExpenseDto>>(model);
-
-        async Task<BaseResult<ExpenseDto>> GetExpenseById(IMediator mediator, [AsParameters] GetExpenseByIdQuery model)
-            => await mediator.Send<GetExpenseByIdQuery, BaseResult<ExpenseDto>>(model);
-
-        async Task<BaseResult<long>> CreateExpense(IMediator mediator, CreateExpenseCommand model)
-            => await mediator.Send<CreateExpenseCommand, BaseResult<long>>(model);
-
-        async Task<BaseResult> UpdateExpense(IMediator mediator, UpdateExpenseCommand model)
-            => await mediator.Send<UpdateExpenseCommand, BaseResult>(model);
     }
 }
 

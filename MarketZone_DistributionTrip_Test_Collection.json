@@ -1,0 +1,728 @@
+{
+	"info": {
+		"_postman_id": "marketzone-distribution-trip-test",
+		"name": "MarketZone - Distribution Trip Test Collection",
+		"description": "مجموعة اختبار شاملة لسير عمل رحلات التوزيع في نظام MarketZone",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "🔧 البيانات الأساسية",
+			"item": [
+				{
+					"name": "1. إنشاء موظف",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"أحمد محمد\",\n  \"phone\": \"0123456789\",\n  \"email\": \"ahmed@marketzone.com\",\n  \"address\": \"القاهرة\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Employee/CreateEmployee",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Employee",
+								"CreateEmployee"
+							]
+						}
+					}
+				},
+				{
+					"name": "2. إنشاء سيارة",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"سيارة توزيع 1\",\n  \"plateNumber\": \"أ ب ج 123\",\n  \"model\": \"2023\",\n  \"year\": 2023,\n  \"capacityKg\": 1000,\n  \"isAvailable\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Car/CreateCar",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Car",
+								"CreateCar"
+							]
+						}
+					}
+				},
+				{
+					"name": "3. إنشاء منطقة",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"المنطقة الشمالية\",\n  \"description\": \"تغطي شمال القاهرة\",\n  \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Region/CreateRegion",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Region",
+								"CreateRegion"
+							]
+						}
+					}
+				},
+				{
+					"name": "4. إنشاء عميل أول",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"محل البن الطازج\",\n  \"phone\": \"0987654321\",\n  \"email\": \"customer1@example.com\",\n  \"address\": \"شارع النيل، القاهرة\",\n  \"whatsAppPhone\": \"0987654321\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Customer/CreateCustomer",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Customer",
+								"CreateCustomer"
+							]
+						}
+					}
+				},
+				{
+					"name": "5. إنشاء عميل ثاني",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"مقهى الأصالة\",\n  \"phone\": \"0123456789\",\n  \"email\": \"customer2@example.com\",\n  \"address\": \"شارع المعادي، القاهرة\",\n  \"whatsAppPhone\": \"0123456789\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Customer/CreateCustomer",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Customer",
+								"CreateCustomer"
+							]
+						}
+					}
+				},
+				{
+					"name": "6. إنشاء منتج أول",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"بن أرابيكا\",\n  \"description\": \"بن أرابيكا عالي الجودة\",\n  \"categoryId\": 1,\n  \"unitOfMeasure\": \"كيلو\",\n  \"barCode\": \"123456789\",\n  \"barCode2\": \"987654321\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Product/CreateProduct",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Product",
+								"CreateProduct"
+							]
+						}
+					}
+				},
+				{
+					"name": "7. إنشاء منتج ثاني",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"بن روبوستا\",\n  \"description\": \"بن روبوستا قوي المذاق\",\n  \"categoryId\": 1,\n  \"unitOfMeasure\": \"كيلو\",\n  \"barCode\": \"111222333\",\n  \"barCode2\": \"333222111\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Product/CreateProduct",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Product",
+								"CreateProduct"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "🚚 سير عمل رحلة التوزيع",
+			"item": [
+				{
+					"name": "1. إنشاء رحلة توزيع جديدة",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"employeeId\": 1,\n  \"carId\": 1,\n  \"regionId\": 1,\n  \"tripDate\": \"2025-01-15\",\n  \"loadQty\": 500,\n  \"notes\": \"رحلة توزيع للمنطقة الشمالية - اختبار شامل\",\n  \"details\": [\n    {\n      \"productId\": 1,\n      \"qty\": 100,\n      \"expectedPrice\": 25.50\n    },\n    {\n      \"productId\": 2,\n      \"qty\": 50,\n      \"expectedPrice\": 30.00\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/DistributionTrip/CreateDistributionTrip",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DistributionTrip",
+								"CreateDistributionTrip"
+							]
+						}
+					}
+				},
+				{
+					"name": "2. ترحيل الرحلة",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/DistributionTrip/PostDistributionTrip",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DistributionTrip",
+								"PostDistributionTrip"
+							]
+						}
+					}
+				},
+				{
+					"name": "3. استلام البضاعة (تسجيل المرتجعات)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"tripId\": 1,\n  \"details\": [\n    {\n      \"detailId\": 1,\n      \"returnedQty\": 15\n    },\n    {\n      \"detailId\": 2,\n      \"returnedQty\": 5\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/DistributionTrip/ReceiveGoods",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DistributionTrip",
+								"ReceiveGoods"
+							]
+						}
+					}
+				},
+				{
+					"name": "4. إنشاء فاتورة مبيعات موزع (العميل الأول)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"invoiceNumber\": \"INV-DIST-001\",\n  \"customerId\": 1,\n  \"invoiceDate\": \"2025-01-15\",\n  \"totalAmount\": 765.00,\n  \"discount\": 0,\n  \"paymentMethod\": \"نقدي\",\n  \"notes\": \"فاتورة توزيع - العميل الأول\",\n  \"type\": \"Distributor\",\n  \"distributionTripId\": 1,\n  \"details\": [\n    {\n      \"productId\": 1,\n      \"quantity\": 30,\n      \"unitPrice\": 25.50,\n      \"subTotal\": 765.00,\n      \"notes\": \"طلب عادي\"\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/SalesInvoice/CreateSalesInvoice",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"SalesInvoice",
+								"CreateSalesInvoice"
+							]
+						}
+					}
+				},
+				{
+					"name": "5. إنشاء فاتورة مبيعات موزع (العميل الثاني)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"invoiceNumber\": \"INV-DIST-002\",\n  \"customerId\": 2,\n  \"invoiceDate\": \"2025-01-15\",\n  \"totalAmount\": 637.50,\n  \"discount\": 0,\n  \"paymentMethod\": \"شيك\",\n  \"notes\": \"فاتورة توزيع - العميل الثاني\",\n  \"type\": \"Distributor\",\n  \"distributionTripId\": 1,\n  \"details\": [\n    {\n      \"productId\": 1,\n      \"quantity\": 25,\n      \"unitPrice\": 25.50,\n      \"subTotal\": 637.50,\n      \"notes\": \"طلب عاجل\"\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/SalesInvoice/CreateSalesInvoice",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"SalesInvoice",
+								"CreateSalesInvoice"
+							]
+						}
+					}
+				},
+				{
+					"name": "6. التحقق من الكميات",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/DistributionTrip/ValidateTripQuantities?TripId=1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DistributionTrip",
+								"ValidateTripQuantities"
+							],
+							"query": [
+								{
+									"key": "TripId",
+									"value": "1"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "7. إكمال الرحلة",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"tripId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/DistributionTrip/CompleteTrip",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DistributionTrip",
+								"CompleteTrip"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "📊 التحقق من النتائج",
+			"item": [
+				{
+					"name": "1. عرض رحلة التوزيع",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/DistributionTrip/GetPagedListDistributionTrip?PageNumber=1&PageSize=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DistributionTrip",
+								"GetPagedListDistributionTrip"
+							],
+							"query": [
+								{
+									"key": "PageNumber",
+									"value": "1"
+								},
+								{
+									"key": "PageSize",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "2. عرض فواتير المبيعات",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/SalesInvoice/GetPagedListSalesInvoice?PageNumber=1&PageSize=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"SalesInvoice",
+								"GetPagedListSalesInvoice"
+							],
+							"query": [
+								{
+									"key": "PageNumber",
+									"value": "1"
+								},
+								{
+									"key": "PageSize",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "3. عرض تفاصيل رحلة التوزيع",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/DistributionTrip/GetDistributionTripById/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DistributionTrip",
+								"GetDistributionTripById",
+								"1"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "🚨 اختبار الحالات الاستثنائية",
+			"item": [
+				{
+					"name": "1. محاولة إنشاء فاتورة موزع لرحلة غير موجودة",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"invoiceNumber\": \"INV-ERROR-001\",\n  \"customerId\": 1,\n  \"invoiceDate\": \"2025-01-15\",\n  \"totalAmount\": 100.00,\n  \"discount\": 0,\n  \"paymentMethod\": \"نقدي\",\n  \"notes\": \"اختبار خطأ - رحلة غير موجودة\",\n  \"type\": \"Distributor\",\n  \"distributionTripId\": 999,\n  \"details\": [\n    {\n      \"productId\": 1,\n      \"quantity\": 5,\n      \"unitPrice\": 20.00,\n      \"subTotal\": 100.00,\n      \"notes\": \"اختبار خطأ\"\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/SalesInvoice/CreateSalesInvoice",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"SalesInvoice",
+								"CreateSalesInvoice"
+							]
+						}
+					}
+				},
+				{
+					"name": "2. محاولة استلام البضاعة لرحلة في حالة Draft",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"tripId\": 1,\n  \"details\": [\n    {\n      \"detailId\": 1,\n      \"returnedQty\": 10\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/DistributionTrip/ReceiveGoods",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DistributionTrip",
+								"ReceiveGoods"
+							]
+						}
+					}
+				},
+				{
+					"name": "3. محاولة إكمال رحلة بكميات غير متطابقة",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"tripId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/DistributionTrip/CompleteTrip",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DistributionTrip",
+								"CompleteTrip"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "🔄 اختبار سير عمل بديل",
+			"item": [
+				{
+					"name": "1. إنشاء رحلة توزيع جديدة (بديل)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"employeeId\": 1,\n  \"carId\": 1,\n  \"regionId\": 1,\n  \"tripDate\": \"2025-01-16\",\n  \"loadQty\": 300,\n  \"notes\": \"رحلة توزيع بديلة - اختبار شامل\",\n  \"details\": [\n    {\n      \"productId\": 1,\n      \"qty\": 80,\n      \"expectedPrice\": 25.50\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/DistributionTrip/CreateDistributionTrip",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DistributionTrip",
+								"CreateDistributionTrip"
+							]
+						}
+					}
+				},
+				{
+					"name": "2. ترحيل الرحلة البديلة",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": 2\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/DistributionTrip/PostDistributionTrip",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DistributionTrip",
+								"PostDistributionTrip"
+							]
+						}
+					}
+				},
+				{
+					"name": "3. استلام البضاعة للرحلة البديلة",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"tripId\": 2,\n  \"details\": [\n    {\n      \"detailId\": 3,\n      \"returnedQty\": 10\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/DistributionTrip/ReceiveGoods",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DistributionTrip",
+								"ReceiveGoods"
+							]
+						}
+					}
+				},
+				{
+					"name": "4. إنشاء فاتورة موزع للرحلة البديلة",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"invoiceNumber\": \"INV-DIST-ALT-001\",\n  \"customerId\": 1,\n  \"invoiceDate\": \"2025-01-16\",\n  \"totalAmount\": 1785.00,\n  \"discount\": 0,\n  \"paymentMethod\": \"نقدي\",\n  \"notes\": \"فاتورة توزيع بديلة\",\n  \"type\": \"Distributor\",\n  \"distributionTripId\": 2,\n  \"details\": [\n    {\n      \"productId\": 1,\n      \"quantity\": 70,\n      \"unitPrice\": 25.50,\n      \"subTotal\": 1785.00,\n      \"notes\": \"طلب شامل\"\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/SalesInvoice/CreateSalesInvoice",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"SalesInvoice",
+								"CreateSalesInvoice"
+							]
+						}
+					}
+				},
+				{
+					"name": "5. إكمال الرحلة البديلة",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"tripId\": 2\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/DistributionTrip/CompleteTrip",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DistributionTrip",
+								"CompleteTrip"
+							]
+						}
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "https://localhost:7001",
+			"type": "string"
+		}
+	]
+}

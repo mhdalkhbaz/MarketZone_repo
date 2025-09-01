@@ -31,6 +31,12 @@ namespace MarketZone.Infrastructure.Persistence.Contexts.Configurations
 				.WithOne(d => d.Trip)
 				.HasForeignKey(d => d.TripId)
 				.OnDelete(DeleteBehavior.Cascade);
+
+			// Configure the relationship with sales invoices
+			builder.HasMany(p => p.DistributionTripSalesInvoices)
+				.WithOne(i => i.DistributionTrip)
+				.HasForeignKey(i => i.DistributionTripId)
+				.OnDelete(DeleteBehavior.Restrict);
 		}
 	}
 }

@@ -11,8 +11,8 @@ namespace MarketZone.Infrastructure.Persistence.Contexts.Configurations
 			builder.HasKey(x => x.Id);
 			builder.Property(x => x.Qty).HasColumnType("decimal(18,2)").IsRequired();
 			builder.Property(x => x.ExpectedPrice).HasColumnType("decimal(18,2)").IsRequired();
-			builder.Property(x => x.SoldQty).HasColumnType("decimal(18,2)").HasDefaultValue(0);
 			builder.Property(x => x.ReturnedQty).HasColumnType("decimal(18,2)").HasDefaultValue(0);
+			builder.Property(x => x.SoldQty).HasColumnType("decimal(18,2)").HasDefaultValue(0);
 
 			builder.HasOne(x => x.Trip)
 				.WithMany(x => x.Details)

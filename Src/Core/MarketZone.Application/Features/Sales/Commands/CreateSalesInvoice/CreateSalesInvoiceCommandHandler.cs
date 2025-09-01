@@ -24,7 +24,7 @@ namespace MarketZone.Application.Features.Sales.Commands.CreateSalesInvoice
 			// التحقق من رحلة التوزيع إذا كانت محددة
 			if (request.DistributionTripId.HasValue)
 			{
-				var trip = await tripRepository.GetByIdAsync(request.DistributionTripId.Value);
+				var trip = await tripRepository.GetWithDetailsByIdAsync(request.DistributionTripId.Value, cancellationToken);
 				if (trip is null)
 					return new Error(ErrorCode.NotFound, "Distribution trip not found", nameof(request.DistributionTripId));
 
@@ -40,11 +40,24 @@ namespace MarketZone.Application.Features.Sales.Commands.CreateSalesInvoice
 			// ربط الفاتورة برحلة التوزيع إذا كانت محددة
 			if (request.DistributionTripId.HasValue)
 			{
-				var trip = await tripRepository.GetByIdAsync(request.DistributionTripId.Value);
+				var trip = await tripRepository.GetWithDetailsByIdAsync(request.DistributionTripId.Value, cancellationToken);
 				if (trip != null)
 				{
 					invoice.SetDistributionTrip(trip);
 					trip.AddSalesInvoice(invoice);
+
+					// تحديث SoldQty في تفاصيل رحلة التوزيع
+					if (request.Type == SalesInvoiceType.Distributor)
+					{
+						foreach (var detail in request.Details)
+						{
+							var tripDetail = trip.Details.FirstOrDefault(d => d.ProductId == detail.ProductId);
+							if (tripDetail != null)
+							{
+								tripDetail.AddSoldQty(detail.Quantity);
+							}
+						}
+					}
 				}
 			}
 

@@ -5,6 +5,7 @@ using MarketZone.Application.Interfaces;
 using MarketZone.Application.Interfaces.Repositories;
 using MarketZone.Application.Wrappers;
 using MarketZone.Domain.Cash.Entities;
+using MarketZone.Domain.Cash.Enums;
 
 namespace MarketZone.Application.Features.Cash.Payments.Commands.CreatePayment
 {
@@ -12,7 +13,30 @@ namespace MarketZone.Application.Features.Cash.Payments.Commands.CreatePayment
 	{
 		public async Task<BaseResult<long>> Handle(CreatePaymentCommand request, CancellationToken cancellationToken)
 		{
-			var entity = mapper.Map<Payment>(request);
+			Payment entity;
+			
+			if (request.PaymentType == PaymentType.InvoicePayment)
+			{
+				entity = new Payment(
+					request.InvoiceId.Value,
+					request.Amount,
+					request.PaymentDate,
+					request.Notes,
+					request.ReceivedBy,
+					request.IsConfirmed
+				);
+			}
+			else // PaymentType.Expense
+			{
+				entity = new Payment(
+					request.Amount,
+					request.PaymentDate ?? System.DateTime.UtcNow,
+					request.Description,
+					request.PaidBy,
+					request.IsConfirmed
+				);
+			}
+			
 			entity.AssignRegister(request.CashRegisterId);
 			await repository.AddAsync(entity);
 			await unitOfWork.SaveChangesAsync();
