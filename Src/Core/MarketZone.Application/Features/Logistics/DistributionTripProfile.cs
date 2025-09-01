@@ -16,7 +16,7 @@ namespace MarketZone.Application.Features.Logistics
                 .ConstructUsing(s => new DistributionTripDetail(0, s.ProductId, s.Qty, s.ExpectedPrice));
             CreateMap<CreateDistributionTripCommand, DistributionTrip>()
                 .ConstructUsing(s => new DistributionTrip(s.EmployeeId, s.CarId, s.RegionId, s.TripDate, s.LoadQty, s.Notes))
-                .ForMember(d => d.Details, opt => opt.MapFrom(s => s.Details));
+                .ForMember(d => d.Details, opt => opt.Ignore());
             CreateMap<UpdateDistributionTripCommand, DistributionTrip>()
                 .ForMember(d => d.Details, opt => opt.Ignore())
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));

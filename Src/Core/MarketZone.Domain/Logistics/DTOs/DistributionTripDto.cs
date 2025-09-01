@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using MarketZone.Domain.Logistics.Entities;
+using MarketZone.Domain.Logistics.Enums;
 
 namespace MarketZone.Domain.Logistics.DTOs
 {
@@ -20,7 +21,8 @@ namespace MarketZone.Domain.Logistics.DTOs
 			TripDate = trip.TripDate;
 			LoadQty = trip.LoadQty;
 			Notes = trip.Notes;
-			Details = trip.Details?.Select(d => new DistributionTripDetailDto(d)).ToList();
+			Status = trip.Status;
+			Details = trip.Details?.Select(d => new DistributionTripDetailDto(d)).ToList() ?? new List<DistributionTripDetailDto>();
 		}
 
 		public long Id { get; set; }
@@ -30,7 +32,8 @@ namespace MarketZone.Domain.Logistics.DTOs
 		public DateTime TripDate { get; set; }
 		public decimal? LoadQty { get; set; }
 		public string Notes { get; set; }
-		public List<DistributionTripDetailDto> Details { get; set; }
+		public DistributionTripStatus Status { get; set; }
+		public List<DistributionTripDetailDto> Details { get; set; } = new List<DistributionTripDetailDto>();
 	}
 }
 

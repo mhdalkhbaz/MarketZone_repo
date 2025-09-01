@@ -17,7 +17,17 @@ namespace MarketZone.Domain.Sales.Entities
 			Quantity = quantity;
 			UnitPrice = unitPrice;
 			SubTotal = subTotal;
-			Notes = notes;
+			Notes = notes ?? string.Empty;
+		}
+
+		public SalesInvoiceDetail(long productId, decimal quantity, decimal unitPrice, decimal subTotal, string notes)
+		{
+			InvoiceId = 0; // Will be set later
+			ProductId = productId;
+			Quantity = quantity;
+			UnitPrice = unitPrice;
+			SubTotal = subTotal;
+			Notes = notes ?? string.Empty;
 		}
 
 		public long InvoiceId { get; private set; }
@@ -35,7 +45,13 @@ namespace MarketZone.Domain.Sales.Entities
 			Quantity = quantity;
 			UnitPrice = unitPrice;
 			SubTotal = subTotal;
-			Notes = notes;
+			Notes = notes ?? string.Empty;
+		}
+
+		public void SetInvoice(SalesInvoice invoice)
+		{
+			Invoice = invoice;
+			InvoiceId = invoice.Id;
 		}
 	}
 }

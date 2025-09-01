@@ -9,3 +9,4 @@ namespace MarketZone.Application.Interfaces.Repositories
         Task<ProductBalance> GetByProductIdAsync(long productId, CancellationToken cancellationToken = default);
     }
 }
+

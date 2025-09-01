@@ -23,3 +23,4 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
         }
     }
 }
+

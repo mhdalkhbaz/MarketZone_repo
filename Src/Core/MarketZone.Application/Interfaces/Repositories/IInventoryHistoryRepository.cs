@@ -6,3 +6,4 @@ namespace MarketZone.Application.Interfaces.Repositories
     {
     }
 }
+

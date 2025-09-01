@@ -1,4 +1,5 @@
 using MarketZone.Domain.Logistics.Entities;
+using MarketZone.Domain.Logistics.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -12,6 +13,7 @@ namespace MarketZone.Infrastructure.Persistence.Contexts.Configurations
 			builder.Property(p => p.TripDate).HasColumnType("datetime2");
 			builder.Property(p => p.LoadQty).HasColumnType("decimal(18,2)");
 			builder.Property(p => p.Notes).HasMaxLength(255);
+			builder.Property(p => p.Status).HasConversion<short>().HasDefaultValue(DistributionTripStatus.Draft);
 
 			builder.HasOne(p => p.Car)
 				.WithMany()

@@ -1,6 +1,12 @@
+using System.Collections.Generic;
 using MarketZone.Application.Features.Logistics.Commands.DistributionTrips.CreateDistributionTrip;
 using MarketZone.Application.Features.Logistics.Commands.DistributionTrips.UpdateDistributionTrip;
+using MarketZone.Application.Features.Logistics.Commands.DistributionTrips.PostDistributionTrip;
+using MarketZone.Application.Features.Logistics.Commands.DistributionTrips.ReceiveGoods;
+using MarketZone.Application.Features.Logistics.Commands.DistributionTrips.CompleteTrip;
+using MarketZone.Application.Features.Logistics.Commands.DistributionTrips.CreateSalesInvoices;
 using MarketZone.Application.Features.Logistics.Queries.GetPagedListDistributionTrip;
+using MarketZone.Application.Features.Logistics.Queries.ValidateTripQuantities;
 using MarketZone.Application.Interfaces;
 using MarketZone.Application.Wrappers;
 using MarketZone.Domain.Logistics.DTOs;
@@ -17,18 +23,38 @@ namespace MarketZone.WebApi.Endpoints
         public override void Map(RouteGroupBuilder builder)
         {
             builder.MapGet(GetPagedListDistributionTrip);
+            builder.MapGet(ValidateTripQuantities);
             builder.MapPost(CreateDistributionTrip).RequireAuthorization();
             builder.MapPut(UpdateDistributionTrip).RequireAuthorization();
+            builder.MapPut(PostDistributionTrip).RequireAuthorization();
+            builder.MapPut(ReceiveGoods).RequireAuthorization();
+            builder.MapPut(CompleteTrip).RequireAuthorization();
+            builder.MapPost(CreateSalesInvoices).RequireAuthorization();
         }
 
         async Task<PagedResponse<DistributionTripDto>> GetPagedListDistributionTrip(IMediator mediator, [AsParameters] GetPagedListDistributionTripQuery model)
             => await mediator.Send<GetPagedListDistributionTripQuery, PagedResponse<DistributionTripDto>>(model);
+
+        async Task<BaseResult<ValidateTripQuantitiesResult>> ValidateTripQuantities(IMediator mediator, [AsParameters] ValidateTripQuantitiesQuery model)
+            => await mediator.Send<ValidateTripQuantitiesQuery, BaseResult<ValidateTripQuantitiesResult>>(model);
 
         async Task<BaseResult<long>> CreateDistributionTrip(IMediator mediator, CreateDistributionTripCommand model)
             => await mediator.Send<CreateDistributionTripCommand, BaseResult<long>>(model);
 
         async Task<BaseResult> UpdateDistributionTrip(IMediator mediator, UpdateDistributionTripCommand model)
             => await mediator.Send<UpdateDistributionTripCommand, BaseResult>(model);
+
+        async Task<BaseResult> PostDistributionTrip(IMediator mediator, PostDistributionTripCommand model)
+            => await mediator.Send<PostDistributionTripCommand, BaseResult>(model);
+
+        async Task<BaseResult> ReceiveGoods(IMediator mediator, ReceiveGoodsCommand model)
+            => await mediator.Send<ReceiveGoodsCommand, BaseResult>(model);
+
+        async Task<BaseResult> CompleteTrip(IMediator mediator, CompleteTripCommand model)
+            => await mediator.Send<CompleteTripCommand, BaseResult>(model);
+
+        async Task<BaseResult<List<long>>> CreateSalesInvoices(IMediator mediator, CreateSalesInvoicesFromTripCommand model)
+            => await mediator.Send<CreateSalesInvoicesFromTripCommand, BaseResult<List<long>>>(model);
     }
 }
 
