@@ -7,14 +7,26 @@ using MarketZone.Application.Interfaces.Repositories;
 using MarketZone.Domain.Products.DTOs;
 using MarketZone.Domain.Products.Entities;
 using MarketZone.Infrastructure.Persistence.Contexts;
+using System.Collections.Generic;
+using System.Threading;
+using Microsoft.EntityFrameworkCore;
 
 namespace MarketZone.Infrastructure.Persistence.Repositories
 {
-    public class ProductRepository(ApplicationDbContext dbContext, IMapper mapper) : GenericRepository<Product>(dbContext), IProductRepository
+    public class ProductRepository : GenericRepository<Product>, IProductRepository
     {
+        private readonly ApplicationDbContext _dbContext;
+        private readonly IMapper _mapper;
+
+        public ProductRepository(ApplicationDbContext dbContext, IMapper mapper) : base(dbContext)
+        {
+            _dbContext = dbContext;
+            _mapper = mapper;
+        }
+
         public async Task<PaginationResponseDto<ProductDto>> GetPagedListAsync(int pageNumber, int pageSize, string name)
         {
-            var query = dbContext.Products.OrderByDescending(p => p.Created).AsQueryable();
+            var query = _dbContext.Products.OrderByDescending(p => p.Created).AsQueryable();
 
             if (!string.IsNullOrEmpty(name))
             {
@@ -22,10 +34,17 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
             }
 
             return await Paged(
-                query.ProjectTo<ProductDto>(mapper.ConfigurationProvider),
+                query.ProjectTo<ProductDto>(_mapper.ConfigurationProvider),
                 pageNumber,
                 pageSize);
+        }
 
+        public async Task<Dictionary<long, Product>> GetByIdsAsync(IEnumerable<long> ids, CancellationToken cancellationToken = default)
+        {
+            var list = await _dbContext.Products
+                .Where(p => ids.Contains(p.Id))
+                .ToListAsync(cancellationToken);
+            return list.ToDictionary(p => p.Id, p => p);
         }
     }
 }

@@ -27,26 +27,14 @@
 			"enabled": true
 		},
 		{
-			"key": "customerId1",
+			"key": "customerId",
 			"value": "1",
 			"type": "default",
 			"enabled": true
 		},
 		{
-			"key": "customerId2",
-			"value": "2",
-			"type": "default",
-			"enabled": true
-		},
-		{
-			"key": "productId1",
+			"key": "productId",
 			"value": "1",
-			"type": "default",
-			"enabled": true
-		},
-		{
-			"key": "productId2",
-			"value": "2",
 			"type": "default",
 			"enabled": true
 		},
@@ -57,14 +45,8 @@
 			"enabled": true
 		},
 		{
-			"key": "distributionTripDetailId1",
+			"key": "distributionTripDetailId",
 			"value": "1",
-			"type": "default",
-			"enabled": true
-		},
-		{
-			"key": "distributionTripDetailId2",
-			"value": "2",
 			"type": "default",
 			"enabled": true
 		}

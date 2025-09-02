@@ -5,5 +5,6 @@ namespace MarketZone.Application.Interfaces
     public interface IUnitOfWork
     {
         Task<bool> SaveChangesAsync();
+        Task RollbackAsync();
     }
 }

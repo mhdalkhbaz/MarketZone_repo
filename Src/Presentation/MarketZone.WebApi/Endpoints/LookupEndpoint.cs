@@ -28,27 +28,27 @@ namespace MarketZone.WebApi.Endpoints
         }
 
         async Task<BaseResult<List<SelectListDto>>> GetProductSelectList(ApplicationDbContext db, IMapper mapper)
-            => BaseResult<List<SelectListDto>>.Ok(await db.Products.AsNoTracking().OrderBy(p => p.Name).ProjectTo<SelectListDto>(mapper.ConfigurationProvider).ToListAsync());
+            => BaseResult<List<SelectListDto>>.Ok(await db.Products.AsNoTracking().OrderBy(p => p.Id).ProjectTo<SelectListDto>(mapper.ConfigurationProvider).ToListAsync());
 
         async Task<BaseResult<List<SelectListDto>>> GetCustomerSelectList(ApplicationDbContext db, IMapper mapper)
-            => BaseResult<List<SelectListDto>>.Ok(await db.Customers.AsNoTracking().OrderBy(p => p.Name).ProjectTo<SelectListDto>(mapper.ConfigurationProvider).ToListAsync());
+            => BaseResult<List<SelectListDto>>.Ok(await db.Customers.AsNoTracking().OrderBy(p => p.Id).ProjectTo<SelectListDto>(mapper.ConfigurationProvider).ToListAsync());
 
         async Task<BaseResult<List<SelectListDto>>> GetSupplierSelectList(ApplicationDbContext db, IMapper mapper)
-            => BaseResult<List<SelectListDto>>.Ok(await db.Suppliers.AsNoTracking().OrderBy(p => p.Name).ProjectTo<SelectListDto>(mapper.ConfigurationProvider).ToListAsync());
+            => BaseResult<List<SelectListDto>>.Ok(await db.Suppliers.AsNoTracking().OrderBy(p => p.Id).ProjectTo<SelectListDto>(mapper.ConfigurationProvider).ToListAsync());
 
         async Task<BaseResult<List<SelectListDto>>> GetEmployeeSelectList(ApplicationDbContext db, IMapper mapper)
             => BaseResult<List<SelectListDto>>.Ok(await db.Employees.AsNoTracking().OrderBy(p => p.FirstName + p.LastName).ProjectTo<SelectListDto>(mapper.ConfigurationProvider).ToListAsync());
 
         // Only products with AvailableQty > 0
-        async Task<BaseResult<List<SelectListDto>>> GetInStockProductSelectList(ApplicationDbContext db)
+        async Task<BaseResult<List<UnroastedProductDto>>> GetInStockProductSelectList(ApplicationDbContext db)
         {
             var query = from p in db.Products.AsNoTracking()
                         join b in db.ProductBalances.AsNoTracking() on p.Id equals b.ProductId
                         where b.AvailableQty > 0
-                        orderby p.Name
-                        select new SelectListDto(p.Name, p.Id.ToString());
+                        orderby p.Id
+                        select new UnroastedProductDto(p.Id.ToString(), p.Name, b.AvailableQty);
             var list = await query.ToListAsync();
-            return BaseResult<List<SelectListDto>>.Ok(list);
+            return BaseResult<List<UnroastedProductDto>>.Ok(list);
         }
 
         // Regions (optionally only active)
