@@ -20,11 +20,17 @@ namespace MarketZone.Infrastructure.Persistence.Contexts.Configurations
             builder.Property(p => p.IsActive).HasDefaultValue(true);
             builder.Property(p => p.NeedsRoasting).HasDefaultValue(false);
             builder.Property(p => p.RoastingCost).HasColumnType("decimal(18,2)");
+            builder.Property(p => p.CommissionPerKg).HasColumnType("decimal(18,2)");
             builder.Property(p => p.BarCode).HasMaxLength(50);
 
             builder.HasOne(p => p.Category)
                 .WithMany()
                 .HasForeignKey(p => p.CategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(p => p.RawProduct)
+                .WithMany()
+                .HasForeignKey(p => p.RawProductId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

@@ -49,7 +49,7 @@ namespace MarketZone.Application.Features.Roasting.Commands.UpdateRoastingInvoic
             // Release all previously reserved quantities
             foreach (var detail in roastingInvoice.Details)
             {
-                var unroastedBalance = await _unroastedRepository.GetByProductIdAsync(detail.ProductId, cancellationToken);
+                var unroastedBalance = await _unroastedRepository.GetByProductIdAsync(detail.RawProductId.Value, cancellationToken);
                 if (unroastedBalance != null)
                 {
                     unroastedBalance.Release(detail.QuantityKg);
@@ -89,15 +89,15 @@ namespace MarketZone.Application.Features.Roasting.Commands.UpdateRoastingInvoic
                     }
 
                     // Check and reserve available quantity for new detail
-                    var unroastedBalance = await _unroastedRepository.GetByProductIdAsync(detailItem.ProductId, cancellationToken);
+                    var unroastedBalance = await _unroastedRepository.GetByProductIdAsync(detailItem.RawProductId.Value, cancellationToken);
                     if (unroastedBalance == null)
                     {
-                        throw new InvalidOperationException($"Unroasted balance not found for product {detailItem.ProductId}");
+                        throw new InvalidOperationException($"Unroasted balance not found for product {detailItem.RawProductId}");
                     }
 
                     if (unroastedBalance.AvailableQty < detailItem.QuantityKg)
                     {
-                        throw new InvalidOperationException($"Insufficient available quantity for product {detailItem.ProductId}. Available: {unroastedBalance.AvailableQty}, Requested: {detailItem.QuantityKg}");
+                        throw new InvalidOperationException($"Insufficient available quantity for product {detailItem.RawProductId}. Available: {unroastedBalance.AvailableQty}, Requested: {detailItem.QuantityKg}");
                     }
 
                     // Reserve the quantity (reduce AvailableQty)
@@ -107,9 +107,11 @@ namespace MarketZone.Application.Features.Roasting.Commands.UpdateRoastingInvoic
                     // Add new detail
                     var newDetail = new RoastingInvoiceDetail(
                         roastingInvoice.Id,
-                        detailItem.ProductId,
+                        detailItem.ReadyProductId,
+                        detailItem.RawProductId,
                         detailItem.QuantityKg,
                         detailItem.RoastPricePerKg,
+                        detailItem.CommissionPerKgOverride,
                         0, // ActualQuantityAfterRoasting = 0 عند الإنشاء/التحديث
                         detailItem.Notes ?? string.Empty);
                     

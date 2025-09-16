@@ -15,7 +15,9 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
         {
             var data = await dbContext.RoastingInvoices
                 .Include(x => x.Details)
-                .ThenInclude(x => x.Product)
+                .ThenInclude(x => x.ReadyProduct)
+                .Include(x => x.Details)
+                .ThenInclude(x => x.RawProduct)
                 .Include(x => x.Payments)
                 .FirstOrDefaultAsync(x => x.Id == id);
             return data;
@@ -25,7 +27,9 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
         {
             var query = dbContext.RoastingInvoices
                 .Include(x => x.Details)
-                .ThenInclude(x => x.Product)
+                .ThenInclude(x => x.ReadyProduct)
+                .Include(x => x.Details)
+                .ThenInclude(x => x.RawProduct)
                 .Include(x => x.Payments)
                 .OrderByDescending(x => x.Created);
 

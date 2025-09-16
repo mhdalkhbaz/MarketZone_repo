@@ -6,3 +6,4 @@ namespace MarketZone.Domain.Cash.Enums
 		Expense = 1
 	}
 }
+

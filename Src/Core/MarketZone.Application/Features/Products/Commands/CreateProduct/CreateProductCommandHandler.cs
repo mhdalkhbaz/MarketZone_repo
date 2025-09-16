@@ -18,9 +18,8 @@ namespace MarketZone.Application.Features.Products.Commands.CreateProduct
                 await productRepository.AddAsync(product);
                 await unitOfWork.SaveChangesAsync();
             }
-            catch (System.Exception ex)
+            catch (System.Exception)
             {
-
                 throw;
             }
             return product.Id;

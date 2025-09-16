@@ -24,6 +24,8 @@ namespace MarketZone.Domain.Products.DTOs
             IsActive = product.IsActive;
             NeedsRoasting = product.NeedsRoasting;
             RoastingCost = product.RoastingCost;
+            CommissionPerKg = product.CommissionPerKg;
+            RawProductId = product.RawProductId;
             BarCode = product.BarCode;
             CreatedDateTime = product.Created;
         }
@@ -38,6 +40,8 @@ namespace MarketZone.Domain.Products.DTOs
         public bool IsActive { get; set; }
         public bool NeedsRoasting { get; set; }
         public decimal? RoastingCost { get; set; }
+        public decimal? CommissionPerKg { get; set; }
+        public long? RawProductId { get; set; }
         public string BarCode { get; set; }
         public DateTime CreatedDateTime { get; set; }
     }

@@ -47,6 +47,9 @@ namespace MarketZone.Domain.Products.Entities
         public decimal? RoastingCost { get; private set; }
         public string BarCode { get; private set; }
         public string BarCode2 { get; private set; }
+        public long? RawProductId { get; private set; }
+        public Product RawProduct { get; private set; }
+        public decimal? CommissionPerKg { get; private set; }
 
         public void Update(
             long categoryId,
@@ -72,6 +75,16 @@ namespace MarketZone.Domain.Products.Entities
             NeedsRoasting = needsRoasting;
             RoastingCost = roastingCost;
             BarCode = barCode;
+        }
+
+        public void SetRawProduct(long? rawProductId)
+        {
+            RawProductId = rawProductId;
+        }
+
+        public void SetCommissionPerKg(decimal? commissionPerKg)
+        {
+            CommissionPerKg = commissionPerKg;
         }
     }
 }

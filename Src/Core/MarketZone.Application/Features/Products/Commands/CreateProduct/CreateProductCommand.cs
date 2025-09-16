@@ -17,5 +17,7 @@ namespace MarketZone.Application.Features.Products.Commands.CreateProduct
         public decimal? RoastingCost { get; set; }
         public string BarCode { get; set; } = "";
         public string BarCode2 { get; set; } = "";
+        public long? RawProductId { get; set; }
+        public decimal? CommissionPerKg { get; set; }
     }
 }

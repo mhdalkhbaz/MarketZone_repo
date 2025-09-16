@@ -25,11 +25,17 @@ namespace MarketZone.Application.Features.Products
                     s.IsActive,
                     s.NeedsRoasting,
                     s.RoastingCost,
-                    s.BarCode));
+                    s.BarCode))
+                .AfterMap((src, dest) =>
+                {
+                    dest.SetRawProduct(src.RawProductId);
+                    dest.SetCommissionPerKg(src.CommissionPerKg);
+                });
 
 
             CreateMap<UpdateProductCommand, Product>()
-                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null))
+                ;
         }
     }
 }

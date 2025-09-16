@@ -114,3 +114,4 @@ dotnet ef database update --project Src/Infrastructure/MarketZone.Infrastructure
 - **سهولة الصيانة**: كود أقل وتعقيد أقل
 - **مرونة أكبر**: يمكن إضافة أنواع جديدة من الدفعات بسهولة
 - **تتبع موحد**: جميع الحركات المالية في مكان واحد
+

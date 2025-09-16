@@ -13,7 +13,10 @@ namespace MarketZone.Application.Features.Roasting
             // RoastingInvoice mappings
             CreateMap<RoastingInvoice, RoastingInvoiceDto>();
             CreateMap<RoastingInvoiceDetail, RoastingInvoiceDetailDto>()
-                .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name));
+                .ForMember(dest => dest.ReadyProductId, opt => opt.MapFrom(src => src.ReadyProductId))
+                .ForMember(dest => dest.ReadyProductName, opt => opt.MapFrom(src => src.ReadyProduct != null ? src.ReadyProduct.Name : null))
+                .ForMember(dest => dest.RawProductId, opt => opt.MapFrom(src => src.RawProductId))
+                .ForMember(dest => dest.RawProductName, opt => opt.MapFrom(src => src.RawProduct != null ? src.RawProduct.Name : null));
 
             CreateMap<CreateRoastingInvoiceCommand, RoastingInvoice>()
                 .ForMember(dest => dest.Details, opt => opt.Ignore());

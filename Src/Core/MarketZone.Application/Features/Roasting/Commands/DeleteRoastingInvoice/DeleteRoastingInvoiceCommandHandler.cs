@@ -42,7 +42,7 @@ namespace MarketZone.Application.Features.Roasting.Commands.DeleteRoastingInvoic
             // Release all reserved quantities
             foreach (var detail in roastingInvoice.Details)
             {
-                var unroastedBalance = await _unroastedRepository.GetByProductIdAsync(detail.ProductId, cancellationToken);
+                var unroastedBalance = await _unroastedRepository.GetByProductIdAsync(detail.RawProductId.Value , cancellationToken);
                 if (unroastedBalance != null)
                 {
                     unroastedBalance.Release(detail.QuantityKg);

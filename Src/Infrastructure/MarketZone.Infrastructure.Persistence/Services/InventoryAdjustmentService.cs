@@ -78,26 +78,53 @@ namespace MarketZone.Infrastructure.Persistence.Services
 		{
 			if (!cache.TryGetValue(productId, out var row))
 			{
+				// Determine unit price from purchase details for this product
+				var unitPrice = await dbContext.Set<Domain.Purchases.Entities.PurchaseInvoiceDetail>()
+					.Where(d => d.InvoiceId == null ? false : true) // placeholder to satisfy EF
+					.Where(d => d.ProductId == productId)
+					.OrderByDescending(d => d.Id)
+					.Select(d => d.UnitPrice)
+					.FirstOrDefaultAsync(cancellationToken);
+				var value = unitPrice * quantity;
 				row = new UnroastedProdcutBalance(productId, quantity);
 				await dbContext.Set<UnroastedProdcutBalance>().AddAsync(row, cancellationToken);
 				cache[productId] = row;
 				return;
 			}
 
-			row.Increase(quantity);
+			// Approximate value using latest unit price
+			var latestUnitPrice = await dbContext.Set<Domain.Purchases.Entities.PurchaseInvoiceDetail>()
+				.Where(d => d.ProductId == productId)
+				.OrderByDescending(d => d.Id)
+				.Select(d => d.UnitPrice)
+				.FirstOrDefaultAsync(cancellationToken);
+			var addValue = latestUnitPrice * quantity;
+			row.IncreaseWithValue(quantity, addValue);
 		}
 
 		private async Task IncreaseReadyToSellAsync(Dictionary<long, ProductBalance> cache, long productId, decimal quantity, CancellationToken cancellationToken)
 		{
 			if (!cache.TryGetValue(productId, out var balance))
 			{
-				balance = new ProductBalance(productId, quantity, quantity);
+				var unitPrice = await dbContext.Set<Domain.Purchases.Entities.PurchaseInvoiceDetail>()
+					.Where(d => d.ProductId == productId)
+					.OrderByDescending(d => d.Id)
+					.Select(d => d.UnitPrice)
+					.FirstOrDefaultAsync(cancellationToken);
+				var value = unitPrice * quantity;
+				balance = new ProductBalance(productId, quantity, quantity, value);
 				await dbContext.Set<ProductBalance>().AddAsync(balance, cancellationToken);
 				cache[productId] = balance;
 				return;
 			}
 
-			balance.Adjust(quantity, quantity);
+			var latestUnitPrice = await dbContext.Set<Domain.Purchases.Entities.PurchaseInvoiceDetail>()
+				.Where(d => d.ProductId == productId)
+				.OrderByDescending(d => d.Id)
+				.Select(d => d.UnitPrice)
+				.FirstOrDefaultAsync(cancellationToken);
+			var addValue = latestUnitPrice * quantity;
+			balance.AdjustWithValue(quantity, quantity, addValue);
 		}
 	}
 }

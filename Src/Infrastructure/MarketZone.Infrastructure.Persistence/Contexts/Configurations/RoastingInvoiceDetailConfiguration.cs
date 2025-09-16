@@ -11,14 +11,20 @@ namespace MarketZone.Infrastructure.Persistence.Contexts.Configurations
             builder.Property(x => x.RoastingInvoiceId)
                 .IsRequired();
 
-            builder.Property(x => x.ProductId)
+            builder.Property(x => x.ReadyProductId)
                 .IsRequired();
+
+            builder.Property(x => x.RawProductId);
 
             builder.Property(x => x.QuantityKg)
                 .HasPrecision(18, 2)
                 .IsRequired();
 
             builder.Property(x => x.RoastPricePerKg)
+                .HasPrecision(18, 2)
+                .IsRequired();
+
+            builder.Property(x => x.CommissionPerKg)
                 .HasPrecision(18, 2)
                 .IsRequired();
 
@@ -39,10 +45,15 @@ namespace MarketZone.Infrastructure.Persistence.Contexts.Configurations
                 .HasForeignKey(x => x.RoastingInvoiceId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasOne(x => x.Product)
+            builder.HasOne(x => x.ReadyProduct)
                 .WithMany()
-                .HasForeignKey(x => x.ProductId)
+                .HasForeignKey(x => x.ReadyProductId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(x => x.RawProduct)
+                .WithMany()
+                .HasForeignKey(x => x.RawProductId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }
