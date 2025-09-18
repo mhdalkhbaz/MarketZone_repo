@@ -776,8 +776,6 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.HasIndex("RawProductId");
-
                     b.ToTable("Products");
                 });
 
@@ -1330,14 +1328,7 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("MarketZone.Domain.Products.Entities.Product", "RawProduct")
-                        .WithMany()
-                        .HasForeignKey("RawProductId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.Navigation("Category");
-
-                    b.Navigation("RawProduct");
                 });
 
             modelBuilder.Entity("MarketZone.Domain.Purchases.Entities.PurchaseInvoice", b =>

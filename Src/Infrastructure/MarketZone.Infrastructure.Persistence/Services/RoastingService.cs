@@ -11,33 +11,50 @@ namespace MarketZone.Infrastructure.Persistence.Services
 {
 	public class RoastingService(ApplicationDbContext dbContext) : IRoastingService
 	{
-		public async Task<long> RoastAsync(long productId, decimal quantityKg, decimal roastPricePerKg, DateTime? roastDate, string notes, CancellationToken cancellationToken = default)
+		public async Task<long> RoastAsync(long rawProductId, long roastedProductId, decimal quantityKg, decimal roastPricePerKg, DateTime? roastDate, string notes, CancellationToken cancellationToken = default)
 		{
-			var unroasted = await dbContext.Set<UnroastedProdcutBalance>().FirstOrDefaultAsync(u => u.ProductId == productId, cancellationToken);
-			if (unroasted == null || unroasted.Qty < quantityKg)
-				throw new InvalidOperationException("Insufficient unroasted quantity");
+			// التحقق من وجود الكمية في المنتج الخام (الني)
+			var rawBalance = await dbContext.Set<ProductBalance>().FirstOrDefaultAsync(b => b.ProductId == rawProductId, cancellationToken);
+			if (rawBalance == null || rawBalance.AvailableQty < quantityKg)
+				throw new InvalidOperationException("Insufficient raw product quantity");
 
-			unroasted.Decrease(quantityKg);
+			// نقص الكمية من المنتج الخام
+			rawBalance.Adjust(-quantityKg, -quantityKg);
 
-			var balance = await dbContext.Set<ProductBalance>().FirstOrDefaultAsync(b => b.ProductId == productId, cancellationToken);
-			if (balance == null)
+			// إضافة الكمية إلى المنتج المحمص
+			var roastedBalance = await dbContext.Set<ProductBalance>().FirstOrDefaultAsync(b => b.ProductId == roastedProductId, cancellationToken);
+			if (roastedBalance == null)
 			{
-				balance = new ProductBalance(productId, quantityKg, quantityKg);
-				await dbContext.Set<ProductBalance>().AddAsync(balance, cancellationToken);
+				// حساب القيمة للمنتج المحمص (تكلفة الخام + تكلفة التحميص)
+				var rawValue = rawBalance.TotalValue / rawBalance.Qty * quantityKg; // القيمة النسبية للكمية المستخدمة
+				var roastingCost = quantityKg * roastPricePerKg;
+				var totalValue = rawValue + roastingCost;
+				
+				roastedBalance = new ProductBalance(roastedProductId, quantityKg, quantityKg, totalValue);
+				await dbContext.Set<ProductBalance>().AddAsync(roastedBalance, cancellationToken);
 			}
 			else
 			{
-				balance.Adjust(quantityKg, quantityKg);
+				// حساب القيمة للمنتج المحمص
+				var rawValue = rawBalance.TotalValue / rawBalance.Qty * quantityKg;
+				var roastingCost = quantityKg * roastPricePerKg;
+				var totalValue = rawValue + roastingCost;
+				
+				roastedBalance.AdjustWithValue(quantityKg, quantityKg, totalValue);
 			}
 
-			await dbContext.Set<InventoryHistory>().AddAsync(new InventoryHistory(productId, "Roast", null, quantityKg, roastDate, notes));
+			// تسجيل في تاريخ المخزون
+			await dbContext.Set<InventoryHistory>().AddAsync(new InventoryHistory(rawProductId, "Roast_Consume", null, -quantityKg, roastDate, notes));
+			await dbContext.Set<InventoryHistory>().AddAsync(new InventoryHistory(roastedProductId, "Roast_Produce", null, quantityKg, roastDate, notes));
 
-			var op = new RoastingOperation(productId, quantityKg, roastPricePerKg, roastDate, notes);
+			// تسجيل عملية التحميص
+			var op = new RoastingOperation(rawProductId, roastedProductId, quantityKg, roastPricePerKg, roastDate, notes);
 			await dbContext.Set<RoastingOperation>().AddAsync(op, cancellationToken);
 			await dbContext.SaveChangesAsync(cancellationToken);
 			return op.Id;
 		}
-	}
+
+    }
 }
 
 

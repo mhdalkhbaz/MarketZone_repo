@@ -16,18 +16,18 @@ namespace MarketZone.Application.Features.Roasting.Commands.UpdateRoastingInvoic
             public class UpdateRoastingInvoiceCommandHandler : IRequestHandler<UpdateRoastingInvoiceCommand, BaseResult<long>>
         {
             private readonly IRoastingInvoiceRepository _repository;
-            private readonly IUnroastedProdcutBalanceRepository _unroastedRepository;
+            private readonly IProductBalanceRepository _productBalanceRepository;
             private readonly IMapper _mapper;
             private readonly IUnitOfWork _unitOfWork;
 
             public UpdateRoastingInvoiceCommandHandler(
                 IRoastingInvoiceRepository repository,
-                IUnroastedProdcutBalanceRepository unroastedRepository,
+                IProductBalanceRepository productBalanceRepository,
                 IMapper mapper,
                 IUnitOfWork unitOfWork)
             {
                 _repository = repository;
-                _unroastedRepository = unroastedRepository;
+                _productBalanceRepository = productBalanceRepository;
                 _mapper = mapper;
                 _unitOfWork = unitOfWork;
             }
@@ -49,11 +49,14 @@ namespace MarketZone.Application.Features.Roasting.Commands.UpdateRoastingInvoic
             // Release all previously reserved quantities
             foreach (var detail in roastingInvoice.Details)
             {
-                var unroastedBalance = await _unroastedRepository.GetByProductIdAsync(detail.RawProductId.Value, cancellationToken);
-                if (unroastedBalance != null)
+                if (detail.RawProductId.HasValue)
                 {
-                    unroastedBalance.Release(detail.QuantityKg);
-                    _unroastedRepository.Update(unroastedBalance);
+                    var rawProductBalance = await _productBalanceRepository.GetByProductIdAsync(detail.RawProductId.Value, cancellationToken);
+                    if (rawProductBalance != null)
+                    {
+                        rawProductBalance.Adjust(0, detail.QuantityKg); // Release the reserved quantity
+                        _productBalanceRepository.Update(rawProductBalance);
+                    }
                 }
             }
 
@@ -89,20 +92,23 @@ namespace MarketZone.Application.Features.Roasting.Commands.UpdateRoastingInvoic
                     }
 
                     // Check and reserve available quantity for new detail
-                    var unroastedBalance = await _unroastedRepository.GetByProductIdAsync(detailItem.RawProductId.Value, cancellationToken);
-                    if (unroastedBalance == null)
+                    if (detailItem.RawProductId.HasValue)
                     {
-                        throw new InvalidOperationException($"Unroasted balance not found for product {detailItem.RawProductId}");
-                    }
+                        var rawProductBalance = await _productBalanceRepository.GetByProductIdAsync(detailItem.RawProductId.Value, cancellationToken);
+                        if (rawProductBalance == null)
+                        {
+                            throw new InvalidOperationException($"Raw product balance not found for product {detailItem.RawProductId}");
+                        }
 
-                    if (unroastedBalance.AvailableQty < detailItem.QuantityKg)
-                    {
-                        throw new InvalidOperationException($"Insufficient available quantity for product {detailItem.RawProductId}. Available: {unroastedBalance.AvailableQty}, Requested: {detailItem.QuantityKg}");
-                    }
+                        if (rawProductBalance.AvailableQty < detailItem.QuantityKg)
+                        {
+                            throw new InvalidOperationException($"Insufficient available quantity for product {detailItem.RawProductId}. Available: {rawProductBalance.AvailableQty}, Requested: {detailItem.QuantityKg}");
+                        }
 
-                    // Reserve the quantity (reduce AvailableQty)
-                    unroastedBalance.Reserve(detailItem.QuantityKg);
-                    _unroastedRepository.Update(unroastedBalance);
+                        // Reserve the quantity (reduce AvailableQty)
+                        rawProductBalance.Adjust(0, -detailItem.QuantityKg);
+                        _productBalanceRepository.Update(rawProductBalance);
+                    }
 
                     // Add new detail
                     var newDetail = new RoastingInvoiceDetail(

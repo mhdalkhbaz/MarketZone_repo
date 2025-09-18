@@ -1,0 +1,131 @@
+{
+  "product_types_explanation": {
+    "جاهز": "منتجات جاهزة للاستهلاك مباشرة (مثل البسكوت) - نحدد سعر الشراء والمبيع",
+    "يحتاج_تحميص": "منتجات خام تحتاج إلى عملية تحميص (مثل البزر الأبيض الني) - نحدد سعر الشراء فقط",
+    "محمص": "منتجات خرجت من عملية التحميص (مثل البزر الأبيض المحمص) - لا نحدد سعر شراء أو مبيع، المبيع نحدده لاحقاً"
+  },
+  "pricing_logic": {
+    "جاهز": {
+      "purchasePrice": "مطلوب - سعر الشراء من المورد",
+      "salePrice": "مطلوب - سعر البيع للعميل"
+    },
+    "يحتاج_تحميص": {
+      "purchasePrice": "مطلوب - سعر الشراء من المورد",
+      "salePrice": "null - لا يباع مباشرة، يحتاج تحميص أولاً"
+    },
+    "محمص": {
+      "purchasePrice": "null - لا يوجد شراء، منتج داخلي",
+      "salePrice": "null - يحدد لاحقاً حسب السوق والتكلفة"
+    }
+  },
+  "products": [
+    {
+      "product_type": "يحتاج_تحميص",
+      "name": "بزر ابيض ني",
+      "description": "بزر ابيض ني عالي الجودة - يحتاج تحميص",
+      "categoryId": 1,
+      "unitOfMeasure": "kg",
+      "purchasePrice": 25.50,
+      "salePrice": null,
+      "minStockLevel": 10,
+      "isActive": true,
+      "needsRoasting": true,
+      "roastingCost": 2.00,
+      "barCode": "1234567890123",
+      "barCode2": "",
+      "rawProductId": null,
+      "commissionPerKg": 0.50
+    },
+    {
+      "product_type": "يحتاج_تحميص",
+      "name": "بزر ابيض نوع اول",
+      "description": "بزر ابيض نوع اول ممتاز - يحتاج تحميص",
+      "categoryId": 1,
+      "unitOfMeasure": "kg",
+      "purchasePrice": 28.00,
+      "salePrice": null,
+      "minStockLevel": 8,
+      "isActive": true,
+      "needsRoasting": true,
+      "roastingCost": 2.50,
+      "barCode": "1234567890124",
+      "barCode2": "",
+      "rawProductId": null,
+      "commissionPerKg": 0.75
+    },
+    {
+      "product_type": "جاهز",
+      "name": "بسكوت",
+      "description": "بسكوت طازج ومقرمش - جاهز للاستهلاك",
+      "categoryId": 2,
+      "unitOfMeasure": "kg",
+      "purchasePrice": 15.00,
+      "salePrice": 20.00,
+      "minStockLevel": 15,
+      "isActive": true,
+      "needsRoasting": false,
+      "roastingCost": null,
+      "barCode": "1234567890125",
+      "barCode2": "",
+      "rawProductId": null,
+      "commissionPerKg": 0.25
+    },
+    {
+      "product_type": "محمص",
+      "name": "بزر ابيض محمص",
+      "description": "بزر ابيض محمص جاهز للاستهلاك",
+      "categoryId": 1,
+      "unitOfMeasure": "kg",
+      "purchasePrice": null,
+      "salePrice": null,
+      "minStockLevel": 12,
+      "isActive": true,
+      "needsRoasting": false,
+      "roastingCost": null,
+      "barCode": "1234567890126",
+      "barCode2": "",
+      "rawProductId": 1,
+      "commissionPerKg": 1.00
+    },
+    {
+      "product_type": "محمص",
+      "name": "بزر ابيض نوع اول محمص",
+      "description": "بزر ابيض نوع اول محمص جاهز للاستهلاك",
+      "categoryId": 1,
+      "unitOfMeasure": "kg",
+      "purchasePrice": null,
+      "salePrice": null,
+      "minStockLevel": 10,
+      "isActive": true,
+      "needsRoasting": false,
+      "roastingCost": null,
+      "barCode": "1234567890127",
+      "barCode2": "",
+      "rawProductId": 2,
+      "commissionPerKg": 1.25
+    }
+  ],
+  "api_endpoint": "POST /api/Product/CreateProduct",
+  "headers": {
+    "Content-Type": "application/json",
+    "Authorization": "Bearer YOUR_JWT_TOKEN"
+  },
+  "notes": {
+    "required_fields": ["name"],
+    "optional_fields": [
+      "categoryId (default: 1)",
+      "description (default: empty string)",
+      "unitOfMeasure (default: kg)",
+      "purchasePrice",
+      "salePrice",
+      "minStockLevel (default: 5)",
+      "isActive (default: true)",
+      "needsRoasting (default: false)",
+      "roastingCost",
+      "barCode (default: empty string)",
+      "barCode2 (default: empty string)",
+      "rawProductId",
+      "commissionPerKg"
+    ]
+  }
+}

@@ -28,10 +28,6 @@ namespace MarketZone.Infrastructure.Persistence.Contexts.Configurations
                 .HasForeignKey(p => p.CategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            builder.HasOne(p => p.RawProduct)
-                .WithMany()
-                .HasForeignKey(p => p.RawProductId)
-                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

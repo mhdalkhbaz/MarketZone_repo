@@ -10,9 +10,10 @@ namespace MarketZone.Domain.Roasting.Entities
 		{
 		}
 
-		public RoastingOperation(long productId, decimal quantityKg, decimal roastPricePerKg, DateTime? roastDate, string notes)
+		public RoastingOperation(long rawProductId, long roastedProductId, decimal quantityKg, decimal roastPricePerKg, DateTime? roastDate, string notes)
 		{
-			ProductId = productId;
+			RawProductId = rawProductId;
+			RoastedProductId = roastedProductId;
 			QuantityKg = quantityKg;
 			RoastPricePerKg = roastPricePerKg;
 			RoastDate = roastDate ?? DateTime.UtcNow;
@@ -20,8 +21,10 @@ namespace MarketZone.Domain.Roasting.Entities
 			TotalCost = roastPricePerKg * quantityKg;
 		}
 
-		public long ProductId { get; private set; }
-		public Product Product { get; private set; }
+		public long RawProductId { get; private set; }
+		public Product RawProduct { get; private set; }
+		public long RoastedProductId { get; private set; }
+		public Product RoastedProduct { get; private set; }
 		public decimal QuantityKg { get; private set; }
 		public decimal RoastPricePerKg { get; private set; }
 		public decimal TotalCost { get; private set; }

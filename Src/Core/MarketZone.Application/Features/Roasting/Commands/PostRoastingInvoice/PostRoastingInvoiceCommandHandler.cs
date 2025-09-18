@@ -15,7 +15,7 @@ namespace MarketZone.Application.Features.Roasting.Commands.PostRoastingInvoice
             public class PostRoastingInvoiceCommandHandler : IRequestHandler<PostRoastingInvoiceCommand, BaseResult<long>>
         {
             private readonly IRoastingInvoiceRepository _repository;
-            private readonly IUnroastedProdcutBalanceRepository _unroastedRepository;
+            // تم حذف UnroastedProdcutBalanceRepository - نستخدم ProductBalanceRepository فقط
             private readonly IProductBalanceRepository _productBalanceRepository;
             private readonly IInventoryHistoryRepository _inventoryHistoryRepository;
             private readonly IUnitOfWork _unitOfWork;
@@ -23,14 +23,14 @@ namespace MarketZone.Application.Features.Roasting.Commands.PostRoastingInvoice
 
             public PostRoastingInvoiceCommandHandler(
                 IRoastingInvoiceRepository repository,
-                IUnroastedProdcutBalanceRepository unroastedRepository,
+                // تم حذف unroastedRepository
                 IProductBalanceRepository productBalanceRepository,
                 IInventoryHistoryRepository inventoryHistoryRepository,
                 IUnitOfWork unitOfWork,
                 IProductRepository productRepository)
             {
                 _repository = repository;
-                _unroastedRepository = unroastedRepository;
+                // تم حذف _unroastedRepository
                 _productBalanceRepository = productBalanceRepository;
                 _inventoryHistoryRepository = inventoryHistoryRepository;
                 _unitOfWork = unitOfWork;
@@ -73,25 +73,25 @@ namespace MarketZone.Application.Features.Roasting.Commands.PostRoastingInvoice
                     throw new InvalidOperationException($"Actual quantity must be greater than 0 for detail ID {detail.Id}");
                 }
 
-                var unroastedBalance = await _unroastedRepository.GetByProductIdAsync(detail.RawProductId.Value, cancellationToken);
-                if (unroastedBalance == null)
+                var rawProductBalance = await _productBalanceRepository.GetByProductIdAsync(detail.RawProductId.Value, cancellationToken);
+                if (rawProductBalance == null)
                 {
-                    throw new InvalidOperationException($"Unroasted balance not found for product {detail.RawProductId}");
+                    throw new InvalidOperationException($"Raw product balance not found for product {detail.RawProductId}");
                 }
 
-                // Check if we have enough quantity (Qty should be >= requested quantity)
-                if (unroastedBalance.Qty < detail.QuantityKg)
+                // Check if we have enough quantity (AvailableQty should be >= requested quantity)
+                if (rawProductBalance.AvailableQty < detail.QuantityKg)
                 {
-                    throw new InvalidOperationException($"Insufficient quantity for product {detail.RawProductId}. Available: {unroastedBalance.Qty}, Requested: {detail.QuantityKg}");
+                    throw new InvalidOperationException($"Insufficient quantity for product {detail.RawProductId}. Available: {rawProductBalance.AvailableQty}, Requested: {detail.QuantityKg}");
                 }
 
                 // Determine raw average cost
-                var rawAvgCost = unroastedBalance.Qty > 0 ? (unroastedBalance.TotalValue / unroastedBalance.Qty) : 0;
+                var rawAvgCost = rawProductBalance.Qty > 0 ? (rawProductBalance.TotalValue / rawProductBalance.Qty) : 0;
                 var rawConsumedValue = rawAvgCost * detail.QuantityKg;
 
                 // Consume raw with value
-                unroastedBalance.DecreaseWithValue(detail.QuantityKg, rawConsumedValue);
-                _unroastedRepository.Update(unroastedBalance);
+                rawProductBalance.AdjustWithValue(-detail.QuantityKg, -detail.QuantityKg, -rawConsumedValue);
+                _productBalanceRepository.Update(rawProductBalance);
 
                 // Determine commission per kg for ready product
                 var products = await _productRepository.GetByIdsAsync(new [] { detail.ReadyProductId }, cancellationToken);

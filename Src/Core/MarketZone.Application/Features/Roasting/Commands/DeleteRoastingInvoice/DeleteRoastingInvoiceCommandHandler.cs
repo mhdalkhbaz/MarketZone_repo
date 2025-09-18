@@ -12,16 +12,16 @@ namespace MarketZone.Application.Features.Roasting.Commands.DeleteRoastingInvoic
     public class DeleteRoastingInvoiceCommandHandler : IRequestHandler<DeleteRoastingInvoiceCommand, BaseResult>
     {
         private readonly IRoastingInvoiceRepository _repository;
-        private readonly IUnroastedProdcutBalanceRepository _unroastedRepository;
+        private readonly IProductBalanceRepository _productBalanceRepository;
         private readonly IUnitOfWork _unitOfWork;
 
         public DeleteRoastingInvoiceCommandHandler(
             IRoastingInvoiceRepository repository,
-            IUnroastedProdcutBalanceRepository unroastedRepository,
+            IProductBalanceRepository productBalanceRepository,
             IUnitOfWork unitOfWork)
         {
             _repository = repository;
-            _unroastedRepository = unroastedRepository;
+            _productBalanceRepository = productBalanceRepository;
             _unitOfWork = unitOfWork;
         }
 
@@ -42,11 +42,14 @@ namespace MarketZone.Application.Features.Roasting.Commands.DeleteRoastingInvoic
             // Release all reserved quantities
             foreach (var detail in roastingInvoice.Details)
             {
-                var unroastedBalance = await _unroastedRepository.GetByProductIdAsync(detail.RawProductId.Value , cancellationToken);
-                if (unroastedBalance != null)
+                if (detail.RawProductId.HasValue)
                 {
-                    unroastedBalance.Release(detail.QuantityKg);
-                    _unroastedRepository.Update(unroastedBalance);
+                    var rawProductBalance = await _productBalanceRepository.GetByProductIdAsync(detail.RawProductId.Value, cancellationToken);
+                    if (rawProductBalance != null)
+                    {
+                        rawProductBalance.Adjust(0, detail.QuantityKg); // Release the reserved quantity
+                        _productBalanceRepository.Update(rawProductBalance);
+                    }
                 }
             }
 

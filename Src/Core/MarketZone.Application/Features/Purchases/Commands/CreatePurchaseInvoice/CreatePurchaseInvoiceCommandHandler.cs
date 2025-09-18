@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace MarketZone.Application.Features.Purchases.Commands.CreatePurchaseInvoice
 {
-    public class CreatePurchaseInvoiceCommandHandler(IPurchaseInvoiceRepository purchaseInvoiceRepository, IUnitOfWork unitOfWork, IMapper mapper, IPurchaseInvoiceNumberGenerator numberGenerator) : IRequestHandler<CreatePurchaseInvoiceCommand, BaseResult<long>>
+    public class CreatePurchaseInvoiceCommandHandler(IPurchaseInvoiceRepository purchaseInvoiceRepository, IProductRepository productRepository, IUnitOfWork unitOfWork, IMapper mapper, IPurchaseInvoiceNumberGenerator numberGenerator) : IRequestHandler<CreatePurchaseInvoiceCommand, BaseResult<long>>
     {
         public async Task<BaseResult<long>> Handle(CreatePurchaseInvoiceCommand request, CancellationToken cancellationToken)
         {
@@ -19,6 +19,25 @@ namespace MarketZone.Application.Features.Purchases.Commands.CreatePurchaseInvoi
             {
                 return new Error(ErrorCode.FieldDataInvalid, "At least one line is required", nameof(request.Details));
             }
+
+            // التحقق من أن المنتجات المختارة صالحة للشراء (جاهز أو ني فقط)
+            var productIds = request.Details.Select(d => d.ProductId).Distinct().ToList();
+            var products = await productRepository.GetByIdsAsync(productIds, cancellationToken);
+            
+            foreach (var detail in request.Details)
+            {
+                if (!products.TryGetValue(detail.ProductId, out var product))
+                {
+                    return new Error(ErrorCode.NotFound, $"Product with ID {detail.ProductId} not found", nameof(detail.ProductId));
+                }
+
+                // التحقق من أن المنتج ليس محمص (المنتجات المحمصة لا تدخل في فاتورة الشراء)
+                if (product.RawProductId.HasValue)
+                {
+                    return new Error(ErrorCode.FieldDataInvalid, $"Roasted products cannot be purchased directly. Product: {product.Name}", nameof(detail.ProductId));
+                }
+            }
+
             var invoice = mapper.Map<PurchaseInvoice>(request);
             invoice.SetStatus(PurchaseInvoiceStatus.Draft);
             if (string.IsNullOrWhiteSpace(invoice.InvoiceNumber))

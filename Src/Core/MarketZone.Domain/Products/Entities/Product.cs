@@ -48,7 +48,6 @@ namespace MarketZone.Domain.Products.Entities
         public string BarCode { get; private set; }
         public string BarCode2 { get; private set; }
         public long? RawProductId { get; private set; }
-        public Product RawProduct { get; private set; }
         public decimal? CommissionPerKg { get; private set; }
 
         public void Update(

@@ -30,7 +30,6 @@ namespace MarketZone.Infrastructure.Persistence.Contexts
         public DbSet<SalesInvoiceDetail> SalesInvoiceDetails { get; set; }
         public DbSet<InventoryHistory> InventoryHistories { get; set; }
         public DbSet<ProductBalance> ProductBalances { get; set; }
-        public DbSet<UnroastedProdcutBalance> UnroastedProdcutBalances { get; set; }
         public DbSet<CashRegister> CashRegisters { get; set; }
         public DbSet<CashTransaction> CashTransactions { get; set; }
         public DbSet<Payment> Payments { get; set; }

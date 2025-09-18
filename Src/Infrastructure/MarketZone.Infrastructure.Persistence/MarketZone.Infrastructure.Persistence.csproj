@@ -12,4 +12,7 @@
     <ProjectReference Include="..\..\Core\MarketZone.Application\MarketZone.Application.csproj" />
     <ProjectReference Include="..\..\Core\MarketZone.Domain\MarketZone.Domain.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
 </Project>

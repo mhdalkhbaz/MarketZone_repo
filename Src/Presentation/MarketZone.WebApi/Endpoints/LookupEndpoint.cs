@@ -84,11 +84,12 @@ namespace MarketZone.WebApi.Endpoints
         // Returns products with unroasted quantities (>0)
         async Task<BaseResult<List<UnroastedProductDto>>> GetUnroastedProducts(ApplicationDbContext db)
         {
-            var query = from u in db.UnroastedProdcutBalances.AsNoTracking()
-                        where u.Qty > 0
-                        join p in db.Products.AsNoTracking() on u.ProductId equals p.Id
+            var query = from b in db.ProductBalances.AsNoTracking()
+                        where b.AvailableQty > 0
+                        join p in db.Products.AsNoTracking() on b.ProductId equals p.Id
+                        where p.NeedsRoasting == true // فقط المنتجات التي تحتاج تحميص
                         orderby p.Name
-                        select new UnroastedProductDto(p.Id.ToString(), p.Name, u.Qty);
+                        select new UnroastedProductDto(p.Id.ToString(), p.Name, b.AvailableQty);
             var list = await query.ToListAsync();
             return BaseResult<List<UnroastedProductDto>>.Ok(list);
         }

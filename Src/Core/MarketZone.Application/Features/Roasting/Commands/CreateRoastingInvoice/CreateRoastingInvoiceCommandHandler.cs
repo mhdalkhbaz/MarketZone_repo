@@ -16,20 +16,20 @@ namespace MarketZone.Application.Features.Roasting.Commands.CreateRoastingInvoic
         {
             private readonly IRoastingInvoiceRepository _repository;
             private readonly IRoastingInvoiceNumberGenerator _numberGenerator;
-            private readonly IUnroastedProdcutBalanceRepository _unroastedRepository;
+            private readonly IProductBalanceRepository _productBalanceRepository;
             private readonly IMapper _mapper;
             private readonly IUnitOfWork _unitOfWork;
 
             public CreateRoastingInvoiceCommandHandler(
                 IRoastingInvoiceRepository repository,
                 IRoastingInvoiceNumberGenerator numberGenerator,
-                IUnroastedProdcutBalanceRepository unroastedRepository,
+                IProductBalanceRepository productBalanceRepository,
                 IMapper mapper,
                 IUnitOfWork unitOfWork)
             {
                 _repository = repository;
                 _numberGenerator = numberGenerator;
-                _unroastedRepository = unroastedRepository;
+                _productBalanceRepository = productBalanceRepository;
                 _mapper = mapper;
                 _unitOfWork = unitOfWork;
             }
@@ -57,20 +57,20 @@ namespace MarketZone.Application.Features.Roasting.Commands.CreateRoastingInvoic
                 // Check and reserve available quantity only if RawProductId is provided
                 if (detailItem.RawProductId.HasValue)
                 {
-                    var unroastedBalance = await _unroastedRepository.GetByProductIdAsync(detailItem.RawProductId.Value, cancellationToken);
-                    if (unroastedBalance == null)
+                    var rawProductBalance = await _productBalanceRepository.GetByProductIdAsync(detailItem.RawProductId.Value, cancellationToken);
+                    if (rawProductBalance == null)
                     {
-                        throw new InvalidOperationException($"Unroasted balance not found for product {detailItem.RawProductId}");
+                        throw new InvalidOperationException($"Raw product balance not found for product {detailItem.RawProductId}");
                     }
 
-                    if (unroastedBalance.AvailableQty < detailItem.QuantityKg)
+                    if (rawProductBalance.AvailableQty < detailItem.QuantityKg)
                     {
-                        throw new InvalidOperationException($"Insufficient available quantity for product {detailItem.RawProductId}. Available: {unroastedBalance.AvailableQty}, Requested: {detailItem.QuantityKg}");
+                        throw new InvalidOperationException($"Insufficient available quantity for product {detailItem.RawProductId}. Available: {rawProductBalance.AvailableQty}, Requested: {detailItem.QuantityKg}");
                     }
 
                     // Reserve the quantity (reduce AvailableQty)
-                    unroastedBalance.Reserve(detailItem.QuantityKg);
-                    _unroastedRepository.Update(unroastedBalance);
+                    rawProductBalance.Adjust(0, -detailItem.QuantityKg);
+                    _productBalanceRepository.Update(rawProductBalance);
                 }
 
                 var detail = new RoastingInvoiceDetail(

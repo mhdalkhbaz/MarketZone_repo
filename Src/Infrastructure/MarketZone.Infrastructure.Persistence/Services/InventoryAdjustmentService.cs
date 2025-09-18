@@ -66,41 +66,7 @@ namespace MarketZone.Infrastructure.Persistence.Services
 			return list.ToDictionary(b => b.ProductId, b => b);
 		}
 
-		private async Task<Dictionary<long, UnroastedProdcutBalance>> LoadUnroastedAsync(List<long> productIds, CancellationToken cancellationToken)
-		{
-			var list = await dbContext.Set<UnroastedProdcutBalance>()
-				.Where(u => productIds.Contains(u.ProductId))
-				.ToListAsync(cancellationToken);
-			return list.ToDictionary(u => u.ProductId, u => u);
-		}
-
-		private async Task IncreaseUnroastedAsync(Dictionary<long, UnroastedProdcutBalance> cache, long productId, decimal quantity, CancellationToken cancellationToken)
-		{
-			if (!cache.TryGetValue(productId, out var row))
-			{
-				// Determine unit price from purchase details for this product
-				var unitPrice = await dbContext.Set<Domain.Purchases.Entities.PurchaseInvoiceDetail>()
-					.Where(d => d.InvoiceId == null ? false : true) // placeholder to satisfy EF
-					.Where(d => d.ProductId == productId)
-					.OrderByDescending(d => d.Id)
-					.Select(d => d.UnitPrice)
-					.FirstOrDefaultAsync(cancellationToken);
-				var value = unitPrice * quantity;
-				row = new UnroastedProdcutBalance(productId, quantity);
-				await dbContext.Set<UnroastedProdcutBalance>().AddAsync(row, cancellationToken);
-				cache[productId] = row;
-				return;
-			}
-
-			// Approximate value using latest unit price
-			var latestUnitPrice = await dbContext.Set<Domain.Purchases.Entities.PurchaseInvoiceDetail>()
-				.Where(d => d.ProductId == productId)
-				.OrderByDescending(d => d.Id)
-				.Select(d => d.UnitPrice)
-				.FirstOrDefaultAsync(cancellationToken);
-			var addValue = latestUnitPrice * quantity;
-			row.IncreaseWithValue(quantity, addValue);
-		}
+		// تم حذف LoadUnroastedAsync و IncreaseUnroastedAsync - نستخدم ProductBalance فقط
 
 		private async Task IncreaseReadyToSellAsync(Dictionary<long, ProductBalance> cache, long productId, decimal quantity, CancellationToken cancellationToken)
 		{
