@@ -16,9 +16,7 @@ namespace MarketZone.Application.Features.Purchases.Commands.PostPurchaseInvoice
 		{
 			var entity = await repository.GetWithDetailsByIdAsync(request.Id, cancellationToken);
 			if (entity is null)
-			{
 				return new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.PurchaseInvoiceMessages.PurchaseInvoice_NotFound_with_id(request.Id)), nameof(request.Id));
-			}
 
 			entity.SetStatus(PurchaseInvoiceStatus.Posted);
 			await inventoryAdjustment.AdjustOnPurchasePostedAsync(entity, cancellationToken);

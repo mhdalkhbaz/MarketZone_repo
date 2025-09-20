@@ -31,22 +31,22 @@ namespace MarketZone.Application.Features.Employees.Commands.CreateEmployee
             //	.When(x => !string.IsNullOrWhiteSpace(x.Email))
             //	.WithName(p => translator[nameof(p.Email)]);
 
-            RuleFor(p => p.Address)
-                .MaximumLength(500)
-                .WithName(p => translator[nameof(p.Address)]);
+            //RuleFor(p => p.Address)
+            //    .MaximumLength(500)
+            //    .WithName(p => translator[nameof(p.Address)]);
 
             RuleFor(p => p.JobTitle)
                 .MaximumLength(100)
                 .WithName(p => translator[nameof(p.JobTitle)]);
 
-            RuleFor(p => p.Salary)
-                .NotNull()
-                .GreaterThanOrEqualTo(0)
-                .WithName(p => translator[nameof(p.Salary)]);
+            //RuleFor(p => p.Salary)
+            //    .NotNull()
+            //    .GreaterThanOrEqualTo(0)
+            //    .WithName(p => translator[nameof(p.Salary)]);
 
-            RuleFor(p => p.HireDate)
-                .NotEmpty()
-                .WithName(p => translator[nameof(p.HireDate)]);
+            //RuleFor(p => p.HireDate)
+            //    .NotEmpty()
+            //    .WithName(p => translator[nameof(p.HireDate)]);
         }
     }
 }

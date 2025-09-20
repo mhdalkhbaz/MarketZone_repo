@@ -38,12 +38,25 @@ namespace MarketZone.Infrastructure.Persistence.Services
 
 		public async Task ApplyOnPostAsync(SalesInvoice invoice, CancellationToken cancellationToken = default)
 		{
+			// فواتير الموزّع لا تؤثر على المخزون هنا
+			if (invoice.Type == MarketZone.Domain.Sales.Enums.SalesInvoiceType.Distributor)
+				return;
+
+			// المبيعات العادية: إنقاص المتاح فقط AvailableQty
 			var productIds = invoice.Details.Select(d => d.ProductId).Distinct().ToList();
-			var balances = await dbContext.Set<ProductBalance>().Where(b => productIds.Contains(b.ProductId)).ToDictionaryAsync(b => b.ProductId, cancellationToken);
+			var balances = await dbContext.Set<ProductBalance>()
+				.Where(b => productIds.Contains(b.ProductId))
+				.ToDictionaryAsync(b => b.ProductId, cancellationToken);
+
 			foreach (var d in invoice.Details)
 			{
-				var bal = balances[d.ProductId];
-				bal.Adjust(-d.Quantity, 0);
+				if (!balances.TryGetValue(d.ProductId, out var bal))
+					throw new System.InvalidOperationException($"Product balance not found for product {d.ProductId}");
+
+				if (bal.AvailableQty < d.Quantity)
+					throw new System.InvalidOperationException($"Insufficient available quantity for product {d.ProductId}. Available: {bal.AvailableQty}, Requested: {d.Quantity}");
+
+				bal.Adjust(0, -d.Quantity);
 				await dbContext.Set<InventoryHistory>().AddAsync(new InventoryHistory(d.ProductId, "Sale", invoice.Id, d.Quantity, invoice.InvoiceDate, invoice.InvoiceNumber));
 			}
 		}

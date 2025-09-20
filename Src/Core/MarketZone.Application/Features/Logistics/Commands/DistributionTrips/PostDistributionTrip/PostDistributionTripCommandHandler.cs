@@ -40,18 +40,7 @@ namespace MarketZone.Application.Features.Logistics.Commands.DistributionTrips.P
 				if (trip.Status != DistributionTripStatus.Draft)
 					return new Error(ErrorCode.FieldDataInvalid, "Cannot post trip that is not in Draft status", nameof(request.Id));
 
-				// نقص الكميات من Qty في ProductBalance
-				foreach (var detail in trip.Details)
-				{
-					var balance = await _productBalanceRepository.GetByProductIdAsync(detail.ProductId, cancellationToken);
-					if (balance == null)
-						return new Error(ErrorCode.FieldDataInvalid, $"Product balance not found for product {detail.ProductId}", nameof(request.Id));
-
-					if (balance.Qty < detail.Qty)
-						return new Error(ErrorCode.FieldDataInvalid, $"Insufficient quantity for product {detail.ProductId}. Available: {balance.Qty}, Requested: {detail.Qty}", nameof(request.Id));
-
-					balance.Adjust(-detail.Qty, 0); // نقص Qty فقط
-				}
+                // لا تأثير على المخزون في مرحلة Post حسب المتطلبات الجديدة
 
 				// تغيير حالة الرحلة إلى Posted
 				trip.SetStatus(DistributionTripStatus.Posted);

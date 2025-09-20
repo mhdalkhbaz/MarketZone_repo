@@ -14,13 +14,9 @@ namespace MarketZone.Infrastructure.Persistence.Services
 	{
 		public async Task AdjustOnPurchasePostedAsync(PurchaseInvoice invoice, CancellationToken cancellationToken = default)
 		{
-			if (invoice?.Details == null || invoice.Details.Count == 0)
-				return;
-
 			var productIds = GetDistinctProductIds(invoice);
 			var products = await LoadProductsAsync(productIds, cancellationToken);
 			var balances = await LoadBalancesAsync(productIds, cancellationToken);
-			var unroasted = await LoadUnroastedAsync(productIds, cancellationToken);
 
 			var totalByProduct = GroupTotalQuantities(invoice);
 
@@ -29,14 +25,7 @@ namespace MarketZone.Infrastructure.Persistence.Services
 				if (!products.TryGetValue(productId, out var product))
 					continue;
 
-				if (product.NeedsRoasting)
-				{
-					await IncreaseUnroastedAsync(unroasted, productId, quantity, cancellationToken);
-				}
-				else
-				{
 					await IncreaseReadyToSellAsync(balances, productId, quantity, cancellationToken);
-				}
 			}
 		}
 
@@ -66,13 +55,11 @@ namespace MarketZone.Infrastructure.Persistence.Services
 			return list.ToDictionary(b => b.ProductId, b => b);
 		}
 
-		// تم حذف LoadUnroastedAsync و IncreaseUnroastedAsync - نستخدم ProductBalance فقط
-
 		private async Task IncreaseReadyToSellAsync(Dictionary<long, ProductBalance> cache, long productId, decimal quantity, CancellationToken cancellationToken)
 		{
 			if (!cache.TryGetValue(productId, out var balance))
 			{
-				var unitPrice = await dbContext.Set<Domain.Purchases.Entities.PurchaseInvoiceDetail>()
+				var unitPrice = await dbContext.Set<PurchaseInvoiceDetail>()
 					.Where(d => d.ProductId == productId)
 					.OrderByDescending(d => d.Id)
 					.Select(d => d.UnitPrice)
@@ -84,7 +71,7 @@ namespace MarketZone.Infrastructure.Persistence.Services
 				return;
 			}
 
-			var latestUnitPrice = await dbContext.Set<Domain.Purchases.Entities.PurchaseInvoiceDetail>()
+			var latestUnitPrice = await dbContext.Set<PurchaseInvoiceDetail>()
 				.Where(d => d.ProductId == productId)
 				.OrderByDescending(d => d.Id)
 				.Select(d => d.UnitPrice)

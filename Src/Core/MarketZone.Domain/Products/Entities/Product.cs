@@ -36,18 +36,22 @@ namespace MarketZone.Domain.Products.Entities
 
         public long CategoryId { get; private set; }
         public Category Category { get; private set; }
+        public string BarCode { get; private set; }
         public string Name { get; private set; }
         public string Description { get; private set; }
+
         public string UnitOfMeasure { get; private set; }
         public decimal? PurchasePrice { get; private set; }
         public decimal? SalePrice { get; private set; }
         public decimal MinStockLevel { get; private set; }
         public bool IsActive { get; private set; } = true;
+      
+
+
         public bool NeedsRoasting { get; private set; } = false;
         public decimal? RoastingCost { get; private set; }
-        public string BarCode { get; private set; }
-        public string BarCode2 { get; private set; }
         public long? RawProductId { get; private set; }
+
         public decimal? CommissionPerKg { get; private set; }
 
         public void Update(

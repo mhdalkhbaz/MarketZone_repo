@@ -4,7 +4,6 @@ using MarketZone.Application.Features.Logistics.Commands.DistributionTrips.Updat
 using MarketZone.Application.Features.Logistics.Commands.DistributionTrips.PostDistributionTrip;
 using MarketZone.Application.Features.Logistics.Commands.DistributionTrips.ReceiveGoods;
 using MarketZone.Application.Features.Logistics.Commands.DistributionTrips.CompleteTrip;
-using MarketZone.Application.Features.Logistics.Commands.DistributionTrips.CreateSalesInvoices;
 using MarketZone.Application.Features.Logistics.Queries.GetPagedListDistributionTrip;
 using MarketZone.Application.Features.Logistics.Queries.ValidateTripQuantities;
 using MarketZone.Application.Interfaces;
@@ -27,9 +26,8 @@ namespace MarketZone.WebApi.Endpoints
             builder.MapPost(CreateDistributionTrip).RequireAuthorization();
             builder.MapPut(UpdateDistributionTrip).RequireAuthorization();
             builder.MapPut(PostDistributionTrip).RequireAuthorization();
-            builder.MapPut(ReceiveGoods).RequireAuthorization();
+            //builder.MapPut(ReceiveGoods).RequireAuthorization();
             builder.MapPut(CompleteTrip).RequireAuthorization();
-            builder.MapPost(CreateSalesInvoices).RequireAuthorization();
         }
 
         async Task<PagedResponse<DistributionTripDto>> GetPagedListDistributionTrip(IMediator mediator, [AsParameters] GetPagedListDistributionTripQuery model)
@@ -47,14 +45,12 @@ namespace MarketZone.WebApi.Endpoints
         async Task<BaseResult> PostDistributionTrip(IMediator mediator, PostDistributionTripCommand model)
             => await mediator.Send<PostDistributionTripCommand, BaseResult>(model);
 
-        async Task<BaseResult> ReceiveGoods(IMediator mediator, ReceiveGoodsCommand model)
-            => await mediator.Send<ReceiveGoodsCommand, BaseResult>(model);
+        //async Task<BaseResult> ReceiveGoods(IMediator mediator, ReceiveGoodsCommand model)
+        //    => await mediator.Send<ReceiveGoodsCommand, BaseResult>(model);
 
         async Task<BaseResult> CompleteTrip(IMediator mediator, CompleteTripCommand model)
             => await mediator.Send<CompleteTripCommand, BaseResult>(model);
 
-        async Task<BaseResult<List<long>>> CreateSalesInvoices(IMediator mediator, CreateSalesInvoicesFromTripCommand model)
-            => await mediator.Send<CreateSalesInvoicesFromTripCommand, BaseResult<List<long>>>(model);
     }
 }
 

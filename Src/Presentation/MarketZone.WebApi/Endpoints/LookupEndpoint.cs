@@ -44,7 +44,7 @@ namespace MarketZone.WebApi.Endpoints
         {
             var query = from p in db.Products.AsNoTracking()
                         join b in db.ProductBalances.AsNoTracking() on p.Id equals b.ProductId
-                        where b.AvailableQty > 0
+                        where b.AvailableQty > 0 && !b.Product.NeedsRoasting
                         orderby p.Id
                         select new UnroastedProductDto(p.Id.ToString(), p.Name, b.AvailableQty);
             var list = await query.ToListAsync();

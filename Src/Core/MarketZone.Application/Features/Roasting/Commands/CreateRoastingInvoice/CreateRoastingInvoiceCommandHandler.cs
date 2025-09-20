@@ -36,25 +36,13 @@ namespace MarketZone.Application.Features.Roasting.Commands.CreateRoastingInvoic
 
         public async Task<BaseResult<long>> Handle(CreateRoastingInvoiceCommand request, CancellationToken cancellationToken)
         {
-            // Validate that details are not empty
-            if (!request.Details.Any())
-            {
-                throw new InvalidOperationException("Roasting invoice must have at least one detail line.");
-            }
-
-            // Generate invoice number if not provided
             if (string.IsNullOrEmpty(request.InvoiceNumber))
-            {
                 request.InvoiceNumber = await _numberGenerator.GenerateAsync();
-            }
 
-            // Create the roasting invoice
             var roastingInvoice = _mapper.Map<RoastingInvoice>(request);
 
-            // Add details manually since AutoMapper ignores them
             foreach (var detailItem in request.Details)
             {
-                // Check and reserve available quantity only if RawProductId is provided
                 if (detailItem.RawProductId.HasValue)
                 {
                     var rawProductBalance = await _productBalanceRepository.GetByProductIdAsync(detailItem.RawProductId.Value, cancellationToken);
@@ -68,7 +56,6 @@ namespace MarketZone.Application.Features.Roasting.Commands.CreateRoastingInvoic
                         throw new InvalidOperationException($"Insufficient available quantity for product {detailItem.RawProductId}. Available: {rawProductBalance.AvailableQty}, Requested: {detailItem.QuantityKg}");
                     }
 
-                    // Reserve the quantity (reduce AvailableQty)
                     rawProductBalance.Adjust(0, -detailItem.QuantityKg);
                     _productBalanceRepository.Update(rawProductBalance);
                 }
@@ -80,7 +67,7 @@ namespace MarketZone.Application.Features.Roasting.Commands.CreateRoastingInvoic
                     detailItem.QuantityKg,
                     detailItem.RoastPricePerKg,
                     detailItem.CommissionPerKgOverride,
-                    0, // ActualQuantityAfterRoasting = 0 عند الإنشاء
+                    0,  
                     detailItem.Notes ?? string.Empty);
 
                 roastingInvoice.AddDetail(detail);

@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MarketZone.Infrastructure.Persistence.Services
 {
-	public class RoastingService(ApplicationDbContext dbContext) : IRoastingService
-	{
+    public class RoastingService(ApplicationDbContext dbContext) : IRoastingService
+    {
 		public async Task<long> RoastAsync(long rawProductId, long roastedProductId, decimal quantityKg, decimal roastPricePerKg, DateTime? roastDate, string notes, CancellationToken cancellationToken = default)
 		{
 			// التحقق من وجود الكمية في المنتج الخام (الني)
@@ -48,12 +48,14 @@ namespace MarketZone.Infrastructure.Persistence.Services
 			await dbContext.Set<InventoryHistory>().AddAsync(new InventoryHistory(roastedProductId, "Roast_Produce", null, quantityKg, roastDate, notes));
 
 			// تسجيل عملية التحميص
-			var op = new RoastingOperation(rawProductId, roastedProductId, quantityKg, roastPricePerKg, roastDate, notes);
-			await dbContext.Set<RoastingOperation>().AddAsync(op, cancellationToken);
 			await dbContext.SaveChangesAsync(cancellationToken);
-			return op.Id;
+			return 2; // toDo
 		}
 
+        public Task<long> RoastAsync(long productId, decimal quantityKg, decimal roastPricePerKg, DateTime? roastDate, string notes, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
 

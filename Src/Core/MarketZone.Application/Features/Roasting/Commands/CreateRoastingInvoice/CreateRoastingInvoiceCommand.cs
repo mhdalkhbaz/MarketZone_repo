@@ -22,6 +22,5 @@ namespace MarketZone.Application.Features.Roasting.Commands.CreateRoastingInvoic
         public decimal RoastPricePerKg { get; set; }
         public decimal? CommissionPerKgOverride { get; set; }
         public string Notes { get; set; }
-        // لا نحتاج ActualQuantityAfterRoasting عند الإنشاء - سيتم إدخالها عند Post
     }
 }
