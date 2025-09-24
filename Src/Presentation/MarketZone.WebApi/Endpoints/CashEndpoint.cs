@@ -5,6 +5,8 @@ using MarketZone.Application.Features.Cash.CashTransactions.Commands.CreateCashT
 using MarketZone.Application.Features.Cash.CashTransactions.Queries.GetPagedListCashTransaction;
 using MarketZone.Application.Features.Cash.Payments.Commands.CreatePayment;
 using MarketZone.Application.Features.Cash.Payments.Commands.PostPayment;
+using MarketZone.Application.Features.Cash.ExchangeRates.Commands.CreateExchangeRate;
+using MarketZone.Application.Features.Cash.ExchangeRates.Queries.GetLatestRate;
 using MarketZone.Application.Interfaces;
 using MarketZone.Application.Wrappers;
 using MarketZone.Domain.Cash.DTOs;
@@ -32,6 +34,10 @@ namespace MarketZone.WebApi.Endpoints
             // Payments
             builder.MapPost(CreatePayment).RequireAuthorization();
             builder.MapPut(PostPayment).RequireAuthorization();
+
+            // ExchangeRates
+            builder.MapPost(CreateExchangeRate).RequireAuthorization();
+            builder.MapGet(GetLatestExchangeRate);
         }
 
         // CashRegisters
@@ -57,6 +63,13 @@ namespace MarketZone.WebApi.Endpoints
 
         async Task<BaseResult> PostPayment(IMediator mediator, PostPaymentCommand model)
             => await mediator.Send<PostPaymentCommand, BaseResult>(model);
+
+        // ExchangeRates
+        async Task<BaseResult<long>> CreateExchangeRate(IMediator mediator, CreateExchangeRateCommand model)
+            => await mediator.Send<CreateExchangeRateCommand, BaseResult<long>>(model);
+
+        async Task<BaseResult<MarketZone.Domain.Cash.Entities.ExchangeRate>> GetLatestExchangeRate(IMediator mediator, [AsParameters] GetLatestRateQuery model)
+            => await mediator.Send<GetLatestRateQuery, BaseResult<MarketZone.Domain.Cash.Entities.ExchangeRate>>(model);
     }
 }
 
