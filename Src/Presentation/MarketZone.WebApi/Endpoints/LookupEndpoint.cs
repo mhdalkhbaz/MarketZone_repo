@@ -24,6 +24,7 @@ namespace MarketZone.WebApi.Endpoints
             builder.MapGet(GetRegionSelectList);
             builder.MapGet(GetCarSelectList);
             builder.MapGet(GetInStockProductSelectList);
+            builder.MapGet(GetUnroastedProductsWithQty);
             builder.MapGet(GetUnroastedProducts);
         }
 
@@ -81,8 +82,18 @@ namespace MarketZone.WebApi.Endpoints
             return BaseResult<List<SelectListDto>>.Ok(list);
         }
 
-        // Returns products with unroasted quantities (>0)
         async Task<BaseResult<List<UnroastedProductDto>>> GetUnroastedProducts(ApplicationDbContext db)
+        {
+            var query = from p in db.Products.AsNoTracking()
+                        where p.NeedsRoasting == true // فقط المنتجات التي تحتاج تحميص
+                        orderby p.Name
+                        select new UnroastedProductDto(p.Id.ToString(), p.Name,0);
+            var list = await query.ToListAsync();
+            return BaseResult<List<UnroastedProductDto>>.Ok(list);
+        }
+
+        // Returns products with unroasted quantities (>0)
+        async Task<BaseResult<List<UnroastedProductDto>>> GetUnroastedProductsWithQty(ApplicationDbContext db)
         {
             var query = from b in db.ProductBalances.AsNoTracking()
                         where b.AvailableQty > 0
@@ -93,6 +104,8 @@ namespace MarketZone.WebApi.Endpoints
             var list = await query.ToListAsync();
             return BaseResult<List<UnroastedProductDto>>.Ok(list);
         }
+
+
     }
 }
 

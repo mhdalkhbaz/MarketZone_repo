@@ -57,5 +57,17 @@ namespace MarketZone.Application.Helpers
 			public static TranslatorMessageDto Expense_NotFound_with_id(long id)
 				=> new(nameof(Expense_NotFound_with_id), [id.ToString()]);
 		}
+
+        public static class CarMessages
+        {
+            public static TranslatorMessageDto Car_NotFound_with_id(long id)
+                => new(nameof(Car_NotFound_with_id), [id.ToString()]);
+        }
+
+        public static class RegionMessages
+        {
+            public static TranslatorMessageDto Region_NotFound_with_id(long id)
+                => new(nameof(Region_NotFound_with_id), [id.ToString()]);
+        }
     }
 }
