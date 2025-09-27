@@ -2,6 +2,7 @@ using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using MarketZone.Application.DTOs;
 using MarketZone.Application.Wrappers;
+using MarketZone.Domain.Logistics.Enums;
 using MarketZone.Infrastructure.Persistence.Contexts;
 using MarketZone.WebApi.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Builder;
@@ -23,6 +24,7 @@ namespace MarketZone.WebApi.Endpoints
             builder.MapGet(GetEmployeeSelectList);
             builder.MapGet(GetRegionSelectList);
             builder.MapGet(GetCarSelectList);
+            builder.MapGet(GetDeliveryTripSelectList);
             builder.MapGet(GetInStockProductSelectList);
             builder.MapGet(GetUnroastedProductsWithQty);
             builder.MapGet(GetUnroastedProducts);
@@ -79,6 +81,21 @@ namespace MarketZone.WebApi.Endpoints
                 .OrderBy(c => c.Name)
                 .Select(c => new SelectListDto(c.Name, c.Id.ToString()))
                 .ToListAsync();
+            return BaseResult<List<SelectListDto>>.Ok(list);
+        }
+
+        async Task<BaseResult<List<SelectListDto>>> GetDeliveryTripSelectList(ApplicationDbContext db)
+        {
+            var trips = await db.DistributionTrips.AsNoTracking()
+                .Where(t => t.Status == DistributionTripStatus.Posted)
+                .OrderByDescending(t => t.TripDate)
+                .Select(t => new { t.Id, t.TripDate })
+                .ToListAsync();
+
+            var list = trips
+                .Select(t => new SelectListDto($"{t.TripDate:yyyy-MM-dd} ({t.Id})", t.Id.ToString()))
+                .ToList();
+
             return BaseResult<List<SelectListDto>>.Ok(list);
         }
 
