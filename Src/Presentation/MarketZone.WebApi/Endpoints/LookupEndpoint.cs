@@ -25,6 +25,7 @@ namespace MarketZone.WebApi.Endpoints
             builder.MapGet(GetRegionSelectList);
             builder.MapGet(GetCarSelectList);
             builder.MapGet(GetDeliveryTripSelectList);
+            builder.MapGet(GetProductReadyByRawProductSelectList);
             builder.MapGet(GetInStockProductSelectList);
             builder.MapGet(GetUnroastedProductsWithQty);
             builder.MapGet(GetUnroastedProducts);
@@ -97,6 +98,17 @@ namespace MarketZone.WebApi.Endpoints
                 .ToList();
 
             return BaseResult<List<SelectListDto>>.Ok(list);
+        }
+
+        async Task<BaseResult<List<SelectListDto>>> GetProductReadyByRawProductSelectList(ApplicationDbContext db, long productId)
+        {
+            var products = await db.Products.AsNoTracking()
+                .Where(p => p.RawProductId == productId)
+                .OrderBy(p => p.Name)
+                .Select(p => new SelectListDto(p.Name, p.Id.ToString()))
+                .ToListAsync();
+
+            return BaseResult<List<SelectListDto>>.Ok(products);
         }
 
         async Task<BaseResult<List<UnroastedProductDto>>> GetUnroastedProducts(ApplicationDbContext db)
