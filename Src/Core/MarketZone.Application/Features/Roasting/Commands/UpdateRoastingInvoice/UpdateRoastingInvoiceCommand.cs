@@ -18,11 +18,8 @@ namespace MarketZone.Application.Features.Roasting.Commands.UpdateRoastingInvoic
     public class UpdateRoastingInvoiceDetailItem
     {
         public long? Id { get; set; }
-        public long ReadyProductId { get; set; }
-        public long? RawProductId { get; set; }
+        public long RawProductId { get; set; }
         public decimal QuantityKg { get; set; }
-        public decimal RoastPricePerKg { get; set; }
-        public decimal? CommissionPerKgOverride { get; set; }
         public string Notes { get; set; }
         public bool IsDeleted { get; set; }
         // لا يمكن تحديث ActualQuantityAfterRoasting - يتم إدخالها فقط عند Post

@@ -43,32 +43,25 @@ namespace MarketZone.Application.Features.Roasting.Commands.CreateRoastingInvoic
 
             foreach (var detailItem in request.Details)
             {
-                if (detailItem.RawProductId.HasValue)
+                var rawProductBalance = await _productBalanceRepository.GetByProductIdAsync(detailItem.RawProductId, cancellationToken);
+                if (rawProductBalance == null)
                 {
-                    var rawProductBalance = await _productBalanceRepository.GetByProductIdAsync(detailItem.RawProductId.Value, cancellationToken);
-                    if (rawProductBalance == null)
-                    {
-                        throw new InvalidOperationException($"Raw product balance not found for product {detailItem.RawProductId}");
-                    }
-
-                    if (rawProductBalance.AvailableQty < detailItem.QuantityKg)
-                    {
-                        throw new InvalidOperationException($"Insufficient available quantity for product {detailItem.RawProductId}. Available: {rawProductBalance.AvailableQty}, Requested: {detailItem.QuantityKg}");
-                    }
-
-                    rawProductBalance.Adjust(0, -detailItem.QuantityKg);
-                    _productBalanceRepository.Update(rawProductBalance);
+                    throw new InvalidOperationException($"Raw product balance not found for product {detailItem.RawProductId}");
                 }
+
+                if (rawProductBalance.AvailableQty < detailItem.QuantityKg)
+                {
+                    throw new InvalidOperationException($"Insufficient available quantity for product {detailItem.RawProductId}. Available: {rawProductBalance.AvailableQty}, Requested: {detailItem.QuantityKg}");
+                }
+
+                rawProductBalance.Adjust(0, -detailItem.QuantityKg);
+                _productBalanceRepository.Update(rawProductBalance);
 
                 var detail = new RoastingInvoiceDetail(
                     roastingInvoice.Id,
-                    detailItem.ReadyProductId,
                     detailItem.RawProductId,
                     detailItem.QuantityKg,
-                    detailItem.RoastPricePerKg,
-                    detailItem.CommissionPerKgOverride,
-                    0,  
-                    detailItem.Notes ?? string.Empty);
+                    detailItem.Notes);
 
                 roastingInvoice.AddDetail(detail);
             }

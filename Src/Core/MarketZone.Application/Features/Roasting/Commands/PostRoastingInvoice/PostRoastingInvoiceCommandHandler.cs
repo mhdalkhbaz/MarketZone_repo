@@ -45,7 +45,7 @@ namespace MarketZone.Application.Features.Roasting.Commands.PostRoastingInvoice
                 throw new InvalidOperationException($"Roasting invoice with ID {request.Id} not found.");
             }
 
-            if (roastingInvoice.Status == RoastingInvoiceStatus.Posted)
+            if (roastingInvoice.Status == RoastingInvoiceStatus.Posted || roastingInvoice.Status == RoastingInvoiceStatus.Received)
             {
                 throw new InvalidOperationException("Roasting invoice is already posted.");
             }
@@ -73,7 +73,7 @@ namespace MarketZone.Application.Features.Roasting.Commands.PostRoastingInvoice
                     throw new InvalidOperationException($"Actual quantity must be greater than 0 for detail ID {detail.Id}");
                 }
 
-                var rawProductBalance = await _productBalanceRepository.GetByProductIdAsync(detail.RawProductId.Value, cancellationToken);
+                var rawProductBalance = await _productBalanceRepository.GetByProductIdAsync(detail.RawProductId, cancellationToken);
                 if (rawProductBalance == null)
                 {
                     throw new InvalidOperationException($"Raw product balance not found for product {detail.RawProductId}");
@@ -84,76 +84,15 @@ namespace MarketZone.Application.Features.Roasting.Commands.PostRoastingInvoice
                 {
                     throw new InvalidOperationException($"Insufficient quantity for product {detail.RawProductId}. Available: {rawProductBalance.AvailableQty}, Requested: {detail.QuantityKg}");
                 }
-
-                // Determine raw average cost
-                var rawAvgCost = rawProductBalance.Qty > 0 ? (rawProductBalance.TotalValue / rawProductBalance.Qty) : 0;
-                var rawConsumedValue = rawAvgCost * detail.QuantityKg;
-
-                // Consume raw with value
-                rawProductBalance.AdjustWithValue(-detail.QuantityKg, -detail.QuantityKg, -rawConsumedValue);
-                _productBalanceRepository.Update(rawProductBalance);
-
-                // Determine commission per kg for ready product
-                var products = await _productRepository.GetByIdsAsync(new [] { detail.ReadyProductId }, cancellationToken);
-                var readyProduct = products[detail.ReadyProductId];
-                var commissionPerKg = detail.CommissionPerKg > 0 ? detail.CommissionPerKg : (readyProduct.CommissionPerKg ?? 0);
-
-                // Compute value additions: roast cost on raw qty + commission on actual ready qty
-                var roastCostValue = detail.RoastPricePerKg * detail.QuantityKg;
-                var commissionValue = commissionPerKg * actualQuantity;
-                var readyAddedValue = rawConsumedValue + roastCostValue + commissionValue;
-
-                // Update the detail with actual quantity
-                UpdateDetailWithActualQuantity(detail, actualQuantity);
-
-                // Add ready product qty & value
-                await AddRoastedProductToInventoryWithValue(detail.ReadyProductId, actualQuantity, readyAddedValue, cancellationToken);
             }
 
             // Set status to Posted
-            roastingInvoice.SetStatus(RoastingInvoiceStatus.Posted);
+            roastingInvoice.SetStatus(RoastingInvoiceStatus.Receiving);
             _repository.Update(roastingInvoice);
 
             await _unitOfWork.SaveChangesAsync();
 
             return new BaseResult<long> { Success = true, Data = roastingInvoice.Id };
-        }
-
-        private void UpdateDetailWithActualQuantity(RoastingInvoiceDetail detail, decimal actualQuantity)
-        {
-            // Update the actual quantity using reflection since the property is private set
-            var property = typeof(RoastingInvoiceDetail).GetProperty("ActualQuantityAfterRoasting");
-            property?.SetValue(detail, actualQuantity);
-        }
-
-        private async Task AddRoastedProductToInventoryWithValue(long productId, decimal actualQuantity, decimal valueToAdd, CancellationToken cancellationToken)
-        {
-            // Get or create ProductBalance for the roasted product
-            var balance = await _productBalanceRepository.GetByProductIdAsync(productId, cancellationToken);
-
-            if (balance == null)
-            {
-                // Create new ProductBalance for roasted product
-                balance = new ProductBalance(productId, actualQuantity, actualQuantity, valueToAdd);
-                await _productBalanceRepository.AddAsync(balance);
-            }
-            else
-            {
-                // Adjust existing ProductBalance
-                balance.AdjustWithValue(actualQuantity, actualQuantity, valueToAdd);
-                _productBalanceRepository.Update(balance);
-            }
-
-            // Create InventoryHistory record for tracking
-            var inventoryHistory = new InventoryHistory(
-                productId, 
-                "Roast", 
-                null, 
-                actualQuantity, 
-                DateTime.UtcNow, 
-                $"Roasted product added to inventory - Actual quantity: {actualQuantity}kg, Added value: {valueToAdd}");
-
-            await _inventoryHistoryRepository.AddAsync(inventoryHistory);
         }
     }
 }

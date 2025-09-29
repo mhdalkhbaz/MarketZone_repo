@@ -42,14 +42,11 @@ namespace MarketZone.Application.Features.Roasting.Commands.DeleteRoastingInvoic
             // Release all reserved quantities
             foreach (var detail in roastingInvoice.Details)
             {
-                if (detail.RawProductId.HasValue)
+                var rawProductBalance = await _productBalanceRepository.GetByProductIdAsync(detail.RawProductId, cancellationToken);
+                if (rawProductBalance != null)
                 {
-                    var rawProductBalance = await _productBalanceRepository.GetByProductIdAsync(detail.RawProductId.Value, cancellationToken);
-                    if (rawProductBalance != null)
-                    {
-                        rawProductBalance.Adjust(0, detail.QuantityKg); // Release the reserved quantity
-                        _productBalanceRepository.Update(rawProductBalance);
-                    }
+                    rawProductBalance.Adjust(0, detail.QuantityKg); // Release the reserved quantity
+                    _productBalanceRepository.Update(rawProductBalance);
                 }
             }
 

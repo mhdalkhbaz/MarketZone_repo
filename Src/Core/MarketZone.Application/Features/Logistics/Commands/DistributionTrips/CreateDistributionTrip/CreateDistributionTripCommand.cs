@@ -20,7 +20,7 @@ namespace MarketZone.Application.Features.Logistics.Commands.DistributionTrips.C
 	{
 		public long ProductId { get; set; }
 		public decimal Qty { get; set; }
-		public decimal ExpectedPrice { get; set; }
+		public decimal? ExpectedPrice { get; set; }
 	}
 }
 

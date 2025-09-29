@@ -36,6 +36,7 @@ namespace MarketZone.Infrastructure.Persistence.Contexts
         public DbSet<ExchangeRate> ExchangeRates { get; set; }
         public DbSet<RoastingInvoice> RoastingInvoices { get; set; }
         public DbSet<RoastingInvoiceDetail> RoastingInvoiceDetails { get; set; }
+        public DbSet<RoastingInvoiceDetailReceipt> RoastingInvoiceDetailReceipts { get; set; }
         public DbSet<Car> Cars { get; set; }
         public DbSet<Region> Regions { get; set; }
         public DbSet<DistributionTrip> DistributionTrips { get; set; }
@@ -49,7 +50,7 @@ namespace MarketZone.Infrastructure.Persistence.Contexts
         protected override void OnModelCreating(ModelBuilder builder)
         {
             this.ConfigureDecimalProperties(builder);
-
+            builder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
             base.OnModelCreating(builder);
         }
     }

@@ -98,7 +98,7 @@ namespace MarketZone.Application.Features.Logistics.Commands.DistributionTrips.C
 				{
 					foreach (var d in request.Details)
 					{
-						var detail = new DistributionTripDetail(0, d.ProductId, d.Qty, d.ExpectedPrice);
+						var detail = new DistributionTripDetail(0, d.ProductId, d.Qty, d.ExpectedPrice.Value);
 						trip.AddDetail(detail);
 					}
 				}

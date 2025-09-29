@@ -29,6 +29,7 @@ namespace MarketZone.Domain.Roasting.Entities
         public RoastingInvoiceStatus Status { get; private set; }
         public RoastingPaymentStatus PaymentStatus { get; private set; }
         public List<RoastingInvoiceDetail> Details { get; private set; }
+        public List<RoastingInvoiceDetailReceipt> Receipts { get; private set; } = new List<RoastingInvoiceDetailReceipt>();
         public IReadOnlyCollection<Payment> Payments { get; private set; } = new List<Payment>();
 
         public void SetStatus(RoastingInvoiceStatus status)
@@ -61,6 +62,25 @@ namespace MarketZone.Domain.Roasting.Entities
         public void ClearDetails()
         {
             Details?.Clear();
+        }
+
+        public void AddReceipt(RoastingInvoiceDetailReceipt receipt)
+        {
+            Receipts ??= new List<RoastingInvoiceDetailReceipt>();
+            Receipts.Add(receipt);
+        }
+
+        public void RemoveReceiptsForDetail(long detailId)
+        {
+            if (Receipts == null || Receipts.Count == 0)
+                return;
+
+            Receipts.RemoveAll(r => r.DetailId == detailId);
+        }
+
+        public void ClearReceipts()
+        {
+            Receipts?.Clear();
         }
     }
 }

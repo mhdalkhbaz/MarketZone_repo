@@ -31,7 +31,6 @@ namespace MarketZone.WebApi.Endpoints
             builder.MapGet(GetUnroastedProducts);
             builder.MapGet(GetAllProductsForPurchase);
         }
-
         async Task<BaseResult<List<SelectListDto>>> GetProductSelectList(ApplicationDbContext db, IMapper mapper)
             => BaseResult<List<SelectListDto>>.Ok(await db.Products.AsNoTracking().OrderBy(p => p.Id).ProjectTo<SelectListDto>(mapper.ConfigurationProvider).ToListAsync());
 

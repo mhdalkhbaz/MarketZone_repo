@@ -49,14 +49,11 @@ namespace MarketZone.Application.Features.Roasting.Commands.UpdateRoastingInvoic
             // Release all previously reserved quantities
             foreach (var detail in roastingInvoice.Details)
             {
-                if (detail.RawProductId.HasValue)
+                var rawProductBalance = await _productBalanceRepository.GetByProductIdAsync(detail.RawProductId, cancellationToken);
+                if (rawProductBalance != null)
                 {
-                    var rawProductBalance = await _productBalanceRepository.GetByProductIdAsync(detail.RawProductId.Value, cancellationToken);
-                    if (rawProductBalance != null)
-                    {
-                        rawProductBalance.Adjust(0, detail.QuantityKg); // Release the reserved quantity
-                        _productBalanceRepository.Update(rawProductBalance);
-                    }
+                    rawProductBalance.Adjust(0, detail.QuantityKg); // Release the reserved quantity
+                    _productBalanceRepository.Update(rawProductBalance);
                 }
             }
 
@@ -79,49 +76,41 @@ namespace MarketZone.Application.Features.Roasting.Commands.UpdateRoastingInvoic
                 }
                 else if (!detailItem.IsDeleted)
                 {
+                    RoastingInvoiceDetail existingDetail = null;
                     if (detailItem.Id.HasValue)
                     {
-                        // Update existing detail
-                        var existingDetail = roastingInvoice.Details.FirstOrDefault(d => d.Id == detailItem.Id);
-                        if (existingDetail != null)
-                        {
-                            // Update properties (this would need setters in the entity)
-                            // For now, we'll remove and add new
-                            roastingInvoice.RemoveDetail(existingDetail);
-                        }
+                        existingDetail = roastingInvoice.Details.FirstOrDefault(d => d.Id == detailItem.Id);
                     }
 
-                    // Check and reserve available quantity for new detail
-                    if (detailItem.RawProductId.HasValue)
+                    // Check and reserve available quantity for new detail state
+                    var rawProductBalance = await _productBalanceRepository.GetByProductIdAsync(detailItem.RawProductId, cancellationToken);
+                    if (rawProductBalance == null)
                     {
-                        var rawProductBalance = await _productBalanceRepository.GetByProductIdAsync(detailItem.RawProductId.Value, cancellationToken);
-                        if (rawProductBalance == null)
-                        {
-                            throw new InvalidOperationException($"Raw product balance not found for product {detailItem.RawProductId}");
-                        }
-
-                        if (rawProductBalance.AvailableQty < detailItem.QuantityKg)
-                        {
-                            throw new InvalidOperationException($"Insufficient available quantity for product {detailItem.RawProductId}. Available: {rawProductBalance.AvailableQty}, Requested: {detailItem.QuantityKg}");
-                        }
-
-                        // Reserve the quantity (reduce AvailableQty)
-                        rawProductBalance.Adjust(0, -detailItem.QuantityKg);
-                        _productBalanceRepository.Update(rawProductBalance);
+                        throw new InvalidOperationException($"Raw product balance not found for product {detailItem.RawProductId}");
                     }
 
-                    // Add new detail
-                    var newDetail = new RoastingInvoiceDetail(
-                        roastingInvoice.Id,
-                        detailItem.ReadyProductId,
-                        detailItem.RawProductId,
-                        detailItem.QuantityKg,
-                        detailItem.RoastPricePerKg,
-                        detailItem.CommissionPerKgOverride,
-                        0, // ActualQuantityAfterRoasting = 0 عند الإنشاء/التحديث
-                        detailItem.Notes ?? string.Empty);
-                    
-                    roastingInvoice.AddDetail(newDetail);
+                    if (rawProductBalance.AvailableQty < detailItem.QuantityKg)
+                    {
+                        throw new InvalidOperationException($"Insufficient available quantity for product {detailItem.RawProductId}. Available: {rawProductBalance.AvailableQty}, Requested: {detailItem.QuantityKg}");
+                    }
+
+                    rawProductBalance.Adjust(0, -detailItem.QuantityKg);
+                    _productBalanceRepository.Update(rawProductBalance);
+
+                    if (existingDetail != null)
+                    {
+                        existingDetail.Update(detailItem.RawProductId, detailItem.QuantityKg, detailItem.Notes);
+                    }
+                    else
+                    {
+                        var newDetail = new RoastingInvoiceDetail(
+                            roastingInvoice.Id,
+                            detailItem.RawProductId,
+                            detailItem.QuantityKg,
+                            detailItem.Notes);
+
+                        roastingInvoice.AddDetail(newDetail);
+                    }
                 }
             }
 
