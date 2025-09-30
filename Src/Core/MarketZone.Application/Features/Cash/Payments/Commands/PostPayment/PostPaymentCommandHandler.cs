@@ -1,6 +1,5 @@
 using System.Threading;
 using System.Threading.Tasks;
-using AutoMapper;
 using MarketZone.Application.Helpers;
 using MarketZone.Application.Interfaces;
 using MarketZone.Application.Interfaces.Repositories;
@@ -17,8 +16,7 @@ namespace MarketZone.Application.Features.Cash.Payments.Commands.PostPayment
 		ICashRegisterRepository cashRegisterRepository,
 		IPurchaseInvoiceRepository purchaseInvoiceRepository,
 		IUnitOfWork unitOfWork,
-		ITranslator translator,
-		IMapper mapper
+		ITranslator translator
 	) : IRequestHandler<PostPaymentCommand, BaseResult>
 	{
 		public async Task<BaseResult> Handle(PostPaymentCommand request, CancellationToken cancellationToken)

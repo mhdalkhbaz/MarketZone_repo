@@ -5,7 +5,6 @@ using MarketZone.Application.Interfaces;
 using MarketZone.Application.Interfaces.Repositories;
 using MarketZone.Application.Wrappers;
 using MarketZone.Domain.Logistics.Enums;
-using MarketZone.Application.Interfaces.Repositories;
 using MarketZone.Domain.Inventory.Entities;
 
 namespace MarketZone.Application.Features.Logistics.Commands.DistributionTrips.CompleteTrip

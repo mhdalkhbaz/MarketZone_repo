@@ -42,9 +42,19 @@ namespace MarketZone.Application.Features.Sales.Commands.CreateSalesInvoice
 					if (trip == null)
 						return new Error(ErrorCode.NotFound, "Distribution trip not found", nameof(request.DistributionTripId));
 
-					// التحقق من أن رحلة التوزيع في حالة GoodsReceived
-					if (trip.Status != MarketZone.Domain.Logistics.Enums.DistributionTripStatus.GoodsReceived)
-						return new Error(ErrorCode.FieldDataInvalid, "Cannot create distributor invoice for trip that is not in GoodsReceived status", nameof(request.DistributionTripId));
+					// التحقق من أن رحلة التوزيع لم تكتمل بعد (Status <= 4)
+					if ((short)trip.Status > 4)
+						return new Error(ErrorCode.FieldDataInvalid, "Cannot create distributor invoice for completed or cancelled trip", nameof(request.DistributionTripId));
+
+					// التحقق من أن رحلة التوزيع في حالة GoodsReceived أو أقل
+					if (trip.Status != MarketZone.Domain.Logistics.Enums.DistributionTripStatus.GoodsReceived && 
+						trip.Status != MarketZone.Domain.Logistics.Enums.DistributionTripStatus.InProgress)
+						return new Error(ErrorCode.FieldDataInvalid, "Cannot create distributor invoice for trip that is not in GoodsReceived or InProgress status", nameof(request.DistributionTripId));
+
+					// التحقق من أن الكمية لم تنتهي (خلصت الكمية)
+					var hasRemainingQuantity = trip.Details.Any(d => (d.Qty - d.SoldQty - d.ReturnedQty) > 0);
+					if (!hasRemainingQuantity)
+						return new Error(ErrorCode.FieldDataInvalid, "Cannot create distributor invoice - all quantities have been sold or returned (خلصت الكمية)", nameof(request.DistributionTripId));
 
 					invoice.SetDistributionTrip(trip);
 					trip.AddSalesInvoice(invoice);
@@ -63,6 +73,14 @@ namespace MarketZone.Application.Features.Sales.Commands.CreateSalesInvoice
 
 								tripDetail.AddSoldQty(detail.Quantity);
 							}
+						}
+
+						// التحقق من أن جميع الكميات انتهت بعد البيع
+						var allQuantitiesFinished = !trip.Details.Any(d => (d.Qty - d.SoldQty - d.ReturnedQty) > 0);
+						if (allQuantitiesFinished)
+						{
+							// إذا انتهت جميع الكميات، تحديث حالة الرحلة إلى مكتملة
+							trip.SetStatus(MarketZone.Domain.Logistics.Enums.DistributionTripStatus.Completed);
 						}
 					}
 				}

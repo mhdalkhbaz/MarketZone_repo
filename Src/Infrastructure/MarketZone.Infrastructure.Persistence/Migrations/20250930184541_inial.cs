@@ -144,6 +144,27 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ExchangeRates",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CurrencyCode = table.Column<string>(type: "nvarchar(8)", maxLength: 8, nullable: false),
+                    RateToUSD = table.Column<decimal>(type: "decimal(18,3)", nullable: false),
+                    EffectiveAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Source = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Notes = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Created = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    LastModified = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ExchangeRates", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Regions",
                 columns: table => new
                 {
@@ -213,6 +234,7 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CategoryId = table.Column<long>(type: "bigint", nullable: false),
+                    BarCode = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     UnitOfMeasure = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false, defaultValue: "kg"),
@@ -222,8 +244,6 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                     IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
                     NeedsRoasting = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
                     RoastingCost = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    BarCode = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    BarCode2 = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     RawProductId = table.Column<long>(type: "bigint", nullable: true),
                     CommissionPerKg = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -407,13 +427,10 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     RoastingInvoiceId = table.Column<long>(type: "bigint", nullable: false),
-                    ReadyProductId = table.Column<long>(type: "bigint", nullable: false),
-                    RawProductId = table.Column<long>(type: "bigint", nullable: true),
+                    RawProductId = table.Column<long>(type: "bigint", nullable: false),
                     QuantityKg = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 2, nullable: false),
-                    RoastPricePerKg = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 2, nullable: false),
-                    CommissionPerKg = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 2, nullable: false),
-                    ActualQuantityAfterRoasting = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 2, nullable: false),
-                    TotalPrice = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 2, nullable: false),
+                    ReceivedQuantityKg = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 2, nullable: false),
+                    RoastingCost = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 2, nullable: false),
                     Notes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Created = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -428,73 +445,12 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                         column: x => x.RawProductId,
                         principalTable: "Products",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
-                    table.ForeignKey(
-                        name: "FK_RoastingInvoiceDetails_Products_ReadyProductId",
-                        column: x => x.ReadyProductId,
-                        principalTable: "Products",
-                        principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_RoastingInvoiceDetails_RoastingInvoices_RoastingInvoiceId",
                         column: x => x.RoastingInvoiceId,
                         principalTable: "RoastingInvoices",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "RoastingOperations",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ProductId = table.Column<long>(type: "bigint", nullable: false),
-                    QuantityKg = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    RoastPricePerKg = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    TotalCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    RoastDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
-                    Notes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Created = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    LastModified = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_RoastingOperations", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_RoastingOperations_Products_ProductId",
-                        column: x => x.ProductId,
-                        principalTable: "Products",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "UnroastedProdcutBalances",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ProductId = table.Column<long>(type: "bigint", nullable: false),
-                    Qty = table.Column<decimal>(type: "decimal(18,6)", nullable: false, defaultValue: 0m),
-                    AvailableQty = table.Column<decimal>(type: "decimal(18,6)", nullable: false, defaultValue: 0m),
-                    TotalValue = table.Column<decimal>(type: "decimal(18,6)", nullable: false, defaultValue: 0m),
-                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Created = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    LastModified = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UnroastedProdcutBalances", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_UnroastedProdcutBalances_Products_ProductId",
-                        column: x => x.ProductId,
-                        principalTable: "Products",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -604,6 +560,46 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "RoastingInvoiceDetailReceipts",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    RoastingInvoiceId = table.Column<long>(type: "bigint", nullable: false),
+                    DetailId = table.Column<long>(type: "bigint", nullable: false),
+                    ReadyProductId = table.Column<long>(type: "bigint", nullable: false),
+                    QuantityKg = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 2, nullable: false),
+                    SalePricePerKg = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 4, nullable: false),
+                    RoastingCostPerKg = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 4, nullable: false),
+                    CommissionPerKg = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 4, nullable: false),
+                    NetSalePricePerKg = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 4, nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Created = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    LastModified = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RoastingInvoiceDetailReceipts", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_RoastingInvoiceDetailReceipts_Products_ReadyProductId",
+                        column: x => x.ReadyProductId,
+                        principalTable: "Products",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_RoastingInvoiceDetailReceipts_RoastingInvoiceDetails_DetailId",
+                        column: x => x.DetailId,
+                        principalTable: "RoastingInvoiceDetails",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_RoastingInvoiceDetailReceipts_RoastingInvoices_RoastingInvoiceId",
+                        column: x => x.RoastingInvoiceId,
+                        principalTable: "RoastingInvoices",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "SalesInvoiceDetails",
                 columns: table => new
                 {
@@ -663,6 +659,12 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                 column: "RegionId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ExchangeRates_CurrencyCode_EffectiveAtUtc",
+                table: "ExchangeRates",
+                columns: new[] { "CurrencyCode", "EffectiveAtUtc" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_InventoryHistories_ProductId",
                 table: "InventoryHistories",
                 column: "ProductId");
@@ -704,14 +706,24 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                 column: "SupplierId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_RoastingInvoiceDetailReceipts_DetailId",
+                table: "RoastingInvoiceDetailReceipts",
+                column: "DetailId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RoastingInvoiceDetailReceipts_ReadyProductId",
+                table: "RoastingInvoiceDetailReceipts",
+                column: "ReadyProductId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RoastingInvoiceDetailReceipts_RoastingInvoiceId",
+                table: "RoastingInvoiceDetailReceipts",
+                column: "RoastingInvoiceId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_RoastingInvoiceDetails_RawProductId",
                 table: "RoastingInvoiceDetails",
                 column: "RawProductId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_RoastingInvoiceDetails_ReadyProductId",
-                table: "RoastingInvoiceDetails",
-                column: "ReadyProductId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RoastingInvoiceDetails_RoastingInvoiceId",
@@ -723,11 +735,6 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                 table: "RoastingInvoices",
                 column: "InvoiceNumber",
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_RoastingOperations_ProductId",
-                table: "RoastingOperations",
-                column: "ProductId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SalesInvoiceDetails_InvoiceId",
@@ -748,12 +755,6 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                 name: "IX_SalesInvoices_DistributionTripId",
                 table: "SalesInvoices",
                 column: "DistributionTripId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UnroastedProdcutBalances_ProductId",
-                table: "UnroastedProdcutBalances",
-                column: "ProductId",
-                unique: true);
         }
 
         /// <inheritdoc />
@@ -769,6 +770,9 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                 name: "DistributionTripDetails");
 
             migrationBuilder.DropTable(
+                name: "ExchangeRates");
+
+            migrationBuilder.DropTable(
                 name: "InventoryHistories");
 
             migrationBuilder.DropTable(
@@ -781,31 +785,28 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                 name: "PurchaseInvoiceDetails");
 
             migrationBuilder.DropTable(
-                name: "RoastingInvoiceDetails");
-
-            migrationBuilder.DropTable(
-                name: "RoastingOperations");
+                name: "RoastingInvoiceDetailReceipts");
 
             migrationBuilder.DropTable(
                 name: "SalesInvoiceDetails");
 
             migrationBuilder.DropTable(
-                name: "UnroastedProdcutBalances");
-
-            migrationBuilder.DropTable(
                 name: "PurchaseInvoices");
 
             migrationBuilder.DropTable(
-                name: "RoastingInvoices");
+                name: "RoastingInvoiceDetails");
 
             migrationBuilder.DropTable(
                 name: "SalesInvoices");
 
             migrationBuilder.DropTable(
+                name: "Suppliers");
+
+            migrationBuilder.DropTable(
                 name: "Products");
 
             migrationBuilder.DropTable(
-                name: "Suppliers");
+                name: "RoastingInvoices");
 
             migrationBuilder.DropTable(
                 name: "Customers");

@@ -1,4 +1,3 @@
-using AutoMapper;
 using MarketZone.Application.Interfaces;
 using MarketZone.Application.Interfaces.Repositories;
 using MarketZone.Application.Wrappers;
@@ -9,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MarketZone.Application.Features.Sales.Commands.PostSalesInvoice
 {
-    public class PostSalesInvoiceCommandHandler(ISalesInvoiceRepository repository, IUnitOfWork unitOfWork, ITranslator translator, IMapper mapper, ISalesInventoryService inventoryService) : IRequestHandler<PostSalesInvoiceCommand, BaseResult>
+    public class PostSalesInvoiceCommandHandler(ISalesInvoiceRepository repository, IUnitOfWork unitOfWork, ITranslator translator, ISalesInventoryService inventoryService) : IRequestHandler<PostSalesInvoiceCommand, BaseResult>
     {
         public async Task<BaseResult> Handle(PostSalesInvoiceCommand request, CancellationToken cancellationToken)
         {

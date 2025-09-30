@@ -99,7 +99,7 @@ namespace MarketZone.Application.Features.Roasting.Commands.UpdateRoastingInvoic
 
                     if (existingDetail != null)
                     {
-                        existingDetail.Update(detailItem.RawProductId, detailItem.QuantityKg, detailItem.Notes);
+                        existingDetail.Update(detailItem.RawProductId, detailItem.QuantityKg, detailItem.Notes, detailItem.RoastingCost);
                     }
                     else
                     {
@@ -107,7 +107,8 @@ namespace MarketZone.Application.Features.Roasting.Commands.UpdateRoastingInvoic
                             roastingInvoice.Id,
                             detailItem.RawProductId,
                             detailItem.QuantityKg,
-                            detailItem.Notes);
+                            detailItem.Notes,
+                            detailItem.RoastingCost);
 
                         roastingInvoice.AddDetail(newDetail);
                     }

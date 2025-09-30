@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MarketZone.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250916195017_inial")]
+    [Migration("20250930184541_inial")]
     partial class inial
     {
         /// <inheritdoc />
@@ -123,6 +123,53 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("CashTransactions");
+                });
+
+            modelBuilder.Entity("MarketZone.Domain.Cash.Entities.ExchangeRate", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CurrencyCode")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("nvarchar(8)");
+
+                    b.Property<DateTime>("EffectiveAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("LastModifiedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("RateToUSD")
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CurrencyCode", "EffectiveAtUtc")
+                        .IsUnique();
+
+                    b.ToTable("ExchangeRates");
                 });
 
             modelBuilder.Entity("MarketZone.Domain.Cash.Entities.Payment", b =>
@@ -454,52 +501,6 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                     b.ToTable("ProductBalances");
                 });
 
-            modelBuilder.Entity("MarketZone.Domain.Inventory.Entities.UnroastedProdcutBalance", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<decimal>("AvailableQty")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("decimal(18,6)")
-                        .HasDefaultValue(0m);
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("LastModified")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("LastModifiedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<long>("ProductId")
-                        .HasColumnType("bigint");
-
-                    b.Property<decimal>("Qty")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("decimal(18,6)")
-                        .HasDefaultValue(0m);
-
-                    b.Property<decimal>("TotalValue")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("decimal(18,6)")
-                        .HasDefaultValue(0m);
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductId")
-                        .IsUnique();
-
-                    b.ToTable("UnroastedProdcutBalances");
-                });
-
             modelBuilder.Entity("MarketZone.Domain.Logistics.Entities.Car", b =>
                 {
                     b.Property<long>("Id")
@@ -708,10 +709,6 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("BarCode2")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<long>("CategoryId")
                         .HasColumnType("bigint");
@@ -960,14 +957,6 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<decimal>("ActualQuantityAfterRoasting")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,6)");
-
-                    b.Property<decimal>("CommissionPerKg")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,6)");
-
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime2");
 
@@ -989,35 +978,30 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,6)");
 
-                    b.Property<long?>("RawProductId")
+                    b.Property<long>("RawProductId")
                         .HasColumnType("bigint");
 
-                    b.Property<long>("ReadyProductId")
-                        .HasColumnType("bigint");
+                    b.Property<decimal>("ReceivedQuantityKg")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,6)");
 
-                    b.Property<decimal>("RoastPricePerKg")
+                    b.Property<decimal>("RoastingCost")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,6)");
 
                     b.Property<long>("RoastingInvoiceId")
                         .HasColumnType("bigint");
 
-                    b.Property<decimal>("TotalPrice")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,6)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("RawProductId");
-
-                    b.HasIndex("ReadyProductId");
 
                     b.HasIndex("RoastingInvoiceId");
 
                     b.ToTable("RoastingInvoiceDetails");
                 });
 
-            modelBuilder.Entity("MarketZone.Domain.Roasting.Entities.RoastingOperation", b =>
+            modelBuilder.Entity("MarketZone.Domain.Roasting.Entities.RoastingInvoiceDetailReceipt", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -1025,11 +1009,18 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
+                    b.Property<decimal>("CommissionPerKg")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,6)");
+
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime2");
 
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<long>("DetailId")
+                        .HasColumnType("bigint");
 
                     b.Property<DateTime?>("LastModified")
                         .HasColumnType("datetime2");
@@ -1037,33 +1028,37 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                     b.Property<Guid?>("LastModifiedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Notes")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<long>("ProductId")
-                        .HasColumnType("bigint");
+                    b.Property<decimal>("NetSalePricePerKg")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,6)");
 
                     b.Property<decimal>("QuantityKg")
-                        .HasColumnType("decimal(18,2)");
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,6)");
 
-                    b.Property<DateTime>("RoastDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                    b.Property<long>("ReadyProductId")
+                        .HasColumnType("bigint");
 
-                    b.Property<decimal>("RoastPricePerKg")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<decimal>("RoastingCostPerKg")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,6)");
 
-                    b.Property<decimal>("TotalCost")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<long>("RoastingInvoiceId")
+                        .HasColumnType("bigint");
+
+                    b.Property<decimal>("SalePricePerKg")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,6)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProductId");
+                    b.HasIndex("DetailId");
 
-                    b.ToTable("RoastingOperations");
+                    b.HasIndex("ReadyProductId");
+
+                    b.HasIndex("RoastingInvoiceId");
+
+                    b.ToTable("RoastingInvoiceDetailReceipts");
                 });
 
             modelBuilder.Entity("MarketZone.Domain.Sales.Entities.SalesInvoice", b =>
@@ -1266,17 +1261,6 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("MarketZone.Domain.Inventory.Entities.UnroastedProdcutBalance", b =>
-                {
-                    b.HasOne("MarketZone.Domain.Products.Entities.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Product");
-                });
-
             modelBuilder.Entity("MarketZone.Domain.Logistics.Entities.DistributionTrip", b =>
                 {
                     b.HasOne("MarketZone.Domain.Logistics.Entities.Car", "Car")
@@ -1369,36 +1353,41 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                     b.HasOne("MarketZone.Domain.Products.Entities.Product", "RawProduct")
                         .WithMany()
                         .HasForeignKey("RawProductId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("MarketZone.Domain.Products.Entities.Product", "ReadyProduct")
-                        .WithMany()
-                        .HasForeignKey("ReadyProductId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("MarketZone.Domain.Roasting.Entities.RoastingInvoice", "RoastingInvoice")
                         .WithMany("Details")
                         .HasForeignKey("RoastingInvoiceId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("RawProduct");
 
-                    b.Navigation("ReadyProduct");
-
                     b.Navigation("RoastingInvoice");
                 });
 
-            modelBuilder.Entity("MarketZone.Domain.Roasting.Entities.RoastingOperation", b =>
+            modelBuilder.Entity("MarketZone.Domain.Roasting.Entities.RoastingInvoiceDetailReceipt", b =>
                 {
-                    b.HasOne("MarketZone.Domain.Products.Entities.Product", "Product")
+                    b.HasOne("MarketZone.Domain.Roasting.Entities.RoastingInvoiceDetail", "Detail")
+                        .WithMany("Receipts")
+                        .HasForeignKey("DetailId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("MarketZone.Domain.Products.Entities.Product", null)
                         .WithMany()
-                        .HasForeignKey("ProductId")
+                        .HasForeignKey("ReadyProductId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("MarketZone.Domain.Roasting.Entities.RoastingInvoice", null)
+                        .WithMany("Receipts")
+                        .HasForeignKey("RoastingInvoiceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Product");
+                    b.Navigation("Detail");
                 });
 
             modelBuilder.Entity("MarketZone.Domain.Sales.Entities.SalesInvoice", b =>
@@ -1455,6 +1444,13 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                     b.Navigation("Details");
 
                     b.Navigation("Payments");
+
+                    b.Navigation("Receipts");
+                });
+
+            modelBuilder.Entity("MarketZone.Domain.Roasting.Entities.RoastingInvoiceDetail", b =>
+                {
+                    b.Navigation("Receipts");
                 });
 
             modelBuilder.Entity("MarketZone.Domain.Sales.Entities.SalesInvoice", b =>

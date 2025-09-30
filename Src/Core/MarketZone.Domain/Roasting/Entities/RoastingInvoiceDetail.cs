@@ -9,12 +9,13 @@ namespace MarketZone.Domain.Roasting.Entities
     {
         private RoastingInvoiceDetail() { }
 
-        public RoastingInvoiceDetail(long roastingInvoiceId, long rawProductId, decimal quantityKg, string notes)
+        public RoastingInvoiceDetail(long roastingInvoiceId, long rawProductId, decimal quantityKg, string notes, decimal roastingCost)
         {
             RoastingInvoiceId = roastingInvoiceId;
             RawProductId = rawProductId;
             QuantityKg = quantityKg;
             Notes = notes ?? string.Empty;
+            RoastingCost = roastingCost;
             ReceivedQuantityKg = 0;
         }
 
@@ -22,6 +23,7 @@ namespace MarketZone.Domain.Roasting.Entities
         public long RawProductId { get; private set; }
         public decimal QuantityKg { get; private set; }
         public decimal ReceivedQuantityKg { get; private set; }
+        public decimal RoastingCost { get; private set; }
         public string Notes { get; private set; }
 
         public decimal RemainingQuantity => QuantityKg - ReceivedQuantityKg;
@@ -31,11 +33,12 @@ namespace MarketZone.Domain.Roasting.Entities
         public virtual Product RawProduct { get; private set; }
         public virtual ICollection<RoastingInvoiceDetailReceipt> Receipts { get; private set; } = new List<RoastingInvoiceDetailReceipt>();
 
-        public void Update(long rawProductId, decimal quantityKg, string notes)
+        public void Update(long rawProductId, decimal quantityKg, string notes, decimal roastingCost)
         {
             RawProductId = rawProductId;
             QuantityKg = quantityKg;
             Notes = notes ?? string.Empty;
+            RoastingCost = roastingCost;
         }
 
         public void SetReceivedQuantity(decimal totalReceived)

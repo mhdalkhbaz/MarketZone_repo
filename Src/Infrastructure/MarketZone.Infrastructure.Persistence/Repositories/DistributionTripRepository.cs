@@ -36,7 +36,8 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 		{
 			return await dbContext.Set<DistributionTrip>()
 				.Include(x => x.Details)
-				.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+				.ThenInclude(x => x.Product)
+                .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 		}
 	}
 }

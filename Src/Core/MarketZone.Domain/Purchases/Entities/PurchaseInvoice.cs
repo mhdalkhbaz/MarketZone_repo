@@ -43,7 +43,7 @@ namespace MarketZone.Domain.Purchases.Entities
         public DateTime InvoiceDate { get; private set; }
         public decimal TotalAmount { get; private set; }
         public decimal Discount { get; private set; }
-        public string Notes { get; private set; }
+        public string? Notes { get; private set; }
         public PurchaseInvoiceStatus Status { get; private set; }
         public PurchasePaymentStatus? PaymentStatus { get; private set; }
 

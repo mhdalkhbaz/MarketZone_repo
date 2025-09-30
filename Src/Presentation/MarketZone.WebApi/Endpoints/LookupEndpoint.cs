@@ -11,6 +11,9 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MarketZone.Application.Features.Products.Queries.GetProductSelectList;
+using MarketZone.Application.Interfaces;
+using Microsoft.AspNetCore.Http;
 
 namespace MarketZone.WebApi.Endpoints
 {
@@ -19,6 +22,7 @@ namespace MarketZone.WebApi.Endpoints
         public override void Map(RouteGroupBuilder builder)
         {
             builder.MapGet(GetProductSelectList);
+            builder.MapGet(GetProductSelectListForDistribution);
             builder.MapGet(GetCustomerSelectList);
             builder.MapGet(GetSupplierSelectList);
             builder.MapGet(GetEmployeeSelectList);
@@ -33,6 +37,9 @@ namespace MarketZone.WebApi.Endpoints
         }
         async Task<BaseResult<List<SelectListDto>>> GetProductSelectList(ApplicationDbContext db, IMapper mapper)
             => BaseResult<List<SelectListDto>>.Ok(await db.Products.AsNoTracking().OrderBy(p => p.Id).ProjectTo<SelectListDto>(mapper.ConfigurationProvider).ToListAsync());
+
+        async Task<BaseResult<List<ProductSelectListDto>>> GetProductSelectListForDistribution(IMediator mediator, [AsParameters] GetProductSelectListQuery model)
+            => await mediator.Send<GetProductSelectListQuery, BaseResult<List<ProductSelectListDto>>>(model);
 
         async Task<BaseResult<List<SelectListDto>>> GetCustomerSelectList(ApplicationDbContext db, IMapper mapper)
             => BaseResult<List<SelectListDto>>.Ok(await db.Customers.AsNoTracking().OrderBy(p => p.Id).ProjectTo<SelectListDto>(mapper.ConfigurationProvider).ToListAsync());

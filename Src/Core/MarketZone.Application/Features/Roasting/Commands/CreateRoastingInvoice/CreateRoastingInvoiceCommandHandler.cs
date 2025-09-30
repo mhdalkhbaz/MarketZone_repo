@@ -61,7 +61,8 @@ namespace MarketZone.Application.Features.Roasting.Commands.CreateRoastingInvoic
                     roastingInvoice.Id,
                     detailItem.RawProductId,
                     detailItem.QuantityKg,
-                    detailItem.Notes);
+                    detailItem.Notes,
+                    detailItem.RoastingCost);
 
                 roastingInvoice.AddDetail(detail);
             }

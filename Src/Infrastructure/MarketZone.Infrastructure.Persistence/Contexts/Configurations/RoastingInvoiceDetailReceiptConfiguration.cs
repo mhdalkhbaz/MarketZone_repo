@@ -47,10 +47,7 @@ namespace MarketZone.Infrastructure.Persistence.Contexts.Configurations
                 .HasForeignKey(x => x.DetailId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasOne<RoastingInvoice>()
-                .WithMany(x => x.Receipts)
-                .HasForeignKey(x => x.RoastingInvoiceId)
-                .OnDelete(DeleteBehavior.Cascade);
+          
         }
     }
 }

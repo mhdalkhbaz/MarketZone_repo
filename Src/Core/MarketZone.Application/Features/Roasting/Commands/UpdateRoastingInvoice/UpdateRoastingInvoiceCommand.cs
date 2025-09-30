@@ -21,6 +21,7 @@ namespace MarketZone.Application.Features.Roasting.Commands.UpdateRoastingInvoic
         public long RawProductId { get; set; }
         public decimal QuantityKg { get; set; }
         public string Notes { get; set; }
+        public decimal RoastingCost { get; set; }
         public bool IsDeleted { get; set; }
         // لا يمكن تحديث ActualQuantityAfterRoasting - يتم إدخالها فقط عند Post
     }

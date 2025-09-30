@@ -27,7 +27,7 @@ namespace MarketZone.Domain.Purchases.Entities
         public decimal Quantity { get; private set; }
         public decimal UnitPrice { get; private set; }
         public decimal TotalPrice { get; private set; }
-        public string Notes { get; private set; }
+        public string? Notes { get; private set; }
 
         public void Update(long productId, decimal quantity, decimal unitPrice, decimal totalPrice, string batchNumber, string notes)
         {

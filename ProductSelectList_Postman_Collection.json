@@ -1,0 +1,430 @@
+{
+	"info": {
+		"_postman_id": "product-selectlist-distribution-api",
+		"name": "Product SelectList for Distribution API",
+		"description": "مجموعة اختبار API قائمة المنتجات للتوزيع",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "🔧 البيانات الأساسية",
+			"item": [
+				{
+					"name": "1. إنشاء منتج جاهز للبيع (محمص)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"categoryId\": 1,\n  \"name\": \"بن أرابيكا محمص\",\n  \"description\": \"بن أرابيكا محمص عالي الجودة\",\n  \"unitOfMeasure\": \"كيلو\",\n  \"purchasePrice\": 20.00,\n  \"salePrice\": 25.50,\n  \"minStockLevel\": 5,\n  \"isActive\": true,\n  \"needsRoasting\": false,\n  \"roastingCost\": null,\n  \"barCode\": \"123456789\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Product/CreateProduct",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Product",
+								"CreateProduct"
+							]
+						}
+					}
+				},
+				{
+					"name": "2. إنشاء منتج يحتاج تحميص",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"categoryId\": 1,\n  \"name\": \"بن أرابيكا خام\",\n  \"description\": \"بن أرابيكا خام يحتاج تحميص\",\n  \"unitOfMeasure\": \"كيلو\",\n  \"purchasePrice\": 15.00,\n  \"salePrice\": 20.00,\n  \"minStockLevel\": 5,\n  \"isActive\": true,\n  \"needsRoasting\": true,\n  \"roastingCost\": 2.00,\n  \"barCode\": \"987654321\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Product/CreateProduct",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Product",
+								"CreateProduct"
+							]
+						}
+					}
+				},
+				{
+					"name": "3. إنشاء رصيد للمنتج المحمص",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"productId\": 1,\n  \"qty\": 100,\n  \"availableQty\": 100\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/ProductBalance/CreateProductBalance",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"ProductBalance",
+								"CreateProductBalance"
+							]
+						}
+					}
+				},
+				{
+					"name": "4. إنشاء رحلة توزيع للاختبار",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"employeeId\": 1,\n  \"carId\": 1,\n  \"regionId\": 1,\n  \"tripDate\": \"2025-01-15\",\n  \"loadQty\": 50,\n  \"notes\": \"رحلة اختبار API\",\n  \"details\": [\n    {\n      \"productId\": 1,\n      \"qty\": 50,\n      \"expectedPrice\": 25.50\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/DistributionTrip/CreateDistributionTrip",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DistributionTrip",
+								"CreateDistributionTrip"
+							]
+						}
+					}
+				},
+				{
+					"name": "5. ترحيل رحلة التوزيع",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/DistributionTrip/PostDistributionTrip",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DistributionTrip",
+								"PostDistributionTrip"
+							]
+						}
+					}
+				},
+				{
+					"name": "6. استلام البضاعة (تسجيل المرتجعات)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"tripId\": 1,\n  \"details\": [\n    {\n      \"detailId\": 1,\n      \"returnedQty\": 10\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/DistributionTrip/ReceiveGoods",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DistributionTrip",
+								"ReceiveGoods"
+							]
+						}
+					}
+				},
+				{
+					"name": "7. إنشاء فاتورة مبيعات موزع",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"invoiceNumber\": \"INV-TEST-001\",\n  \"customerId\": 1,\n  \"invoiceDate\": \"2025-01-15\",\n  \"totalAmount\": 510.00,\n  \"discount\": 0,\n  \"paymentMethod\": \"نقدي\",\n  \"notes\": \"فاتورة اختبار API\",\n  \"type\": \"Distributor\",\n  \"distributionTripId\": 1,\n  \"details\": [\n    {\n      \"productId\": 1,\n      \"quantity\": 20,\n      \"unitPrice\": 25.50,\n      \"subTotal\": 510.00,\n      \"notes\": \"اختبار API\"\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/SalesInvoice/CreateSalesInvoice",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"SalesInvoice",
+								"CreateSalesInvoice"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "🧪 اختبار API قائمة المنتجات",
+			"item": [
+				{
+					"name": "1. الحصول على المنتجات الجاهزة للبيع",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/Lookup/GetProductSelectListForDistribution",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Lookup",
+								"GetProductSelectListForDistribution"
+							]
+						}
+					}
+				},
+				{
+					"name": "2. الحصول على المنتجات المتبقية في رحلة التوزيع",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/Lookup/GetProductSelectListForDistribution?DistributionTripId=1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Lookup",
+								"GetProductSelectListForDistribution"
+							],
+							"query": [
+								{
+									"key": "DistributionTripId",
+									"value": "1"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "3. رحلة توزيع غير موجودة",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/Lookup/GetProductSelectListForDistribution?DistributionTripId=999",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Lookup",
+								"GetProductSelectListForDistribution"
+							],
+							"query": [
+								{
+									"key": "DistributionTripId",
+									"value": "999"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "4. معامل غير صحيح",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/Lookup/GetProductSelectListForDistribution?DistributionTripId=abc",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Lookup",
+								"GetProductSelectListForDistribution"
+							],
+							"query": [
+								{
+									"key": "DistributionTripId",
+									"value": "abc"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "5. معامل سالب",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/Lookup/GetProductSelectListForDistribution?DistributionTripId=-1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Lookup",
+								"GetProductSelectListForDistribution"
+							],
+							"query": [
+								{
+									"key": "DistributionTripId",
+									"value": "-1"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "📊 التحقق من النتائج",
+			"item": [
+				{
+					"name": "1. عرض تفاصيل رحلة التوزيع",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/DistributionTrip/GetPagedListDistributionTrip?PageNumber=1&PageSize=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DistributionTrip",
+								"GetPagedListDistributionTrip"
+							],
+							"query": [
+								{
+									"key": "PageNumber",
+									"value": "1"
+								},
+								{
+									"key": "PageSize",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "2. عرض رصيد المنتج",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/ProductBalance/GetByProductId/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"ProductBalance",
+								"GetByProductId",
+								"1"
+							]
+						}
+					}
+				},
+				{
+					"name": "3. عرض فواتير المبيعات",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/SalesInvoice/GetPagedListSalesInvoice?PageNumber=1&PageSize=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"SalesInvoice",
+								"GetPagedListSalesInvoice"
+							],
+							"query": [
+								{
+									"key": "PageNumber",
+									"value": "1"
+								},
+								{
+									"key": "PageSize",
+									"value": "10"
+								}
+							]
+						}
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "https://localhost:7001",
+			"type": "string"
+		}
+	]
+}

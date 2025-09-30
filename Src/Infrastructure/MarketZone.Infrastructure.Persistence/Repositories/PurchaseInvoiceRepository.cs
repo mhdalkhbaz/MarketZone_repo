@@ -10,7 +10,6 @@ using MarketZone.Infrastructure.Persistence.Contexts;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace MarketZone.Infrastructure.Persistence.Repositories
 {

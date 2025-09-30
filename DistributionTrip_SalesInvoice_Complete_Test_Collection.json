@@ -1,0 +1,880 @@
+{
+	"info": {
+		"_postman_id": "distribution-trip-sales-invoice-complete-test",
+		"name": "Distribution Trip & Sales Invoice Complete Test",
+		"description": "مجموعة اختبار شاملة لرحلة التوزيع وفواتير المبيعات الموزع",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "🔧 البيانات الأساسية المطلوبة",
+			"item": [
+				{
+					"name": "1. إنشاء موظف",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"firstName\": \"أحمد\",\n  \"lastName\": \"محمد\",\n  \"phone\": \"0123456789\",\n  \"email\": \"ahmed@marketzone.com\",\n  \"address\": \"القاهرة\",\n  \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Employee/CreateEmployee",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Employee",
+								"CreateEmployee"
+							]
+						}
+					}
+				},
+				{
+					"name": "2. إنشاء سيارة",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"سيارة توزيع 1\",\n  \"plateNumber\": \"أ ب ج 123\",\n  \"model\": \"2023\",\n  \"year\": 2023,\n  \"capacityKg\": 1000,\n  \"isAvailable\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Car/CreateCar",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Car",
+								"CreateCar"
+							]
+						}
+					}
+				},
+				{
+					"name": "3. إنشاء منطقة",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"المنطقة الشمالية\",\n  \"description\": \"تغطي شمال القاهرة\",\n  \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Region/CreateRegion",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Region",
+								"CreateRegion"
+							]
+						}
+					}
+				},
+				{
+					"name": "4. إنشاء عميل",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"محل البن الطازج\",\n  \"phone\": \"0987654321\",\n  \"email\": \"customer1@example.com\",\n  \"address\": \"شارع النيل، القاهرة\",\n  \"whatsAppPhone\": \"0987654321\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Customer/CreateCustomer",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Customer",
+								"CreateCustomer"
+							]
+						}
+					}
+				},
+				{
+					"name": "5. إنشاء منتج جاهز للبيع",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"categoryId\": 1,\n  \"name\": \"بن أرابيكا محمص\",\n  \"description\": \"بن أرابيكا محمص عالي الجودة\",\n  \"unitOfMeasure\": \"كيلو\",\n  \"purchasePrice\": 20.00,\n  \"salePrice\": 25.50,\n  \"minStockLevel\": 5,\n  \"isActive\": true,\n  \"needsRoasting\": false,\n  \"roastingCost\": null,\n  \"barCode\": \"123456789\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Product/CreateProduct",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Product",
+								"CreateProduct"
+							]
+						}
+					}
+				},
+				{
+					"name": "6. إنشاء رصيد المنتج",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"productId\": 1,\n  \"qty\": 200,\n  \"availableQty\": 200\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/ProductBalance/CreateProductBalance",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"ProductBalance",
+								"CreateProductBalance"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "🚚 سير عمل رحلة التوزيع الكامل",
+			"item": [
+				{
+					"name": "1. إنشاء رحلة توزيع جديدة",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"employeeId\": 1,\n  \"carId\": 1,\n  \"regionId\": 1,\n  \"tripDate\": \"2025-01-15\",\n  \"loadQty\": 100,\n  \"notes\": \"رحلة توزيع للمنطقة الشمالية - اختبار شامل\",\n  \"details\": [\n    {\n      \"productId\": 1,\n      \"qty\": 100,\n      \"expectedPrice\": 25.50\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/DistributionTrip/CreateDistributionTrip",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DistributionTrip",
+								"CreateDistributionTrip"
+							]
+						}
+					}
+				},
+				{
+					"name": "2. التحقق من رحلة التوزيع بعد الإنشاء",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/DistributionTrip/GetPagedListDistributionTrip?PageNumber=1&PageSize=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DistributionTrip",
+								"GetPagedListDistributionTrip"
+							],
+							"query": [
+								{
+									"key": "PageNumber",
+									"value": "1"
+								},
+								{
+									"key": "PageSize",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "3. التحقق من رصيد المنتج بعد إنشاء الرحلة",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/ProductBalance/GetByProductId/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"ProductBalance",
+								"GetByProductId",
+								"1"
+							]
+						}
+					}
+				},
+				{
+					"name": "4. ترحيل الرحلة",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/DistributionTrip/PostDistributionTrip",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DistributionTrip",
+								"PostDistributionTrip"
+							]
+						}
+					}
+				},
+				{
+					"name": "5. التحقق من حالة الرحلة بعد الترحيل",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/DistributionTrip/GetPagedListDistributionTrip?PageNumber=1&PageSize=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DistributionTrip",
+								"GetPagedListDistributionTrip"
+							],
+							"query": [
+								{
+									"key": "PageNumber",
+									"value": "1"
+								},
+								{
+									"key": "PageSize",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "6. استلام البضاعة (تسجيل المرتجعات)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"tripId\": 1,\n  \"details\": [\n    {\n      \"detailId\": 1,\n      \"returnedQty\": 15\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/DistributionTrip/ReceiveGoods",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DistributionTrip",
+								"ReceiveGoods"
+							]
+						}
+					}
+				},
+				{
+					"name": "7. التحقق من حالة الرحلة بعد استلام البضاعة",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/DistributionTrip/GetPagedListDistributionTrip?PageNumber=1&PageSize=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DistributionTrip",
+								"GetPagedListDistributionTrip"
+							],
+							"query": [
+								{
+									"key": "PageNumber",
+									"value": "1"
+								},
+								{
+									"key": "PageSize",
+									"value": "10"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "💰 إنشاء فواتير المبيعات الموزع",
+			"item": [
+				{
+					"name": "1. إنشاء فاتورة مبيعات موزع (العميل الأول)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"invoiceNumber\": \"INV-DIST-001\",\n  \"customerId\": 1,\n  \"invoiceDate\": \"2025-01-15\",\n  \"totalAmount\": 765.00,\n  \"discount\": 0,\n  \"paymentMethod\": \"نقدي\",\n  \"notes\": \"فاتورة توزيع - العميل الأول\",\n  \"type\": \"Distributor\",\n  \"distributionTripId\": 1,\n  \"details\": [\n    {\n      \"productId\": 1,\n      \"quantity\": 30,\n      \"unitPrice\": 25.50,\n      \"subTotal\": 765.00,\n      \"notes\": \"طلب عادي\"\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/SalesInvoice/CreateSalesInvoice",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"SalesInvoice",
+								"CreateSalesInvoice"
+							]
+						}
+					}
+				},
+				{
+					"name": "2. التحقق من فاتورة المبيعات الأولى",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/SalesInvoice/GetPagedListSalesInvoice?PageNumber=1&PageSize=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"SalesInvoice",
+								"GetPagedListSalesInvoice"
+							],
+							"query": [
+								{
+									"key": "PageNumber",
+									"value": "1"
+								},
+								{
+									"key": "PageSize",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "3. التحقق من رحلة التوزيع بعد الفاتورة الأولى",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/DistributionTrip/GetPagedListDistributionTrip?PageNumber=1&PageSize=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DistributionTrip",
+								"GetPagedListDistributionTrip"
+							],
+							"query": [
+								{
+									"key": "PageNumber",
+									"value": "1"
+								},
+								{
+									"key": "PageSize",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "4. إنشاء فاتورة مبيعات موزع (العميل الثاني)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"invoiceNumber\": \"INV-DIST-002\",\n  \"customerId\": 1,\n  \"invoiceDate\": \"2025-01-15\",\n  \"totalAmount\": 637.50,\n  \"discount\": 0,\n  \"paymentMethod\": \"شيك\",\n  \"notes\": \"فاتورة توزيع - العميل الثاني\",\n  \"type\": \"Distributor\",\n  \"distributionTripId\": 1,\n  \"details\": [\n    {\n      \"productId\": 1,\n      \"quantity\": 25,\n      \"unitPrice\": 25.50,\n      \"subTotal\": 637.50,\n      \"notes\": \"طلب عاجل\"\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/SalesInvoice/CreateSalesInvoice",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"SalesInvoice",
+								"CreateSalesInvoice"
+							]
+						}
+					}
+				},
+				{
+					"name": "5. التحقق من فواتير المبيعات",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/SalesInvoice/GetPagedListSalesInvoice?PageNumber=1&PageSize=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"SalesInvoice",
+								"GetPagedListSalesInvoice"
+							],
+							"query": [
+								{
+									"key": "PageNumber",
+									"value": "1"
+								},
+								{
+									"key": "PageSize",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "6. التحقق من رحلة التوزيع بعد الفاتورة الثانية",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/DistributionTrip/GetPagedListDistributionTrip?PageNumber=1&PageSize=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DistributionTrip",
+								"GetPagedListDistributionTrip"
+							],
+							"query": [
+								{
+									"key": "PageNumber",
+									"value": "1"
+								},
+								{
+									"key": "PageSize",
+									"value": "10"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "🔍 التحقق والتحليل",
+			"item": [
+				{
+					"name": "1. التحقق من الكميات في رحلة التوزيع",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/DistributionTrip/ValidateTripQuantities?TripId=1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DistributionTrip",
+								"ValidateTripQuantities"
+							],
+							"query": [
+								{
+									"key": "TripId",
+									"value": "1"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "2. عرض تفاصيل رحلة التوزيع النهائية",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/DistributionTrip/GetPagedListDistributionTrip?PageNumber=1&PageSize=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DistributionTrip",
+								"GetPagedListDistributionTrip"
+							],
+							"query": [
+								{
+									"key": "PageNumber",
+									"value": "1"
+								},
+								{
+									"key": "PageSize",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "3. عرض جميع فواتير المبيعات",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/SalesInvoice/GetPagedListSalesInvoice?PageNumber=1&PageSize=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"SalesInvoice",
+								"GetPagedListSalesInvoice"
+							],
+							"query": [
+								{
+									"key": "PageNumber",
+									"value": "1"
+								},
+								{
+									"key": "PageSize",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "4. التحقق من رصيد المنتج النهائي",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/ProductBalance/GetByProductId/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"ProductBalance",
+								"GetByProductId",
+								"1"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "✅ إكمال رحلة التوزيع",
+			"item": [
+				{
+					"name": "1. إكمال رحلة التوزيع",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"tripId\": 1,\n  \"details\": [\n    {\n      \"detailId\": 1,\n      \"returnedQty\": 15\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/DistributionTrip/CompleteTrip",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DistributionTrip",
+								"CompleteTrip"
+							]
+						}
+					}
+				},
+				{
+					"name": "2. التحقق من حالة الرحلة بعد الإكمال",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/DistributionTrip/GetPagedListDistributionTrip?PageNumber=1&PageSize=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"DistributionTrip",
+								"GetPagedListDistributionTrip"
+							],
+							"query": [
+								{
+									"key": "PageNumber",
+									"value": "1"
+								},
+								{
+									"key": "PageSize",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "3. التحقق من رصيد المنتج بعد إكمال الرحلة",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/ProductBalance/GetByProductId/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"ProductBalance",
+								"GetByProductId",
+								"1"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "🧪 اختبار API قائمة المنتجات",
+			"item": [
+				{
+					"name": "1. الحصول على المنتجات الجاهزة للبيع",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/Lookup/GetProductSelectListForDistribution",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Lookup",
+								"GetProductSelectListForDistribution"
+							]
+						}
+					}
+				},
+				{
+					"name": "2. الحصول على المنتجات المتبقية في رحلة التوزيع",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/Lookup/GetProductSelectListForDistribution?DistributionTripId=1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Lookup",
+								"GetProductSelectListForDistribution"
+							],
+							"query": [
+								{
+									"key": "DistributionTripId",
+									"value": "1"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "🚨 اختبار الحالات الاستثنائية",
+			"item": [
+				{
+					"name": "1. محاولة إنشاء فاتورة موزع لرحلة في حالة Draft",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"invoiceNumber\": \"INV-ERROR-001\",\n  \"customerId\": 1,\n  \"invoiceDate\": \"2025-01-15\",\n  \"totalAmount\": 100.00,\n  \"discount\": 0,\n  \"paymentMethod\": \"نقدي\",\n  \"notes\": \"اختبار خطأ\",\n  \"type\": \"Distributor\",\n  \"distributionTripId\": 1,\n  \"details\": [\n    {\n      \"productId\": 1,\n      \"quantity\": 5,\n      \"unitPrice\": 20.00,\n      \"subTotal\": 100.00,\n      \"notes\": \"اختبار خطأ\"\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/SalesInvoice/CreateSalesInvoice",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"SalesInvoice",
+								"CreateSalesInvoice"
+							]
+						}
+					}
+				},
+				{
+					"name": "2. محاولة إنشاء فاتورة موزع بكمية تتجاوز المحملة",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"invoiceNumber\": \"INV-ERROR-002\",\n  \"customerId\": 1,\n  \"invoiceDate\": \"2025-01-15\",\n  \"totalAmount\": 2000.00,\n  \"discount\": 0,\n  \"paymentMethod\": \"نقدي\",\n  \"notes\": \"اختبار خطأ - كمية كبيرة\",\n  \"type\": \"Distributor\",\n  \"distributionTripId\": 1,\n  \"details\": [\n    {\n      \"productId\": 1,\n      \"quantity\": 100,\n      \"unitPrice\": 20.00,\n      \"subTotal\": 2000.00,\n      \"notes\": \"اختبار خطأ\"\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/SalesInvoice/CreateSalesInvoice",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"SalesInvoice",
+								"CreateSalesInvoice"
+							]
+						}
+					}
+				},
+				{
+					"name": "3. محاولة إنشاء فاتورة موزع لرحلة غير موجودة",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"invoiceNumber\": \"INV-ERROR-003\",\n  \"customerId\": 1,\n  \"invoiceDate\": \"2025-01-15\",\n  \"totalAmount\": 100.00,\n  \"discount\": 0,\n  \"paymentMethod\": \"نقدي\",\n  \"notes\": \"اختبار خطأ\",\n  \"type\": \"Distributor\",\n  \"distributionTripId\": 999,\n  \"details\": [\n    {\n      \"productId\": 1,\n      \"quantity\": 5,\n      \"unitPrice\": 20.00,\n      \"subTotal\": 100.00,\n      \"notes\": \"اختبار خطأ\"\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/SalesInvoice/CreateSalesInvoice",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"SalesInvoice",
+								"CreateSalesInvoice"
+							]
+						}
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "https://localhost:7001",
+			"type": "string"
+		}
+	]
+}

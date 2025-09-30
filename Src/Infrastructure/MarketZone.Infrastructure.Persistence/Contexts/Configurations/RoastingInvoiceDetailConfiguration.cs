@@ -18,6 +18,10 @@ namespace MarketZone.Infrastructure.Persistence.Contexts.Configurations
                 .HasPrecision(18, 2)
                 .IsRequired();
 
+            builder.Property(x => x.RoastingCost)
+                .HasPrecision(18, 2)
+                .IsRequired();
+
             builder.Property(x => x.ReceivedQuantityKg)
                 .HasPrecision(18, 2);
 
@@ -28,7 +32,7 @@ namespace MarketZone.Infrastructure.Persistence.Contexts.Configurations
             builder.HasOne(x => x.RoastingInvoice)
                 .WithMany(x => x.Details)
                 .HasForeignKey(x => x.RoastingInvoiceId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.NoAction);
 
             builder.HasOne(x => x.RawProduct)
                 .WithMany()
