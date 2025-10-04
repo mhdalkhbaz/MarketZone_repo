@@ -75,10 +75,10 @@ namespace MarketZone.Application.Features.Roasting.Commands.PostRoastingInvoice
                     }
 
                     // Check if we have enough quantity
-                    if (rawProductBalance.AvailableQty < readyDetail.ActualQuantityAfterRoasting)
-                    {
-                        throw new InvalidOperationException($"Insufficient quantity for product {readyDetail.RawProductId}. Available: {rawProductBalance.AvailableQty}, Requested: {readyDetail.ActualQuantityAfterRoasting}");
-                    }
+                    //if (rawProductBalance.AvailableQty < readyDetail.ActualQuantityAfterRoasting)
+                    //{
+                    //    throw new InvalidOperationException($"Insufficient quantity for product {readyDetail.RawProductId}. Available: {rawProductBalance.AvailableQty}, Requested: {readyDetail.ActualQuantityAfterRoasting}");
+                    //}
 
                     // Consume raw product quantity
                     rawProductBalance.Adjust(-readyDetail.ActualQuantityAfterRoasting, -readyDetail.ActualQuantityAfterRoasting);
