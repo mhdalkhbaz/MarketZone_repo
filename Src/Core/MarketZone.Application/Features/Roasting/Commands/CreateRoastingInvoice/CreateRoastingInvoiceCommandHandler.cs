@@ -43,15 +43,15 @@ namespace MarketZone.Application.Features.Roasting.Commands.CreateRoastingInvoic
 
             foreach (var detailItem in request.Details)
             {
-                var rawProductBalance = await _productBalanceRepository.GetByProductIdAsync(detailItem.RawProductId, cancellationToken);
+                var rawProductBalance = await _productBalanceRepository.GetByProductIdAsync(detailItem.ProductId, cancellationToken);
                 if (rawProductBalance == null)
                 {
-                    throw new InvalidOperationException($"Raw product balance not found for product {detailItem.RawProductId}");
+                    throw new InvalidOperationException($"Raw product balance not found for product {detailItem.ProductId}");
                 }
 
                 if (rawProductBalance.AvailableQty < detailItem.QuantityKg)
                 {
-                    throw new InvalidOperationException($"Insufficient available quantity for product {detailItem.RawProductId}. Available: {rawProductBalance.AvailableQty}, Requested: {detailItem.QuantityKg}");
+                    throw new InvalidOperationException($"Insufficient available quantity for product {detailItem.ProductId}. Available: {rawProductBalance.AvailableQty}, Requested: {detailItem.QuantityKg}");
                 }
 
                 rawProductBalance.Adjust(0, -detailItem.QuantityKg);
@@ -59,10 +59,10 @@ namespace MarketZone.Application.Features.Roasting.Commands.CreateRoastingInvoic
 
                 var detail = new RoastingInvoiceDetail(
                     roastingInvoice.Id,
-                    detailItem.RawProductId,
+                    detailItem.ProductId,
                     detailItem.QuantityKg,
                     detailItem.Notes,
-                    detailItem.RoastingCost);
+                    detailItem.RoastPricePerKg);
 
                 roastingInvoice.AddDetail(detail);
             }
