@@ -3,6 +3,7 @@ using MarketZone.Application.Features.Logistics.Commands.DistributionTrips.Creat
 using MarketZone.Application.Features.Logistics.Commands.DistributionTrips.UpdateDistributionTrip;
 using MarketZone.Application.Features.Logistics.Commands.DistributionTrips.PostDistributionTrip;
 using MarketZone.Application.Features.Logistics.Commands.DistributionTrips.CompleteTrip;
+using MarketZone.Application.Features.Logistics.Commands.DistributionTrips.DeleteDistributionTrip;
 using MarketZone.Application.Features.Logistics.Queries.GetPagedListDistributionTrip;
 using MarketZone.Application.Features.Logistics.Queries.ValidateTripQuantities;
 using MarketZone.Application.Interfaces;
@@ -27,7 +28,7 @@ namespace MarketZone.WebApi.Endpoints
             builder.MapPut(UpdateDistributionTrip).RequireAuthorization();
             builder.MapPut(PostDistributionTrip).RequireAuthorization();
             builder.MapPut(ReceiveGoods).RequireAuthorization();
-            //builder.MapPut(ReceiveGoods).RequireAuthorization();
+            builder.MapDelete(DeleteDistributionTrip).RequireAuthorization();
         }
 
         async Task<PagedResponse<DistributionTripDto>> GetPagedListDistributionTrip(IMediator mediator, [AsParameters] GetPagedListDistributionTripQuery model)
@@ -48,9 +49,8 @@ namespace MarketZone.WebApi.Endpoints
         async Task<BaseResult> ReceiveGoods(IMediator mediator, ReceiveGoodsCommand model)
           => await mediator.Send<ReceiveGoodsCommand, BaseResult>(model);
 
-        //async Task<BaseResult> ReceiveGoods(IMediator mediator, CompleteTripCommand model)
-        //    => await mediator.Send<CompleteTripCommand, BaseResult>(model);
-
+        async Task<BaseResult> DeleteDistributionTrip(IMediator mediator, long tripId)
+            => await mediator.Send<DeleteDistributionTripCommand, BaseResult>(new DeleteDistributionTripCommand(tripId));
     }
 }
 
