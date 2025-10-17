@@ -17,9 +17,9 @@ namespace MarketZone.Application.Features.Roasting.Commands.CreateRoastingInvoic
     public class CreateRoastingInvoiceDetailItem
     {
         public long? Id { get; set; }
-        public long ProductId { get; set; }
+        public long RawProductId { get; set; }
         public decimal QuantityKg { get; set; }
         public string Notes { get; set; }
-        public decimal RoastPricePerKg { get; set; }
+        public decimal RoastingCost { get; set; }
     }
 }

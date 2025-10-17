@@ -20,3 +20,5 @@ namespace MarketZone.Domain.Roasting.DTOs
         public decimal TotalNetSalePrice { get; set; }
     }
 }
+
+

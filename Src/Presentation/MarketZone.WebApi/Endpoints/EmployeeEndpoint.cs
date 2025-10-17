@@ -23,7 +23,7 @@ namespace MarketZone.WebApi.Endpoints
         {
             builder.MapGet(GetPagedListEmployee);
             builder.MapGet(GetEmployeeById);
-            builder.MapPost(CreateEmployee).RequireAuthorization();
+            builder.MapPost(CreateEmployee);
             builder.MapPut(UpdateEmployee).RequireAuthorization();
             builder.MapDelete(DeleteEmployee).RequireAuthorization();
             builder.MapGet(GetActiveEmployeesSelectList);

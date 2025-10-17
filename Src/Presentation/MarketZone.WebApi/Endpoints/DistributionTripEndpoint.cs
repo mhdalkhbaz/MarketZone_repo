@@ -5,6 +5,7 @@ using MarketZone.Application.Features.Logistics.Commands.DistributionTrips.PostD
 using MarketZone.Application.Features.Logistics.Commands.DistributionTrips.CompleteTrip;
 using MarketZone.Application.Features.Logistics.Commands.DistributionTrips.DeleteDistributionTrip;
 using MarketZone.Application.Features.Logistics.Queries.GetPagedListDistributionTrip;
+using MarketZone.Application.Features.Logistics.Queries.GetDistributionTripById;
 using MarketZone.Application.Features.Logistics.Queries.ValidateTripQuantities;
 using MarketZone.Application.Interfaces;
 using MarketZone.Application.Wrappers;
@@ -15,6 +16,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using System.Threading.Tasks;
 using MarketZone.Application.Features.Logistics.Commands.DistributionTrips.ReceiveGoods;
+using Microsoft.AspNetCore.Mvc;
 
 namespace MarketZone.WebApi.Endpoints
 {
@@ -23,6 +25,7 @@ namespace MarketZone.WebApi.Endpoints
         public override void Map(RouteGroupBuilder builder)
         {
             builder.MapGet(GetPagedListDistributionTrip);
+            builder.MapGet(GetDistributionTripById);
             builder.MapGet(ValidateTripQuantities);
             builder.MapPost(CreateDistributionTrip).RequireAuthorization();
             builder.MapPut(UpdateDistributionTrip).RequireAuthorization();
@@ -33,6 +36,9 @@ namespace MarketZone.WebApi.Endpoints
 
         async Task<PagedResponse<DistributionTripDto>> GetPagedListDistributionTrip(IMediator mediator, [AsParameters] GetPagedListDistributionTripQuery model)
             => await mediator.Send<GetPagedListDistributionTripQuery, PagedResponse<DistributionTripDto>>(model);
+
+        async Task<BaseResult<DistributionTripDto>> GetDistributionTripById(IMediator mediator, [FromQuery] long id)
+            => await mediator.Send<GetDistributionTripByIdQuery, BaseResult<DistributionTripDto>>(new GetDistributionTripByIdQuery { Id = id });
 
         async Task<BaseResult<ValidateTripQuantitiesResult>> ValidateTripQuantities(IMediator mediator, [AsParameters] ValidateTripQuantitiesQuery model)
             => await mediator.Send<ValidateTripQuantitiesQuery, BaseResult<ValidateTripQuantitiesResult>>(model);
@@ -49,8 +55,8 @@ namespace MarketZone.WebApi.Endpoints
         async Task<BaseResult> ReceiveGoods(IMediator mediator, ReceiveGoodsCommand model)
           => await mediator.Send<ReceiveGoodsCommand, BaseResult>(model);
 
-        async Task<BaseResult> DeleteDistributionTrip(IMediator mediator, long tripId)
-            => await mediator.Send<DeleteDistributionTripCommand, BaseResult>(new DeleteDistributionTripCommand(tripId));
+        async Task<BaseResult> DeleteDistributionTrip(IMediator mediator,[FromQuery] long id)
+            => await mediator.Send<DeleteDistributionTripCommand, BaseResult>(new DeleteDistributionTripCommand(id));
     }
 }
 
