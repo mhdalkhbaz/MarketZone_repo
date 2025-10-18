@@ -95,7 +95,7 @@ namespace MarketZone.WebApi.Endpoints
         async Task<BaseResult<List<SelectListDto>>> GetDeliveryTripSelectList(ApplicationDbContext db)
         {
             var trips = await db.DistributionTrips.AsNoTracking()
-                .Where(t => t.Status == DistributionTripStatus.Posted)
+                .Where(t => t.Status == DistributionTripStatus.Completed)
                 .OrderByDescending(t => t.TripDate)
                 .Select(t => new { t.Id, t.TripDate })
                 .ToListAsync();
