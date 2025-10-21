@@ -14,7 +14,7 @@ namespace MarketZone.Domain.Sales.Entities
             Details = new List<SalesInvoiceDetail>();
         }
 
-        public SalesInvoice(string invoiceNumber, long customerId, DateTime invoiceDate, decimal totalAmount, decimal discount, string paymentMethod, string notes)
+        public SalesInvoice(string invoiceNumber, long customerId, DateTime invoiceDate, decimal totalAmount, decimal discount, string paymentMethod, string notes, string? currency = null)
         {
             InvoiceNumber = invoiceNumber;
             CustomerId = customerId;
@@ -23,6 +23,7 @@ namespace MarketZone.Domain.Sales.Entities
             Discount = discount;
             PaymentMethod = paymentMethod;
             Notes = notes ?? string.Empty;
+            Currency = currency;
             Status = SalesInvoiceStatus.Draft;
             Type = SalesInvoiceType.Regular;
             Details = new List<SalesInvoiceDetail>();
@@ -36,6 +37,7 @@ namespace MarketZone.Domain.Sales.Entities
         public decimal Discount { get; private set; }
         public string PaymentMethod { get; private set; }
         public string Notes { get; private set; }
+        public string? Currency { get; private set; }
         public SalesInvoiceStatus Status { get; private set; }
         public SalesInvoiceType Type { get; private set; }
         
@@ -45,7 +47,7 @@ namespace MarketZone.Domain.Sales.Entities
 
         public List<SalesInvoiceDetail> Details { get; private set; }
 
-        public void Update(string invoiceNumber, long customerId, DateTime invoiceDate, decimal totalAmount, decimal discount, string paymentMethod, string notes)
+        public void Update(string invoiceNumber, long customerId, DateTime invoiceDate, decimal totalAmount, decimal discount, string paymentMethod, string notes, string? currency = null)
         {
             InvoiceNumber = invoiceNumber;
             CustomerId = customerId;
@@ -54,6 +56,7 @@ namespace MarketZone.Domain.Sales.Entities
             Discount = discount;
             PaymentMethod = paymentMethod;
             Notes = notes ?? string.Empty;
+            Currency = currency;
         }
 
         public void SetStatus(SalesInvoiceStatus status)

@@ -13,7 +13,7 @@ namespace MarketZone.Domain.Purchases.Entities
         {
         }
 #pragma warning restore
-        public PurchaseInvoice(string invoiceNumber, long supplierId, DateTime? invoiceDate, decimal totalAmount, decimal discount, string notes)
+        public PurchaseInvoice(string invoiceNumber, long supplierId, DateTime? invoiceDate, decimal totalAmount, decimal discount, string notes, string? currency = null)
         {
             InvoiceNumber = invoiceNumber;
             SupplierId = supplierId;
@@ -21,11 +21,12 @@ namespace MarketZone.Domain.Purchases.Entities
             TotalAmount = totalAmount;
             Discount = discount;
             Notes = notes;
+            Currency = currency;
             Status = PurchaseInvoiceStatus.Draft;
             PaymentStatus = PurchasePaymentStatus.InProgress;
         }
 
-        public PurchaseInvoice(string invoiceNumber, long supplierId, DateTime? invoiceDate, decimal totalAmount, decimal discount, string notes, PurchaseInvoiceStatus status, PurchasePaymentStatus paymentStatus)
+        public PurchaseInvoice(string invoiceNumber, long supplierId, DateTime? invoiceDate, decimal totalAmount, decimal discount, string notes, PurchaseInvoiceStatus status, PurchasePaymentStatus paymentStatus, string? currency = null)
         {
             InvoiceNumber = invoiceNumber;
             SupplierId = supplierId;
@@ -33,6 +34,7 @@ namespace MarketZone.Domain.Purchases.Entities
             TotalAmount = totalAmount;
             Discount = discount;
             Notes = notes;
+            Currency = currency;
             Status = status;
             PaymentStatus = paymentStatus;
         }
@@ -44,6 +46,7 @@ namespace MarketZone.Domain.Purchases.Entities
         public decimal TotalAmount { get; private set; }
         public decimal Discount { get; private set; }
         public string? Notes { get; private set; }
+        public string? Currency { get; private set; }
         public PurchaseInvoiceStatus Status { get; private set; }
         public PurchasePaymentStatus? PaymentStatus { get; private set; }
 
@@ -64,7 +67,7 @@ namespace MarketZone.Domain.Purchases.Entities
 
         public List<PurchaseInvoiceDetail> Details { get; private set; }
 
-        public void Update(string invoiceNumber, long supplierId, DateTime invoiceDate, decimal totalAmount, decimal discount, string notes)
+        public void Update(string invoiceNumber, long supplierId, DateTime invoiceDate, decimal totalAmount, decimal discount, string notes, string? currency = null)
         {
             InvoiceNumber = invoiceNumber;
             SupplierId = supplierId;
@@ -72,6 +75,7 @@ namespace MarketZone.Domain.Purchases.Entities
             TotalAmount = totalAmount;
             Discount = discount;
             Notes = notes;
+            Currency = currency;
         }
     }
 }

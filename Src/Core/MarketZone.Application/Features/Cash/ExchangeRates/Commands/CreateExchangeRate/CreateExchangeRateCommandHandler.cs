@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MarketZone.Application.Interfaces;
@@ -7,25 +8,23 @@ using MarketZone.Domain.Cash.Entities;
 
 namespace MarketZone.Application.Features.Cash.ExchangeRates.Commands.CreateExchangeRate
 {
-	public class CreateExchangeRateCommandHandler : IRequestHandler<CreateExchangeRateCommand, BaseResult<long>>
-	{
-		private readonly IExchangeRateRepository _repository;
-		private readonly IUnitOfWork _unitOfWork;
+    public class CreateExchangeRateCommandHandler(IExchangeRateRepository repository, IUnitOfWork unitOfWork) : IRequestHandler<CreateExchangeRateCommand, BaseResult<long>>
+    {
+        public async Task<BaseResult<long>> Handle(CreateExchangeRateCommand request, CancellationToken cancellationToken)
+        {
+            // Deactivate all existing rates
+            var existingRates = await repository.GetActiveRatesAsync(cancellationToken);
+            foreach (var rate in existingRates)
+            {
+                rate.Deactivate();
+            }
 
-		public CreateExchangeRateCommandHandler(IExchangeRateRepository repository, IUnitOfWork unitOfWork)
-		{
-			_repository = repository;
-			_unitOfWork = unitOfWork;
-		}
-
-		public async Task<BaseResult<long>> Handle(CreateExchangeRateCommand request, CancellationToken cancellationToken)
-		{
-			var entity = new ExchangeRate(request.CurrencyCode, request.RateToUSD, request.EffectiveAtUtc, request.Source, request.Notes);
-			await _repository.AddAsync(entity);
-			await _unitOfWork.SaveChangesAsync();
-			return entity.Id;
-		}
-	}
+            // Create new exchange rate
+            var entity = new ExchangeRate(request.Rate, request.EffectiveDate);
+            await repository.AddAsync(entity);
+            await unitOfWork.SaveChangesAsync();
+            
+            return entity.Id;
+        }
+    }
 }
-
-

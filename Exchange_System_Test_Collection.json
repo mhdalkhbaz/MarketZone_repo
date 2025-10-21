@@ -1,0 +1,125 @@
+{
+	"info": {
+		"name": "Exchange System Test Collection",
+		"description": "مجموعة اختبارات نظام سعر الصرف والتحويل",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "💱 Exchange Rate Management",
+			"item": [
+				{
+					"name": "Create Exchange Rate",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"rate\": 15000,\n  \"effectiveDate\": \"2025-01-15\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Cash/CreateExchangeRate",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "Cash", "CreateExchangeRate"]
+						},
+						"description": "إنشاء سعر صرف جديد (1 دولار = 15000 ليرة)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Latest Exchange Rate",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/Cash/GetLatestExchangeRate",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "Cash", "GetLatestExchangeRate"]
+						},
+						"description": "جلب أحدث سعر صرف نشط"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "🔄 Exchange Transactions",
+			"item": [
+				{
+					"name": "Exchange USD to SYP",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cashRegisterId\": 1,\n  \"direction\": 0,\n  \"fromAmount\": 100,\n  \"exchangeRate\": 15000,\n  \"transactionDate\": \"2025-01-15\",\n  \"notes\": \"تحويل 100 دولار إلى ليرة سورية\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Cash/CreateExchangeTransaction",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "Cash", "CreateExchangeTransaction"]
+						},
+						"description": "تحويل 100 دولار إلى ليرة سورية (النتيجة: 1,500,000 ليرة)"
+					},
+					"response": []
+				},
+				{
+					"name": "Exchange SYP to USD",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cashRegisterId\": 1,\n  \"direction\": 1,\n  \"fromAmount\": 1500000,\n  \"exchangeRate\": 15000,\n  \"transactionDate\": \"2025-01-15\",\n  \"notes\": \"تحويل 1,500,000 ليرة إلى دولار\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Cash/CreateExchangeTransaction",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "Cash", "CreateExchangeTransaction"]
+						},
+						"description": "تحويل 1,500,000 ليرة إلى دولار (النتيجة: 100 دولار)"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [""]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [""]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "https://localhost:7001",
+			"type": "string"
+		}
+	]
+}

@@ -13,6 +13,7 @@ namespace MarketZone.Application.Features.Purchases.Commands.CreatePurchaseInvoi
         public decimal TotalAmount { get; set; }
         public decimal Discount { get; set; } = 0;
         public string Notes { get; set; }
+        public string? Currency { get; set; }
 
         public List<CreatePurchaseInvoiceDetailItem> Details { get; set; } = [];
     }

@@ -34,6 +34,7 @@ namespace MarketZone.Infrastructure.Persistence.Contexts
         public DbSet<CashTransaction> CashTransactions { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<ExchangeRate> ExchangeRates { get; set; }
+        public DbSet<ExchangeTransaction> ExchangeTransactions { get; set; }
         public DbSet<RoastingInvoice> RoastingInvoices { get; set; }
         public DbSet<RoastingInvoiceDetail> RoastingInvoiceDetails { get; set; }
         public DbSet<RoastingInvoiceDetailReceipt> RoastingInvoiceDetailReceipts { get; set; }

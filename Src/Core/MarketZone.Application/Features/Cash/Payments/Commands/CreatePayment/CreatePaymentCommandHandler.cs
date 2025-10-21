@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MarketZone.Application.Interfaces;
@@ -14,22 +15,35 @@ namespace MarketZone.Application.Features.Cash.Payments.Commands.CreatePayment
 		{
 			Payment entity;
 			
-			if (request.PaymentType == PaymentType.InvoicePayment)
+			// Check if payment type requires an invoice
+			if (RequiresInvoice(request.PaymentType))
 			{
+				if (!request.InvoiceId.HasValue)
+					return new Error(ErrorCode.FieldDataInvalid, "InvoiceId is required for this payment type", nameof(request.InvoiceId));
+				
+				if (!request.InvoiceType.HasValue)
+					return new Error(ErrorCode.FieldDataInvalid, "InvoiceType is required for this payment type", nameof(request.InvoiceType));
+
 				entity = new Payment(
+					request.PaymentType,
 					request.InvoiceId.Value,
+					request.InvoiceType.Value,
 					request.Amount,
 					request.PaymentDate,
+					request.Currency,
+					request.PaymentCurrency,
+					request.ExchangeRate,
 					request.Notes,
 					request.ReceivedBy,
 					request.IsConfirmed
 				);
 			}
-			else // PaymentType.Expense
+			else // General expenses (not invoice-related)
 			{
 				entity = new Payment(
+					request.PaymentType,
 					request.Amount,
-					request.PaymentDate ?? System.DateTime.UtcNow,
+					request.PaymentDate.HasValue ? request.PaymentDate.Value : DateTime.UtcNow,
 					request.Description,
 					request.PaidBy,
 					request.IsConfirmed
@@ -40,6 +54,13 @@ namespace MarketZone.Application.Features.Cash.Payments.Commands.CreatePayment
 			await repository.AddAsync(entity);
 			await unitOfWork.SaveChangesAsync();
 			return entity.Id;
+		}
+
+		private static bool RequiresInvoice(PaymentType type)
+		{
+			return type == PaymentType.SalesPayment ||
+				   type == PaymentType.PurchasePayment ||
+				   type == PaymentType.RoastingPayment;
 		}
 	}
 }

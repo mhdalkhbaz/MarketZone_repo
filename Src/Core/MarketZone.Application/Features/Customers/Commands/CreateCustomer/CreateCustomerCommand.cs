@@ -10,6 +10,7 @@ namespace MarketZone.Application.Features.Customers.Commands.CreateCustomer
 		public string WhatsAppPhone { get; set; }
 		public string Email { get; set; }
 		public string Address { get; set; }
+		public string? Currency { get; set; }
 		public bool IsActive { get; set; } = true;
 	}
 }

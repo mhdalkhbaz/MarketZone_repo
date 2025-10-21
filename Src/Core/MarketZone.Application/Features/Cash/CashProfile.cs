@@ -6,6 +6,7 @@ using MarketZone.Application.Features.Cash.Payments.Commands.CreatePayment;
 using MarketZone.Application.Features.Cash.Payments.Commands.UpdatePayment;
 using MarketZone.Domain.Cash.DTOs;
 using MarketZone.Domain.Cash.Entities;
+using System;
 
 namespace MarketZone.Application.Features.Cash
 {
@@ -24,8 +25,7 @@ namespace MarketZone.Application.Features.Cash
 				.ConstructUsing(s => new CashTransaction(s.CashRegisterId, s.TransactionType, s.Amount, s.TransactionDate, s.ReferenceType, s.ReferenceId, s.Description));
 
 			CreateMap<Payment, PaymentDto>();
-			CreateMap<CreatePaymentCommand, Payment>()
-				.ConstructUsing(s => new Payment(s.InvoiceId.Value, s.Amount, s.PaymentDate, s.Notes, s.ReceivedBy, s.IsConfirmed));
+			// Note: CreatePaymentCommand to Payment mapping is handled manually in CreatePaymentCommandHandler
 			CreateMap<UpdatePaymentCommand, Payment>()
 				.ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 		}

@@ -14,6 +14,9 @@ using System.Threading.Tasks;
 using MarketZone.Application.Features.Products.Queries.GetProductSelectList;
 using MarketZone.Application.Interfaces;
 using Microsoft.AspNetCore.Http;
+using MarketZone.Domain.Cash.DTOs;
+using MarketZone.Domain.Sales.Enums;
+using MarketZone.Domain.Purchases.Enums;
 
 namespace MarketZone.WebApi.Endpoints
 {
@@ -28,6 +31,12 @@ namespace MarketZone.WebApi.Endpoints
             builder.MapGet(GetEmployeeSelectList);
             builder.MapGet(GetRegionSelectList);
             builder.MapGet(GetCarSelectList);
+            
+            // New endpoints for payment system
+            builder.MapGet(GetSuppliersSelectList);
+            builder.MapGet(GetPurchaseInvoicesBySupplier);
+            builder.MapGet(GetCustomersSelectList);
+            builder.MapGet(GetSalesInvoicesByCustomer);
             builder.MapGet(GetDeliveryTripSelectList);
             builder.MapGet(GetProductReadyByRawProductSelectList);
             builder.MapGet(GetInStockProductSelectList);
@@ -105,6 +114,80 @@ namespace MarketZone.WebApi.Endpoints
                 .ToList();
 
             return BaseResult<List<SelectListDto>>.Ok(list);
+        }
+
+        async Task<BaseResult<List<SupplierSelectListDto>>> GetSuppliersSelectList(ApplicationDbContext db)
+        {
+            var suppliers = await db.Suppliers.AsNoTracking()
+                .Where(s => s.IsActive)
+                .OrderBy(s => s.Name)
+                .Select(s => new SupplierSelectListDto
+                {
+                    Id = s.Id,
+                    Name = s.Name,
+                    Currency = s.Currency ?? "SYP" // Default currency
+                })
+                .ToListAsync();
+
+            return BaseResult<List<SupplierSelectListDto>>.Ok(suppliers);
+        }
+
+        async Task<BaseResult<List<PurchaseInvoiceSelectListDto>>> GetPurchaseInvoicesBySupplier(ApplicationDbContext db, long supplierId)
+        {
+            var invoices = await db.PurchaseInvoices.AsNoTracking()
+                .Where(p => p.SupplierId == supplierId && p.Status == PurchaseInvoiceStatus.Posted)
+                .OrderByDescending(p => p.InvoiceDate)
+                .Select(p => new PurchaseInvoiceSelectListDto
+                {
+                    Id = p.Id,
+                    InvoiceNumber = p.InvoiceNumber,
+                    TotalAmount = p.TotalAmount,
+                    Currency = p.Currency ?? "SYP",
+                    InvoiceDate = p.InvoiceDate,
+                    Status = p.Status.ToString()
+                })
+                .ToListAsync();
+
+            return BaseResult<List<PurchaseInvoiceSelectListDto>>.Ok(invoices);
+        }
+
+        async Task<BaseResult<List<CustomerSelectListDto>>> GetCustomersSelectList(ApplicationDbContext db)
+        {
+            var customers = await db.Customers.AsNoTracking()
+                .Where(c => c.IsActive)
+                .OrderBy(c => c.Name)
+                .Select(c => new CustomerSelectListDto
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                    Currency = c.Currency ?? "SYP", // Default currency
+                    Phone = c.Phone,
+                    Address = c.Address
+                })
+                .ToListAsync();
+
+            return BaseResult<List<CustomerSelectListDto>>.Ok(customers);
+        }
+
+        async Task<BaseResult<List<SalesInvoiceSelectListDto>>> GetSalesInvoicesByCustomer(ApplicationDbContext db, long customerId)
+        {
+            var invoices = await db.SalesInvoices.AsNoTracking()
+                .Where(s => s.CustomerId == customerId && s.Status == SalesInvoiceStatus.Posted)
+                .OrderByDescending(s => s.InvoiceDate)
+                .Select(s => new SalesInvoiceSelectListDto
+                {
+                    Id = s.Id,
+                    InvoiceNumber = s.InvoiceNumber,
+                    TotalAmount = s.TotalAmount,
+                    Currency = s.Currency ?? "SYP",
+                    InvoiceDate = s.InvoiceDate,
+                    Status = s.Status.ToString(),
+                    DistributionTripId = s.DistributionTripId,
+                    CustomerName = s.Customer.Name
+                })
+                .ToListAsync();
+
+            return BaseResult<List<SalesInvoiceSelectListDto>>.Ok(invoices);
         }
 
         async Task<BaseResult<List<SelectListDto>>> GetProductReadyByRawProductSelectList(ApplicationDbContext db, long productId)

@@ -14,7 +14,7 @@ namespace MarketZone.Application.Features.Suppliers
 				.ForMember(d => d.CreatedDateTime, o => o.MapFrom(s => s.Created));
 
 			CreateMap<CreateSupplierCommand, Supplier>()
-				.ConstructUsing(s => new Supplier(s.Name, s.Phone, s.WhatsAppPhone, s.Email, s.Address, s.IsActive));
+				.ConstructUsing(s => new Supplier(s.Name, s.Phone, s.WhatsAppPhone, s.Email, s.Address, s.Currency, s.IsActive));
 
 			CreateMap<UpdateSupplierCommand, Supplier>()
 				.ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));

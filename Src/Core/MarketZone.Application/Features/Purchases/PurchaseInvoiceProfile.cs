@@ -22,7 +22,8 @@ namespace MarketZone.Application.Features.Purchases
                     s.InvoiceDate,
                     s.TotalAmount,
                     s.Discount,
-                    s.Notes))
+                    s.Notes,
+                    s.Currency))
                 .ForMember(d => d.Details, opt => opt.MapFrom(s => s.Details));
 
             CreateMap<UpdatePurchaseInvoiceCommand, PurchaseInvoice>()

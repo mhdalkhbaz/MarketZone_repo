@@ -15,6 +15,7 @@ namespace MarketZone.Application.Features.Sales.Commands.CreateSalesInvoice
 		public decimal Discount { get; set; }
 		public string PaymentMethod { get; set; } = string.Empty;
 		public string Notes { get; set; } = string.Empty;
+		public string? Currency { get; set; }
 		public SalesInvoiceType Type { get; set; } = SalesInvoiceType.Regular;
 		public long? DistributionTripId { get; set; } // ربط برحلة التوزيع (اختياري)
 		public List<CreateSalesInvoiceDetailItem> Details { get; set; } = new List<CreateSalesInvoiceDetailItem>();

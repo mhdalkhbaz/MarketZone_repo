@@ -1,0 +1,176 @@
+{
+	"info": {
+		"name": "Complete Exchange System Test",
+		"description": "مجموعة اختبارات شاملة لنظام سعر الصرف والتحويل",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "💱 Exchange Rate Management",
+			"item": [
+				{
+					"name": "Create Exchange Rate - 15000 SYP",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"rate\": 15000,\n  \"effectiveDate\": \"2025-01-15T00:00:00Z\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Cash/CreateExchangeRate",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "Cash", "CreateExchangeRate"]
+						},
+						"description": "إنشاء سعر صرف جديد (1 دولار = 15000 ليرة سورية)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Latest Exchange Rate",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/Cash/GetLatestExchangeRate",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "Cash", "GetLatestExchangeRate"]
+						},
+						"description": "جلب أحدث سعر صرف نشط"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "🔄 Exchange Transactions",
+			"item": [
+				{
+					"name": "Exchange 100 USD to SYP",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cashRegisterId\": 1,\n  \"direction\": 0,\n  \"fromAmount\": 100,\n  \"exchangeRate\": 15000,\n  \"transactionDate\": \"2025-01-15T00:00:00Z\",\n  \"notes\": \"تحويل 100 دولار إلى ليرة سورية\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Cash/CreateExchangeTransaction",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "Cash", "CreateExchangeTransaction"]
+						},
+						"description": "تحويل 100 دولار إلى ليرة سورية (النتيجة: 1,500,000 ليرة)"
+					},
+					"response": []
+				},
+				{
+					"name": "Exchange 1,500,000 SYP to USD",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cashRegisterId\": 1,\n  \"direction\": 1,\n  \"fromAmount\": 1500000,\n  \"exchangeRate\": 15000,\n  \"transactionDate\": \"2025-01-15T00:00:00Z\",\n  \"notes\": \"تحويل 1,500,000 ليرة إلى دولار\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Cash/CreateExchangeTransaction",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "Cash", "CreateExchangeTransaction"]
+						},
+						"description": "تحويل 1,500,000 ليرة إلى دولار (النتيجة: 100 دولار)"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "💰 Payment System Integration",
+			"item": [
+				{
+					"name": "Create Purchase Payment with Exchange",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"paymentType\": 1,\n  \"invoiceId\": 1,\n  \"invoiceType\": 1,\n  \"amount\": 100,\n  \"currency\": \"USD\",\n  \"paymentCurrency\": \"SYP\",\n  \"exchangeRate\": 15000,\n  \"notes\": \"دفع فاتورة شراء بالليرة\",\n  \"receivedBy\": \"المحاسب\",\n  \"paymentDate\": \"2025-01-15T00:00:00Z\",\n  \"isConfirmed\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Cash/CreatePayment",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "Cash", "CreatePayment"]
+						},
+						"description": "دفع فاتورة شراء بالدولار ولكن الدفع بالليرة السورية"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Sales Payment (Income)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"paymentType\": 0,\n  \"invoiceId\": 1,\n  \"invoiceType\": 0,\n  \"amount\": 2000,\n  \"currency\": \"SYP\",\n  \"paymentCurrency\": \"SYP\",\n  \"exchangeRate\": null,\n  \"notes\": \"قبض من زبون\",\n  \"receivedBy\": \"المحاسب\",\n  \"paymentDate\": \"2025-01-15T00:00:00Z\",\n  \"isConfirmed\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Cash/CreatePayment",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "Cash", "CreatePayment"]
+						},
+						"description": "قبض من زبون (إيراد)"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [""]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [""]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "https://localhost:7001",
+			"type": "string"
+		}
+	]
+}

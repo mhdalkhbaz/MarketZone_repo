@@ -34,12 +34,14 @@ namespace MarketZone.Application.Features.Cash.Payments.Commands.PostPayment
 			string transactionDescription;
 			ReferenceType referenceType;
 
-			if (payment.PaymentType == PaymentType.InvoicePayment)
+			if (payment.PaymentType == PaymentType.SalesPayment || 
+			    payment.PaymentType == PaymentType.PurchasePayment || 
+			    payment.PaymentType == PaymentType.RoastingPayment)
 			{
 				transactionDescription = $"Payment for invoice {payment.InvoiceId}";
 				referenceType = ReferenceType.Payment;
 			}
-			else // PaymentType.Expense
+			else // General expenses
 			{
 				transactionDescription = payment.Description ?? "Expense payment";
 				referenceType = ReferenceType.Expense;
@@ -62,7 +64,9 @@ namespace MarketZone.Application.Features.Cash.Payments.Commands.PostPayment
 			cashRegister?.Adjust(-payment.Amount);
 
 			// Update invoice payment status (only for invoice payments)
-			if (payment.PaymentType == PaymentType.InvoicePayment && payment.InvoiceId.HasValue)
+			if ((payment.PaymentType == PaymentType.SalesPayment || 
+			     payment.PaymentType == PaymentType.PurchasePayment || 
+			     payment.PaymentType == PaymentType.RoastingPayment) && payment.InvoiceId.HasValue)
 			{
 				var invoice = await purchaseInvoiceRepository.GetByIdAsync(payment.InvoiceId.Value);
 				if (invoice != null)

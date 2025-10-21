@@ -14,7 +14,7 @@ namespace MarketZone.Application.Features.Customers
 				.ForMember(d => d.CreatedDateTime, o => o.MapFrom(s => s.Created));
 
 			CreateMap<CreateCustomerCommand, Customer>()
-				.ConstructUsing(s => new Customer(s.Name, s.Phone, s.WhatsAppPhone, s.Email, s.Address, s.IsActive));
+				.ConstructUsing(s => new Customer(s.Name, s.Phone, s.WhatsAppPhone, s.Email, s.Address, s.Currency, s.IsActive));
 
 			CreateMap<UpdateCustomerCommand, Customer>()
 				.ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));

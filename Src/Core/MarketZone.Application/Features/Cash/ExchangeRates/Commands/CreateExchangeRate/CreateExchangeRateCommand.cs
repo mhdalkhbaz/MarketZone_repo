@@ -4,14 +4,9 @@ using MarketZone.Application.Wrappers;
 
 namespace MarketZone.Application.Features.Cash.ExchangeRates.Commands.CreateExchangeRate
 {
-	public class CreateExchangeRateCommand : IRequest<BaseResult<long>>
-	{
-		public string CurrencyCode { get; set; }
-		public decimal RateToUSD { get; set; }
-		public DateTime EffectiveAtUtc { get; set; }
-		public string Source { get; set; }
-		public string Notes { get; set; }
-	}
+    public class CreateExchangeRateCommand : IRequest<BaseResult<long>>
+    {
+        public decimal Rate { get; set; }                    // 15000 ليرة سورية
+        public DateTime EffectiveDate { get; set; }         // تاريخ السعر
+    }
 }
-
-
