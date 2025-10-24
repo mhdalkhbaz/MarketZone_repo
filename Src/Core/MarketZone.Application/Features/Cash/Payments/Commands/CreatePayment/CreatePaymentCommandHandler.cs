@@ -20,18 +20,13 @@ namespace MarketZone.Application.Features.Cash.Payments.Commands.CreatePayment
 			{
 				if (!request.InvoiceId.HasValue)
 					return new Error(ErrorCode.FieldDataInvalid, "InvoiceId is required for this payment type", nameof(request.InvoiceId));
-				
-				if (!request.InvoiceType.HasValue)
-					return new Error(ErrorCode.FieldDataInvalid, "InvoiceType is required for this payment type", nameof(request.InvoiceType));
 
 				entity = new Payment(
 					request.PaymentType,
 					request.InvoiceId.Value,
-					request.InvoiceType.Value,
 					request.Amount,
-					request.PaymentDate,
+					request.PaymentDate ?? DateTime.UtcNow,
 					request.Currency,
-					request.PaymentCurrency,
 					request.ExchangeRate,
 					request.Notes,
 					request.ReceivedBy,
@@ -43,7 +38,7 @@ namespace MarketZone.Application.Features.Cash.Payments.Commands.CreatePayment
 				entity = new Payment(
 					request.PaymentType,
 					request.Amount,
-					request.PaymentDate.HasValue ? request.PaymentDate.Value : DateTime.UtcNow,
+					request.PaymentDate ?? DateTime.UtcNow,
 					request.Description,
 					request.PaidBy,
 					request.IsConfirmed

@@ -32,25 +32,25 @@ namespace MarketZone.Application.Features.Cash.Payments.Commands.PostPayment
 				return new Error(ErrorCode.FieldDataInvalid, "CashRegisterId is required to post a payment", nameof(payment.CashRegisterId));
 
 			string transactionDescription;
-			ReferenceType referenceType;
+			Domain.Cash.Enums.ReferenceType referenceType;
 
-			if (payment.PaymentType == PaymentType.SalesPayment || 
-			    payment.PaymentType == PaymentType.PurchasePayment || 
-			    payment.PaymentType == PaymentType.RoastingPayment)
+			if (payment.PaymentType == Domain.Cash.Enums.PaymentType.SalesPayment || 
+			    payment.PaymentType == Domain.Cash.Enums.PaymentType.PurchasePayment || 
+			    payment.PaymentType == Domain.Cash.Enums.PaymentType.RoastingPayment)
 			{
 				transactionDescription = $"Payment for invoice {payment.InvoiceId}";
-				referenceType = ReferenceType.Payment;
+				referenceType = Domain.Cash.Enums.ReferenceType.Payment;
 			}
 			else // General expenses
 			{
 				transactionDescription = payment.Description ?? "Expense payment";
-				referenceType = ReferenceType.Expense;
+				referenceType = Domain.Cash.Enums.ReferenceType.Expense;
 			}
 
 			// Create cash transaction (cash goes OUT → Expense transaction)
 			var cashTransaction = new CashTransaction(
 				payment.CashRegisterId.Value,
-				TransactionType.Expense,
+				Domain.Cash.Enums.TransactionType.Expense,
 				payment.Amount,
 				payment.PaymentDate,
 				referenceType,
@@ -64,9 +64,9 @@ namespace MarketZone.Application.Features.Cash.Payments.Commands.PostPayment
 			cashRegister?.Adjust(-payment.Amount);
 
 			// Update invoice payment status (only for invoice payments)
-			if ((payment.PaymentType == PaymentType.SalesPayment || 
-			     payment.PaymentType == PaymentType.PurchasePayment || 
-			     payment.PaymentType == PaymentType.RoastingPayment) && payment.InvoiceId.HasValue)
+			if ((payment.PaymentType == Domain.Cash.Enums.PaymentType.SalesPayment || 
+			     payment.PaymentType == Domain.Cash.Enums.PaymentType.PurchasePayment || 
+			     payment.PaymentType == Domain.Cash.Enums.PaymentType.RoastingPayment) && payment.InvoiceId.HasValue)
 			{
 				var invoice = await purchaseInvoiceRepository.GetByIdAsync(payment.InvoiceId.Value);
 				if (invoice != null)

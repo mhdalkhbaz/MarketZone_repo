@@ -1,0 +1,1331 @@
+{
+	"info": {
+		"_postman_id": "marketzone-complete-apis",
+		"name": "🏪 MarketZone Complete System APIs",
+		"description": "مجموعة APIs شاملة لنظام إدارة محلات البن MarketZone",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "🔐 المصادقة والهوية",
+			"item": [
+				{
+					"name": "تسجيل الدخول",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@marketzone.com\",\n  \"password\": \"Admin@123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/Account/Login",
+							"host": ["{{base_url}}"],
+							"path": ["api", "Account", "Login"]
+						}
+					}
+				},
+				{
+					"name": "تسجيل مستخدم جديد",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"firstName\": \"أحمد\",\n  \"lastName\": \"محمد\",\n  \"email\": \"ahmed@marketzone.com\",\n  \"password\": \"Ahmed@123\",\n  \"confirmPassword\": \"Ahmed@123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/Account/Register",
+							"host": ["{{base_url}}"],
+							"path": ["api", "Account", "Register"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "📦 البيانات الأساسية",
+			"item": [
+				{
+					"name": "المنتجات",
+					"item": [
+						{
+							"name": "عرض قائمة المنتجات",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/Product/GetPagedListProduct?pageNumber=1&pageSize=10",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Product", "GetPagedListProduct"],
+									"query": [
+										{
+											"key": "pageNumber",
+											"value": "1"
+										},
+										{
+											"key": "pageSize",
+											"value": "10"
+										}
+									]
+								}
+							}
+						},
+						{
+							"name": "إضافة منتج جديد",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"قهوة عربية ممتازة\",\n  \"description\": \"قهوة عربية عالية الجودة من اليمن\",\n  \"price\": 150.00,\n  \"unit\": \"كيلو\",\n  \"categoryId\": 1,\n  \"isActive\": true\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/Product/CreateProduct",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Product", "CreateProduct"]
+								}
+							}
+						},
+						{
+							"name": "تحديث منتج",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"id\": 1,\n  \"name\": \"قهوة عربية ممتازة - محدثة\",\n  \"description\": \"قهوة عربية عالية الجودة من اليمن - محدثة\",\n  \"price\": 160.00,\n  \"unit\": \"كيلو\",\n  \"categoryId\": 1,\n  \"isActive\": true\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/Product/UpdateProduct",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Product", "UpdateProduct"]
+								}
+							}
+						},
+						{
+							"name": "حذف منتج",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/Product/DeleteProduct/1",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Product", "DeleteProduct", "1"]
+								}
+							}
+						}
+					]
+				},
+				{
+					"name": "الفئات",
+					"item": [
+						{
+							"name": "عرض قائمة الفئات",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/Category/GetPagedListCategory?pageNumber=1&pageSize=10",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Category", "GetPagedListCategory"],
+									"query": [
+										{
+											"key": "pageNumber",
+											"value": "1"
+										},
+										{
+											"key": "pageSize",
+											"value": "10"
+										}
+									]
+								}
+							}
+						},
+						{
+							"name": "إضافة فئة جديدة",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"القهوة العربية\",\n  \"description\": \"أنواع مختلفة من القهوة العربية\",\n  \"isActive\": true\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/Category/CreateCategory",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Category", "CreateCategory"]
+								}
+							}
+						}
+					]
+				},
+				{
+					"name": "العملاء",
+					"item": [
+						{
+							"name": "عرض قائمة العملاء",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/Customer/GetPagedListCustomer?pageNumber=1&pageSize=10",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Customer", "GetPagedListCustomer"],
+									"query": [
+										{
+											"key": "pageNumber",
+											"value": "1"
+										},
+										{
+											"key": "pageSize",
+											"value": "10"
+										}
+									]
+								}
+							}
+						},
+						{
+							"name": "إضافة عميل جديد",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"أحمد علي\",\n  \"phone\": \"+963912345678\",\n  \"whatsAppPhone\": \"+963912345678\",\n  \"email\": \"ahmed.ali@email.com\",\n  \"address\": \"دمشق، سوريا\",\n  \"currency\": \"SYP\",\n  \"isActive\": true\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/Customer/CreateCustomer",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Customer", "CreateCustomer"]
+								}
+							}
+						}
+					]
+				},
+				{
+					"name": "الموردين",
+					"item": [
+						{
+							"name": "عرض قائمة الموردين",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/Supplier/GetPagedListSupplier?pageNumber=1&pageSize=10",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Supplier", "GetPagedListSupplier"],
+									"query": [
+										{
+											"key": "pageNumber",
+											"value": "1"
+										},
+										{
+											"key": "pageSize",
+											"value": "10"
+										}
+									]
+								}
+							}
+						},
+						{
+							"name": "إضافة مورد جديد",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"شركة القهوة العربية\",\n  \"phone\": \"+963912345679\",\n  \"whatsAppPhone\": \"+963912345679\",\n  \"email\": \"supplier@coffee.com\",\n  \"address\": \"بيروت، لبنان\",\n  \"currency\": \"USD\",\n  \"isActive\": true\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/Supplier/CreateSupplier",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Supplier", "CreateSupplier"]
+								}
+							}
+						}
+					]
+				},
+				{
+					"name": "الموظفين",
+					"item": [
+						{
+							"name": "عرض قائمة الموظفين",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/Employee/GetPagedListEmployee?pageNumber=1&pageSize=10",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Employee", "GetPagedListEmployee"],
+									"query": [
+										{
+											"key": "pageNumber",
+											"value": "1"
+										},
+										{
+											"key": "pageSize",
+											"value": "10"
+										}
+									]
+								}
+							}
+						},
+						{
+							"name": "إضافة موظف جديد",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"محمد حسن\",\n  \"phone\": \"+963912345680\",\n  \"whatsAppPhone\": \"+963912345680\",\n  \"email\": \"mohammed.hassan@marketzone.com\",\n  \"address\": \"دمشق، سوريا\",\n  \"position\": \"مندوب مبيعات\",\n  \"isActive\": true\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/Employee/CreateEmployee",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Employee", "CreateEmployee"]
+								}
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "💰 إدارة النقدية",
+			"item": [
+				{
+					"name": "الصناديق النقدية",
+					"item": [
+						{
+							"name": "عرض قائمة الصناديق",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/Cash/GetPagedListCashRegister?pageNumber=1&pageSize=10",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Cash", "GetPagedListCashRegister"],
+									"query": [
+										{
+											"key": "pageNumber",
+											"value": "1"
+										},
+										{
+											"key": "pageSize",
+											"value": "10"
+										}
+									]
+								}
+							}
+						},
+						{
+							"name": "إضافة صندوق نقدي",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"الصندوق الرئيسي\",\n  \"openingBalance\": 10000.00,\n  \"openingBalanceDollar\": 100.00\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/Cash/CreateCashRegister",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Cash", "CreateCashRegister"]
+								}
+							}
+						}
+					]
+				},
+				{
+					"name": "أسعار الصرف",
+					"item": [
+						{
+							"name": "عرض قائمة أسعار الصرف",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/ExchangeRate/GetPagedListExchangeRate?pageNumber=1&pageSize=10",
+									"host": ["{{base_url}}"],
+									"path": ["api", "ExchangeRate", "GetPagedListExchangeRate"],
+									"query": [
+										{
+											"key": "pageNumber",
+											"value": "1"
+										},
+										{
+											"key": "pageSize",
+											"value": "10"
+										}
+									]
+								}
+							}
+						},
+						{
+							"name": "الحصول على آخر سعر صرف",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/ExchangeRate/GetLatestRate",
+									"host": ["{{base_url}}"],
+									"path": ["api", "ExchangeRate", "GetLatestRate"]
+								}
+							}
+						},
+						{
+							"name": "إضافة سعر صرف جديد",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"rate\": 15000.00,\n  \"effectiveDate\": \"2024-01-15T00:00:00Z\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/ExchangeRate/CreateExchangeRate",
+									"host": ["{{base_url}}"],
+									"path": ["api", "ExchangeRate", "CreateExchangeRate"]
+								}
+							}
+						}
+					]
+				},
+				{
+					"name": "معاملات الصرف",
+					"item": [
+						{
+							"name": "عرض قائمة معاملات الصرف",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/ExchangeTransaction/GetPagedListExchangeTransaction?pageNumber=1&pageSize=10",
+									"host": ["{{base_url}}"],
+									"path": ["api", "ExchangeTransaction", "GetPagedListExchangeTransaction"],
+									"query": [
+										{
+											"key": "pageNumber",
+											"value": "1"
+										},
+										{
+											"key": "pageSize",
+											"value": "10"
+										}
+									]
+								}
+							}
+						},
+						{
+							"name": "إضافة معاملة صرف",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"cashRegisterId\": 1,\n  \"direction\": \"USD_To_SYP\",\n  \"fromAmount\": 100.00,\n  \"exchangeRate\": 15000.00,\n  \"transactionDate\": \"2024-01-15T10:00:00Z\",\n  \"notes\": \"معاملة صرف عملات\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/ExchangeTransaction/CreateExchangeTransaction",
+									"host": ["{{base_url}}"],
+									"path": ["api", "ExchangeTransaction", "CreateExchangeTransaction"]
+								}
+							}
+						}
+					]
+				},
+				{
+					"name": "المدفوعات",
+					"item": [
+						{
+							"name": "عرض قائمة المدفوعات",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/Payment/GetPagedListPayment?pageNumber=1&pageSize=10",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Payment", "GetPagedListPayment"],
+									"query": [
+										{
+											"key": "pageNumber",
+											"value": "1"
+										},
+										{
+											"key": "pageSize",
+											"value": "10"
+										}
+									]
+								}
+							}
+						},
+						{
+							"name": "إضافة دفعة فاتورة مبيعات",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"paymentType\": \"SalesPayment\",\n  \"invoiceId\": 1,\n  \"amount\": 500.00,\n  \"currency\": \"SYP\",\n  \"paymentDate\": \"2024-01-15T10:00:00Z\",\n  \"cashRegisterId\": 1,\n  \"notes\": \"دفعة فاتورة مبيعات\",\n  \"receivedBy\": \"أحمد محمد\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/Payment/CreatePayment",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Payment", "CreatePayment"]
+								}
+							}
+						},
+						{
+							"name": "إضافة دفعة فاتورة مشتريات",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"paymentType\": \"PurchasePayment\",\n  \"invoiceId\": 2,\n  \"amount\": 1000.00,\n  \"currency\": \"USD\",\n  \"exchangeRate\": 15000.00,\n  \"paymentDate\": \"2024-01-15T10:00:00Z\",\n  \"cashRegisterId\": 1,\n  \"notes\": \"دفعة فاتورة مشتريات\",\n  \"receivedBy\": \"محمد أحمد\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/Payment/CreatePayment",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Payment", "CreatePayment"]
+								}
+							}
+						},
+						{
+							"name": "إضافة دفعة فاتورة تحميص",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"paymentType\": \"RoastingPayment\",\n  \"invoiceId\": 3,\n  \"amount\": 200.00,\n  \"currency\": \"SYP\",\n  \"paymentDate\": \"2024-01-15T10:00:00Z\",\n  \"cashRegisterId\": 1,\n  \"notes\": \"دفعة فاتورة تحميص\",\n  \"receivedBy\": \"سعد علي\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/Payment/CreatePayment",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Payment", "CreatePayment"]
+								}
+							}
+						},
+						{
+							"name": "إضافة مصروف عام",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"paymentType\": \"GeneralExpense\",\n  \"amount\": 100.00,\n  \"currency\": \"SYP\",\n  \"paymentDate\": \"2024-01-15T10:00:00Z\",\n  \"cashRegisterId\": 1,\n  \"description\": \"مصروفات مكتبية\",\n  \"paidBy\": \"أحمد محمد\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/Payment/CreatePayment",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Payment", "CreatePayment"]
+								}
+							}
+						}
+					]
+				},
+				{
+					"name": "المصاريف",
+					"item": [
+						{
+							"name": "عرض قائمة المصاريف",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/Expense/GetPagedListExpense?pageNumber=1&pageSize=10",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Expense", "GetPagedListExpense"],
+									"query": [
+										{
+											"key": "pageNumber",
+											"value": "1"
+										},
+										{
+											"key": "pageSize",
+											"value": "10"
+										}
+									]
+								}
+							}
+						},
+						{
+							"name": "إضافة مصروف جديد",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"cashRegisterId\": 1,\n  \"transactionType\": \"Expense\",\n  \"amount\": 100.00,\n  \"transactionDate\": \"2024-01-15T10:00:00Z\",\n  \"referenceType\": \"Expense\",\n  \"referenceId\": 1,\n  \"description\": \"مصروفات مكتبية\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/Expense/CreateExpense",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Expense", "CreateExpense"]
+								}
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "🛒 إدارة المبيعات",
+			"item": [
+				{
+					"name": "فواتير المبيعات",
+					"item": [
+						{
+							"name": "عرض قائمة فواتير المبيعات",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/SalesInvoice/GetPagedListSalesInvoice?pageNumber=1&pageSize=10",
+									"host": ["{{base_url}}"],
+									"path": ["api", "SalesInvoice", "GetPagedListSalesInvoice"],
+									"query": [
+										{
+											"key": "pageNumber",
+											"value": "1"
+										},
+										{
+											"key": "pageSize",
+											"value": "10"
+										}
+									]
+								}
+							}
+						},
+						{
+							"name": "إضافة فاتورة مبيعات عادية",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"invoiceNumber\": \"SI-2024-001\",\n  \"customerId\": 1,\n  \"invoiceDate\": \"2024-01-15T10:00:00Z\",\n  \"totalAmount\": 500.00,\n  \"discount\": 0.00,\n  \"paymentMethod\": \"نقدي\",\n  \"notes\": \"فاتورة مبيعات عادية\",\n  \"currency\": \"SYP\",\n  \"type\": \"Regular\",\n  \"details\": [\n    {\n      \"productId\": 1,\n      \"quantity\": 2.0,\n      \"unitPrice\": 25.50,\n      \"subTotal\": 51.00,\n      \"notes\": \"قهوة عربية ممتازة\"\n    }\n  ]\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/SalesInvoice/CreateSalesInvoice",
+									"host": ["{{base_url}}"],
+									"path": ["api", "SalesInvoice", "CreateSalesInvoice"]
+								}
+							}
+						},
+						{
+							"name": "إضافة فاتورة موزع",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"invoiceNumber\": \"DI-2024-001\",\n  \"customerId\": 1,\n  \"invoiceDate\": \"2024-01-15T10:00:00Z\",\n  \"totalAmount\": 1000.00,\n  \"discount\": 50.00,\n  \"paymentMethod\": \"آجل\",\n  \"notes\": \"فاتورة مبيعات موزع\",\n  \"currency\": \"SYP\",\n  \"type\": \"Distributor\",\n  \"distributionTripId\": 1,\n  \"details\": [\n    {\n      \"productId\": 1,\n      \"quantity\": 10.0,\n      \"unitPrice\": 25.50,\n      \"subTotal\": 255.00,\n      \"notes\": \"قهوة عربية للبيع بالجملة\"\n    }\n  ]\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/SalesInvoice/CreateSalesInvoice",
+									"host": ["{{base_url}}"],
+									"path": ["api", "SalesInvoice", "CreateSalesInvoice"]
+								}
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "🛍️ إدارة المشتريات",
+			"item": [
+				{
+					"name": "فواتير المشتريات",
+					"item": [
+						{
+							"name": "عرض قائمة فواتير المشتريات",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/PurchaseInvoice/GetPagedListPurchaseInvoice?pageNumber=1&pageSize=10",
+									"host": ["{{base_url}}"],
+									"path": ["api", "PurchaseInvoice", "GetPagedListPurchaseInvoice"],
+									"query": [
+										{
+											"key": "pageNumber",
+											"value": "1"
+										},
+										{
+											"key": "pageSize",
+											"value": "10"
+										}
+									]
+								}
+							}
+						},
+						{
+							"name": "إضافة فاتورة مشتريات",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"invoiceNumber\": \"PI-2024-001\",\n  \"supplierId\": 1,\n  \"invoiceDate\": \"2024-01-15T10:00:00Z\",\n  \"totalAmount\": 1000.00,\n  \"discount\": 0.00,\n  \"notes\": \"شراء حبوب القهوة\",\n  \"currency\": \"USD\",\n  \"details\": [\n    {\n      \"productId\": 1,\n      \"quantity\": 50.0,\n      \"unitPrice\": 20.00,\n      \"totalPrice\": 1000.00,\n      \"notes\": \"شراء قهوة عربية ممتازة\"\n    }\n  ]\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/PurchaseInvoice/CreatePurchaseInvoice",
+									"host": ["{{base_url}}"],
+									"path": ["api", "PurchaseInvoice", "CreatePurchaseInvoice"]
+								}
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "☕ إدارة التحميص",
+			"item": [
+				{
+					"name": "فواتير التحميص",
+					"item": [
+						{
+							"name": "عرض قائمة فواتير التحميص",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/RoastingInvoice/GetPagedListRoastingInvoice?pageNumber=1&pageSize=10",
+									"host": ["{{base_url}}"],
+									"path": ["api", "RoastingInvoice", "GetPagedListRoastingInvoice"],
+									"query": [
+										{
+											"key": "pageNumber",
+											"value": "1"
+										},
+										{
+											"key": "pageSize",
+											"value": "10"
+										}
+									]
+								}
+							}
+						},
+						{
+							"name": "إضافة فاتورة تحميص",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"invoiceNumber\": \"RI-2024-001\",\n  \"roastingDate\": \"2024-01-15T10:00:00Z\",\n  \"notes\": \"تحميص حبوب القهوة العربية\",\n  \"details\": [\n    {\n      \"rawProductId\": 1,\n      \"roastedProductId\": 2,\n      \"quantity\": 10.0,\n      \"notes\": \"تحميص القهوة الخام إلى قهوة محمصة ممتازة\"\n    }\n  ]\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/RoastingInvoice/CreateRoastingInvoice",
+									"host": ["{{base_url}}"],
+									"path": ["api", "RoastingInvoice", "CreateRoastingInvoice"]
+								}
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "🚚 إدارة اللوجستيات",
+			"item": [
+				{
+					"name": "السيارات",
+					"item": [
+						{
+							"name": "عرض قائمة السيارات",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/Car/GetPagedListCar?pageNumber=1&pageSize=10",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Car", "GetPagedListCar"],
+									"query": [
+										{
+											"key": "pageNumber",
+											"value": "1"
+										},
+										{
+											"key": "pageSize",
+											"value": "10"
+										}
+									]
+								}
+							}
+						},
+						{
+							"name": "إضافة سيارة جديدة",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"سيارة التوزيع 01\",\n  \"plateNumber\": \"دمشق-1234\",\n  \"model\": \"فورد ترانزيت\",\n  \"year\": 2023,\n  \"isActive\": true\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/Car/CreateCar",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Car", "CreateCar"]
+								}
+							}
+						}
+					]
+				},
+				{
+					"name": "المناطق",
+					"item": [
+						{
+							"name": "عرض قائمة المناطق",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/Region/GetPagedListRegion?pageNumber=1&pageSize=10",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Region", "GetPagedListRegion"],
+									"query": [
+										{
+											"key": "pageNumber",
+											"value": "1"
+										},
+										{
+											"key": "pageSize",
+											"value": "10"
+										}
+									]
+								}
+							}
+						},
+						{
+							"name": "إضافة منطقة جديدة",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"وسط دمشق\",\n  \"description\": \"منطقة وسط دمشق\",\n  \"isActive\": true\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/Region/CreateRegion",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Region", "CreateRegion"]
+								}
+							}
+						}
+					]
+				},
+				{
+					"name": "رحلات التوزيع",
+					"item": [
+						{
+							"name": "عرض قائمة رحلات التوزيع",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/DistributionTrip/GetPagedListDistributionTrip?pageNumber=1&pageSize=10",
+									"host": ["{{base_url}}"],
+									"path": ["api", "DistributionTrip", "GetPagedListDistributionTrip"],
+									"query": [
+										{
+											"key": "pageNumber",
+											"value": "1"
+										},
+										{
+											"key": "pageSize",
+											"value": "10"
+										}
+									]
+								}
+							}
+						},
+						{
+							"name": "إضافة رحلة توزيع جديدة",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"employeeId\": 1,\n  \"carId\": 1,\n  \"regionId\": 1,\n  \"tripDate\": \"2024-01-15T08:00:00Z\",\n  \"loadQty\": 100.0,\n  \"notes\": \"رحلة توزيع صباحية\",\n  \"details\": [\n    {\n      \"productId\": 1,\n      \"qty\": 50.0,\n      \"expectedPrice\": 25.50\n    },\n    {\n      \"productId\": 2,\n      \"qty\": 30.0,\n      \"expectedPrice\": 30.00\n    }\n  ]\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/DistributionTrip/CreateDistributionTrip",
+									"host": ["{{base_url}}"],
+									"path": ["api", "DistributionTrip", "CreateDistributionTrip"]
+								}
+							}
+						},
+						{
+							"name": "نشر رحلة التوزيع",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/DistributionTrip/PostDistributionTrip/1",
+									"host": ["{{base_url}}"],
+									"path": ["api", "DistributionTrip", "PostDistributionTrip", "1"]
+								}
+							}
+						},
+						{
+							"name": "إكمال رحلة التوزيع",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/DistributionTrip/CompleteTrip/1",
+									"host": ["{{base_url}}"],
+									"path": ["api", "DistributionTrip", "CompleteTrip", "1"]
+								}
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "🔍 القوائم والمراجع",
+			"item": [
+				{
+					"name": "قائمة المنتجات",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/Lookup/GetProductSelectList",
+							"host": ["{{base_url}}"],
+							"path": ["api", "Lookup", "GetProductSelectList"]
+						}
+					}
+				},
+				{
+					"name": "قائمة العملاء",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/Lookup/GetCustomerSelectList",
+							"host": ["{{base_url}}"],
+							"path": ["api", "Lookup", "GetCustomerSelectList"]
+						}
+					}
+				},
+				{
+					"name": "قائمة الموردين",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/Lookup/GetSupplierSelectList",
+							"host": ["{{base_url}}"],
+							"path": ["api", "Lookup", "GetSupplierSelectList"]
+						}
+					}
+				},
+				{
+					"name": "قائمة الموظفين",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/Lookup/GetEmployeeSelectList",
+							"host": ["{{base_url}}"],
+							"path": ["api", "Lookup", "GetEmployeeSelectList"]
+						}
+					}
+				},
+				{
+					"name": "قائمة السيارات",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/Lookup/GetCarSelectList",
+							"host": ["{{base_url}}"],
+							"path": ["api", "Lookup", "GetCarSelectList"]
+						}
+					}
+				},
+				{
+					"name": "قائمة المناطق",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/Lookup/GetRegionSelectList",
+							"host": ["{{base_url}}"],
+							"path": ["api", "Lookup", "GetRegionSelectList"]
+						}
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "https://localhost:7001",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

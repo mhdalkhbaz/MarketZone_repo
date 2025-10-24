@@ -1,0 +1,1257 @@
+{
+	"info": {
+		"_postman_id": "marketzone-complete-system",
+		"name": "MarketZone Complete System API",
+		"description": "Complete API collection for MarketZone Coffee Shop Management System",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "marketzone-exporter"
+	},
+	"item": [
+		{
+			"name": "🔐 Authentication",
+			"item": [
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@marketzone.com\",\n  \"password\": \"Admin@123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/Account/Login",
+							"host": ["{{base_url}}"],
+							"path": ["api", "Account", "Login"]
+						}
+					}
+				},
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"firstName\": \"Admin\",\n  \"lastName\": \"User\",\n  \"email\": \"admin@marketzone.com\",\n  \"password\": \"Admin@123\",\n  \"confirmPassword\": \"Admin@123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/Account/Register",
+							"host": ["{{base_url}}"],
+							"path": ["api", "Account", "Register"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "📦 Master Data",
+			"item": [
+				{
+					"name": "Products",
+					"item": [
+						{
+							"name": "Get Paged List",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/Product/GetPagedListProduct?pageNumber=1&pageSize=10",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Product", "GetPagedListProduct"],
+									"query": [
+										{
+											"key": "pageNumber",
+											"value": "1"
+										},
+										{
+											"key": "pageSize",
+											"value": "10"
+										}
+									]
+								}
+							}
+						},
+						{
+							"name": "Create Product",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"Premium Coffee Beans\",\n  \"description\": \"High quality coffee beans\",\n  \"price\": 25.50,\n  \"unit\": \"kg\",\n  \"categoryId\": 1,\n  \"isActive\": true\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/Product/CreateProduct",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Product", "CreateProduct"]
+								}
+							}
+						},
+						{
+							"name": "Update Product",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"id\": 1,\n  \"name\": \"Premium Coffee Beans Updated\",\n  \"description\": \"High quality coffee beans - Updated\",\n  \"price\": 27.50,\n  \"unit\": \"kg\",\n  \"categoryId\": 1,\n  \"isActive\": true\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/Product/UpdateProduct",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Product", "UpdateProduct"]
+								}
+							}
+						},
+						{
+							"name": "Delete Product",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/Product/DeleteProduct/1",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Product", "DeleteProduct", "1"]
+								}
+							}
+						}
+					]
+				},
+				{
+					"name": "Categories",
+					"item": [
+						{
+							"name": "Get Paged List",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/Category/GetPagedListCategory?pageNumber=1&pageSize=10",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Category", "GetPagedListCategory"],
+									"query": [
+										{
+											"key": "pageNumber",
+											"value": "1"
+										},
+										{
+											"key": "pageSize",
+											"value": "10"
+										}
+									]
+								}
+							}
+						},
+						{
+							"name": "Create Category",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"Coffee Beans\",\n  \"description\": \"Various types of coffee beans\",\n  \"isActive\": true\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/Category/CreateCategory",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Category", "CreateCategory"]
+								}
+							}
+						}
+					]
+				},
+				{
+					"name": "Customers",
+					"item": [
+						{
+							"name": "Get Paged List",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/Customer/GetPagedListCustomer?pageNumber=1&pageSize=10",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Customer", "GetPagedListCustomer"],
+									"query": [
+										{
+											"key": "pageNumber",
+											"value": "1"
+										},
+										{
+											"key": "pageSize",
+											"value": "10"
+										}
+									]
+								}
+							}
+						},
+						{
+							"name": "Create Customer",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"Ahmed Ali\",\n  \"phone\": \"+963912345678\",\n  \"whatsAppPhone\": \"+963912345678\",\n  \"email\": \"ahmed.ali@email.com\",\n  \"address\": \"Damascus, Syria\",\n  \"currency\": \"SYP\",\n  \"isActive\": true\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/Customer/CreateCustomer",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Customer", "CreateCustomer"]
+								}
+							}
+						}
+					]
+				},
+				{
+					"name": "Suppliers",
+					"item": [
+						{
+							"name": "Get Paged List",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/Supplier/GetPagedListSupplier?pageNumber=1&pageSize=10",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Supplier", "GetPagedListSupplier"],
+									"query": [
+										{
+											"key": "pageNumber",
+											"value": "1"
+										},
+										{
+											"key": "pageSize",
+											"value": "10"
+										}
+									]
+								}
+							}
+						},
+						{
+							"name": "Create Supplier",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"Coffee Supplier Co.\",\n  \"phone\": \"+963912345679\",\n  \"whatsAppPhone\": \"+963912345679\",\n  \"email\": \"supplier@coffee.com\",\n  \"address\": \"Beirut, Lebanon\",\n  \"currency\": \"USD\",\n  \"isActive\": true\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/Supplier/CreateSupplier",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Supplier", "CreateSupplier"]
+								}
+							}
+						}
+					]
+				},
+				{
+					"name": "Employees",
+					"item": [
+						{
+							"name": "Get Paged List",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/Employee/GetPagedListEmployee?pageNumber=1&pageSize=10",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Employee", "GetPagedListEmployee"],
+									"query": [
+										{
+											"key": "pageNumber",
+											"value": "1"
+										},
+										{
+											"key": "pageSize",
+											"value": "10"
+										}
+									]
+								}
+							}
+						},
+						{
+							"name": "Create Employee",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"Mohammed Hassan\",\n  \"phone\": \"+963912345680\",\n  \"whatsAppPhone\": \"+963912345680\",\n  \"email\": \"mohammed.hassan@marketzone.com\",\n  \"address\": \"Damascus, Syria\",\n  \"position\": \"Sales Representative\",\n  \"isActive\": true\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/Employee/CreateEmployee",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Employee", "CreateEmployee"]
+								}
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "💰 Cash Management",
+			"item": [
+				{
+					"name": "Cash Registers",
+					"item": [
+						{
+							"name": "Get Paged List",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/Cash/GetPagedListCashRegister?pageNumber=1&pageSize=10",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Cash", "GetPagedListCashRegister"],
+									"query": [
+										{
+											"key": "pageNumber",
+											"value": "1"
+										},
+										{
+											"key": "pageSize",
+											"value": "10"
+										}
+									]
+								}
+							}
+						},
+						{
+							"name": "Create Cash Register",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"Main Cash Register\",\n  \"openingBalance\": 10000.00,\n  \"openingBalanceDollar\": 100.00\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/Cash/CreateCashRegister",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Cash", "CreateCashRegister"]
+								}
+							}
+						}
+					]
+				},
+				{
+					"name": "Exchange Rates",
+					"item": [
+						{
+							"name": "Get Paged List",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/ExchangeRate/GetPagedListExchangeRate?pageNumber=1&pageSize=10",
+									"host": ["{{base_url}}"],
+									"path": ["api", "ExchangeRate", "GetPagedListExchangeRate"],
+									"query": [
+										{
+											"key": "pageNumber",
+											"value": "1"
+										},
+										{
+											"key": "pageSize",
+											"value": "10"
+										}
+									]
+								}
+							}
+						},
+						{
+							"name": "Get Latest Rate",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/ExchangeRate/GetLatestRate",
+									"host": ["{{base_url}}"],
+									"path": ["api", "ExchangeRate", "GetLatestRate"]
+								}
+							}
+						},
+						{
+							"name": "Create Exchange Rate",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"rate\": 15000.00,\n  \"effectiveDate\": \"2024-01-15T00:00:00Z\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/ExchangeRate/CreateExchangeRate",
+									"host": ["{{base_url}}"],
+									"path": ["api", "ExchangeRate", "CreateExchangeRate"]
+								}
+							}
+						}
+					]
+				},
+				{
+					"name": "Exchange Transactions",
+					"item": [
+						{
+							"name": "Get Paged List",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/ExchangeTransaction/GetPagedListExchangeTransaction?pageNumber=1&pageSize=10",
+									"host": ["{{base_url}}"],
+									"path": ["api", "ExchangeTransaction", "GetPagedListExchangeTransaction"],
+									"query": [
+										{
+											"key": "pageNumber",
+											"value": "1"
+										},
+										{
+											"key": "pageSize",
+											"value": "10"
+										}
+									]
+								}
+							}
+						},
+						{
+							"name": "Create Exchange Transaction",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"cashRegisterId\": 1,\n  \"direction\": \"USD_To_SYP\",\n  \"fromAmount\": 100.00,\n  \"exchangeRate\": 15000.00,\n  \"transactionDate\": \"2024-01-15T10:00:00Z\",\n  \"notes\": \"Currency exchange transaction\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/ExchangeTransaction/CreateExchangeTransaction",
+									"host": ["{{base_url}}"],
+									"path": ["api", "ExchangeTransaction", "CreateExchangeTransaction"]
+								}
+							}
+						}
+					]
+				},
+				{
+					"name": "Payments",
+					"item": [
+						{
+							"name": "Get Paged List",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/Payment/GetPagedListPayment?pageNumber=1&pageSize=10",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Payment", "GetPagedListPayment"],
+									"query": [
+										{
+											"key": "pageNumber",
+											"value": "1"
+										},
+										{
+											"key": "pageSize",
+											"value": "10"
+										}
+									]
+								}
+							}
+						},
+						{
+							"name": "Create Payment",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"paymentType\": \"SalesPayment\",\n  \"amount\": 500.00,\n  \"currency\": \"SYP\",\n  \"exchangeRate\": 15000.00,\n  \"paymentDate\": \"2024-01-15T10:00:00Z\",\n  \"cashRegisterId\": 1,\n  \"referenceType\": \"SalesInvoice\",\n  \"referenceId\": 1,\n  \"notes\": \"Payment for sales invoice\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/Payment/CreatePayment",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Payment", "CreatePayment"]
+								}
+							}
+						}
+					]
+				},
+				{
+					"name": "Expenses",
+					"item": [
+						{
+							"name": "Get Paged List",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/Expense/GetPagedListExpense?pageNumber=1&pageSize=10",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Expense", "GetPagedListExpense"],
+									"query": [
+										{
+											"key": "pageNumber",
+											"value": "1"
+										},
+										{
+											"key": "pageSize",
+											"value": "10"
+										}
+									]
+								}
+							}
+						},
+						{
+							"name": "Create Expense",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"cashRegisterId\": 1,\n  \"transactionType\": \"Expense\",\n  \"amount\": 100.00,\n  \"transactionDate\": \"2024-01-15T10:00:00Z\",\n  \"referenceType\": \"Expense\",\n  \"referenceId\": 1,\n  \"description\": \"Office supplies expense\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/Expense/CreateExpense",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Expense", "CreateExpense"]
+								}
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "🛒 Sales Management",
+			"item": [
+				{
+					"name": "Sales Invoices",
+					"item": [
+						{
+							"name": "Get Paged List",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/SalesInvoice/GetPagedListSalesInvoice?pageNumber=1&pageSize=10",
+									"host": ["{{base_url}}"],
+									"path": ["api", "SalesInvoice", "GetPagedListSalesInvoice"],
+									"query": [
+										{
+											"key": "pageNumber",
+											"value": "1"
+										},
+										{
+											"key": "pageSize",
+											"value": "10"
+										}
+									]
+								}
+							}
+						},
+						{
+							"name": "Create Sales Invoice",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"invoiceNumber\": \"SI-2024-001\",\n  \"customerId\": 1,\n  \"invoiceDate\": \"2024-01-15T10:00:00Z\",\n  \"totalAmount\": 500.00,\n  \"discount\": 0.00,\n  \"paymentMethod\": \"Cash\",\n  \"notes\": \"Regular sales invoice\",\n  \"currency\": \"SYP\",\n  \"type\": \"Regular\",\n  \"details\": [\n    {\n      \"productId\": 1,\n      \"quantity\": 2.0,\n      \"unitPrice\": 25.50,\n      \"subTotal\": 51.00,\n      \"notes\": \"Premium coffee beans\"\n    }\n  ]\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/SalesInvoice/CreateSalesInvoice",
+									"host": ["{{base_url}}"],
+									"path": ["api", "SalesInvoice", "CreateSalesInvoice"]
+								}
+							}
+						},
+						{
+							"name": "Create Distributor Invoice",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"invoiceNumber\": \"DI-2024-001\",\n  \"customerId\": 1,\n  \"invoiceDate\": \"2024-01-15T10:00:00Z\",\n  \"totalAmount\": 1000.00,\n  \"discount\": 50.00,\n  \"paymentMethod\": \"Credit\",\n  \"notes\": \"Distributor sales invoice\",\n  \"currency\": \"SYP\",\n  \"type\": \"Distributor\",\n  \"distributionTripId\": 1,\n  \"details\": [\n    {\n      \"productId\": 1,\n      \"quantity\": 10.0,\n      \"unitPrice\": 25.50,\n      \"subTotal\": 255.00,\n      \"notes\": \"Premium coffee beans for distribution\"\n    }\n  ]\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/SalesInvoice/CreateSalesInvoice",
+									"host": ["{{base_url}}"],
+									"path": ["api", "SalesInvoice", "CreateSalesInvoice"]
+								}
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "🛍️ Purchase Management",
+			"item": [
+				{
+					"name": "Purchase Invoices",
+					"item": [
+						{
+							"name": "Get Paged List",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/PurchaseInvoice/GetPagedListPurchaseInvoice?pageNumber=1&pageSize=10",
+									"host": ["{{base_url}}"],
+									"path": ["api", "PurchaseInvoice", "GetPagedListPurchaseInvoice"],
+									"query": [
+										{
+											"key": "pageNumber",
+											"value": "1"
+										},
+										{
+											"key": "pageSize",
+											"value": "10"
+										}
+									]
+								}
+							}
+						},
+						{
+							"name": "Create Purchase Invoice",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"invoiceNumber\": \"PI-2024-001\",\n  \"supplierId\": 1,\n  \"invoiceDate\": \"2024-01-15T10:00:00Z\",\n  \"totalAmount\": 1000.00,\n  \"discount\": 0.00,\n  \"notes\": \"Purchase of coffee beans\",\n  \"currency\": \"USD\",\n  \"details\": [\n    {\n      \"productId\": 1,\n      \"quantity\": 50.0,\n      \"unitPrice\": 20.00,\n      \"totalPrice\": 1000.00,\n      \"notes\": \"Premium coffee beans purchase\"\n    }\n  ]\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/PurchaseInvoice/CreatePurchaseInvoice",
+									"host": ["{{base_url}}"],
+									"path": ["api", "PurchaseInvoice", "CreatePurchaseInvoice"]
+								}
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "☕ Roasting Management",
+			"item": [
+				{
+					"name": "Roasting Invoices",
+					"item": [
+						{
+							"name": "Get Paged List",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/RoastingInvoice/GetPagedListRoastingInvoice?pageNumber=1&pageSize=10",
+									"host": ["{{base_url}}"],
+									"path": ["api", "RoastingInvoice", "GetPagedListRoastingInvoice"],
+									"query": [
+										{
+											"key": "pageNumber",
+											"value": "1"
+										},
+										{
+											"key": "pageSize",
+											"value": "10"
+										}
+									]
+								}
+							}
+						},
+						{
+							"name": "Create Roasting Invoice",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"invoiceNumber\": \"RI-2024-001\",\n  \"roastingDate\": \"2024-01-15T10:00:00Z\",\n  \"notes\": \"Roasting premium coffee beans\",\n  \"details\": [\n    {\n      \"rawProductId\": 1,\n      \"roastedProductId\": 2,\n      \"quantity\": 10.0,\n      \"notes\": \"Roasting raw coffee to premium roasted\"\n    }\n  ]\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/RoastingInvoice/CreateRoastingInvoice",
+									"host": ["{{base_url}}"],
+									"path": ["api", "RoastingInvoice", "CreateRoastingInvoice"]
+								}
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "🚚 Logistics Management",
+			"item": [
+				{
+					"name": "Cars",
+					"item": [
+						{
+							"name": "Get Paged List",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/Car/GetPagedListCar?pageNumber=1&pageSize=10",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Car", "GetPagedListCar"],
+									"query": [
+										{
+											"key": "pageNumber",
+											"value": "1"
+										},
+										{
+											"key": "pageSize",
+											"value": "10"
+										}
+									]
+								}
+							}
+						},
+						{
+							"name": "Create Car",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"Delivery Van 01\",\n  \"plateNumber\": \"DAM-1234\",\n  \"model\": \"Ford Transit\",\n  \"year\": 2023,\n  \"isActive\": true\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/Car/CreateCar",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Car", "CreateCar"]
+								}
+							}
+						}
+					]
+				},
+				{
+					"name": "Regions",
+					"item": [
+						{
+							"name": "Get Paged List",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/Region/GetPagedListRegion?pageNumber=1&pageSize=10",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Region", "GetPagedListRegion"],
+									"query": [
+										{
+											"key": "pageNumber",
+											"value": "1"
+										},
+										{
+											"key": "pageSize",
+											"value": "10"
+										}
+									]
+								}
+							}
+						},
+						{
+							"name": "Create Region",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"Damascus Center\",\n  \"description\": \"Central Damascus area\",\n  \"isActive\": true\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/Region/CreateRegion",
+									"host": ["{{base_url}}"],
+									"path": ["api", "Region", "CreateRegion"]
+								}
+							}
+						}
+					]
+				},
+				{
+					"name": "Distribution Trips",
+					"item": [
+						{
+							"name": "Get Paged List",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/DistributionTrip/GetPagedListDistributionTrip?pageNumber=1&pageSize=10",
+									"host": ["{{base_url}}"],
+									"path": ["api", "DistributionTrip", "GetPagedListDistributionTrip"],
+									"query": [
+										{
+											"key": "pageNumber",
+											"value": "1"
+										},
+										{
+											"key": "pageSize",
+											"value": "10"
+										}
+									]
+								}
+							}
+						},
+						{
+							"name": "Create Distribution Trip",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"employeeId\": 1,\n  \"carId\": 1,\n  \"regionId\": 1,\n  \"tripDate\": \"2024-01-15T08:00:00Z\",\n  \"loadQty\": 100.0,\n  \"notes\": \"Morning distribution trip\",\n  \"details\": [\n    {\n      \"productId\": 1,\n      \"qty\": 50.0,\n      \"expectedPrice\": 25.50\n    },\n    {\n      \"productId\": 2,\n      \"qty\": 30.0,\n      \"expectedPrice\": 30.00\n    }\n  ]\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/DistributionTrip/CreateDistributionTrip",
+									"host": ["{{base_url}}"],
+									"path": ["api", "DistributionTrip", "CreateDistributionTrip"]
+								}
+							}
+						},
+						{
+							"name": "Post Distribution Trip",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/DistributionTrip/PostDistributionTrip/1",
+									"host": ["{{base_url}}"],
+									"path": ["api", "DistributionTrip", "PostDistributionTrip", "1"]
+								}
+							}
+						},
+						{
+							"name": "Complete Distribution Trip",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/DistributionTrip/CompleteTrip/1",
+									"host": ["{{base_url}}"],
+									"path": ["api", "DistributionTrip", "CompleteTrip", "1"]
+								}
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "🔍 Lookups & Utilities",
+			"item": [
+				{
+					"name": "Product Select List",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/Lookup/GetProductSelectList",
+							"host": ["{{base_url}}"],
+							"path": ["api", "Lookup", "GetProductSelectList"]
+						}
+					}
+				},
+				{
+					"name": "Customer Select List",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/Lookup/GetCustomerSelectList",
+							"host": ["{{base_url}}"],
+							"path": ["api", "Lookup", "GetCustomerSelectList"]
+						}
+					}
+				},
+				{
+					"name": "Supplier Select List",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/Lookup/GetSupplierSelectList",
+							"host": ["{{base_url}}"],
+							"path": ["api", "Lookup", "GetSupplierSelectList"]
+						}
+					}
+				},
+				{
+					"name": "Employee Select List",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/Lookup/GetEmployeeSelectList",
+							"host": ["{{base_url}}"],
+							"path": ["api", "Lookup", "GetEmployeeSelectList"]
+						}
+					}
+				},
+				{
+					"name": "Car Select List",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/Lookup/GetCarSelectList",
+							"host": ["{{base_url}}"],
+							"path": ["api", "Lookup", "GetCarSelectList"]
+						}
+					}
+				},
+				{
+					"name": "Region Select List",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/Lookup/GetRegionSelectList",
+							"host": ["{{base_url}}"],
+							"path": ["api", "Lookup", "GetRegionSelectList"]
+						}
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "https://localhost:7001",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

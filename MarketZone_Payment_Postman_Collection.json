@@ -1,0 +1,400 @@
+{
+	"info": {
+		"_postman_id": "marketzone-payment-collection",
+		"name": "MarketZone - Payment API",
+		"description": "Complete API collection for MarketZone Payment management system. Includes all CRUD operations for Payments with detailed examples.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "marketzone-payment"
+	},
+	"item": [
+		{
+			"name": "🔐 Authentication",
+			"item": [
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userName\": \"admin\",\n  \"password\": \"123123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/account/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "account", "login"]
+						},
+						"description": "تسجيل الدخول للحصول على JWT Token"
+					},
+					"response": []
+				}
+			],
+			"description": "عمليات المصادقة والتحكم في الوصول"
+		},
+		{
+			"name": "💰 Payments",
+			"item": [
+				{
+					"name": "Get Paged List Payments",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/Payment/GetPagedListPayment?pageNumber=1&pageSize=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "Payment", "GetPagedListPayment"],
+							"query": [
+								{"key": "pageNumber", "value": "1", "description": "Page number (starts from 1)"},
+								{"key": "pageSize", "value": "10", "description": "Number of items per page"},
+								{"key": "invoiceId", "value": "", "description": "Filter by invoice ID (optional)"},
+								{"key": "cashRegisterId", "value": "", "description": "Filter by cash register ID (optional)"},
+								{"key": "paymentType", "value": "", "description": "Filter by payment type (optional)"},
+								{"key": "fromDate", "value": "", "description": "Filter from date (optional)"},
+								{"key": "toDate", "value": "", "description": "Filter to date (optional)"},
+								{"key": "isIncome", "value": "", "description": "Filter by income payments (optional)"},
+								{"key": "isExpense", "value": "", "description": "Filter by expense payments (optional)"}
+							]
+						},
+						"description": "Retrieve a paginated list of payments"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Sales Payment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cashRegisterId\": 1,\n  \"paymentType\": 0,\n  \"invoiceId\": 1,\n  \"invoiceType\": 1,\n  \"paymentDate\": \"2025-01-15T10:00:00\",\n  \"amount\": 1000,\n  \"currency\": \"SYP\",\n  \"paymentCurrency\": \"SYP\",\n  \"exchangeRate\": null,\n  \"notes\": \"دفعة فاتورة مبيعات\",\n  \"receivedBy\": \"أحمد محمد\",\n  \"isConfirmed\": true,\n  \"referenceType\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Payment/CreatePayment",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "Payment", "CreatePayment"]
+						},
+						"description": "Create a new sales payment (income)"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Purchase Payment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cashRegisterId\": 1,\n  \"paymentType\": 1,\n  \"invoiceId\": 1,\n  \"invoiceType\": 0,\n  \"paymentDate\": \"2025-01-15T11:00:00\",\n  \"amount\": 500,\n  \"currency\": \"SYP\",\n  \"paymentCurrency\": \"SYP\",\n  \"exchangeRate\": null,\n  \"notes\": \"دفعة فاتورة شراء\",\n  \"receivedBy\": \"محمد أحمد\",\n  \"isConfirmed\": true,\n  \"referenceType\": 0\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Payment/CreatePayment",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "Payment", "CreatePayment"]
+						},
+						"description": "Create a new purchase payment (expense)"
+					},
+					"response": []
+				},
+				{
+					"name": "Create General Expense",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cashRegisterId\": 1,\n  \"paymentType\": 3,\n  \"paymentDate\": \"2025-01-15T12:00:00\",\n  \"amount\": 200,\n  \"currency\": \"SYP\",\n  \"paymentCurrency\": \"SYP\",\n  \"exchangeRate\": null,\n  \"description\": \"مصروفات مكتبية\",\n  \"paidBy\": \"سارة أحمد\",\n  \"isConfirmed\": true,\n  \"referenceType\": 2\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Payment/CreatePayment",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "Payment", "CreatePayment"]
+						},
+						"description": "Create a new general expense payment"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Office Expense",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cashRegisterId\": 1,\n  \"paymentType\": 4,\n  \"paymentDate\": \"2025-01-15T13:00:00\",\n  \"amount\": 150,\n  \"currency\": \"SYP\",\n  \"paymentCurrency\": \"SYP\",\n  \"exchangeRate\": null,\n  \"description\": \"مصروفات مكتبية - قرطاسية\",\n  \"paidBy\": \"فاطمة محمد\",\n  \"isConfirmed\": true,\n  \"referenceType\": 2\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Payment/CreatePayment",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "Payment", "CreatePayment"]
+						},
+						"description": "Create a new office expense payment"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Transportation Expense",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cashRegisterId\": 1,\n  \"paymentType\": 5,\n  \"paymentDate\": \"2025-01-15T14:00:00\",\n  \"amount\": 300,\n  \"currency\": \"SYP\",\n  \"paymentCurrency\": \"SYP\",\n  \"exchangeRate\": null,\n  \"description\": \"مصروفات نقل - وقود\",\n  \"paidBy\": \"خالد علي\",\n  \"isConfirmed\": true,\n  \"referenceType\": 2\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Payment/CreatePayment",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "Payment", "CreatePayment"]
+						},
+						"description": "Create a new transportation expense payment"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Maintenance Expense",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cashRegisterId\": 1,\n  \"paymentType\": 6,\n  \"paymentDate\": \"2025-01-15T15:00:00\",\n  \"amount\": 500,\n  \"currency\": \"SYP\",\n  \"paymentCurrency\": \"SYP\",\n  \"exchangeRate\": null,\n  \"description\": \"مصروفات صيانة - إصلاح آلة\",\n  \"paidBy\": \"علي حسن\",\n  \"isConfirmed\": true,\n  \"referenceType\": 2\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Payment/CreatePayment",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "Payment", "CreatePayment"]
+						},
+						"description": "Create a new maintenance expense payment"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Other Expense",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cashRegisterId\": 1,\n  \"paymentType\": 7,\n  \"paymentDate\": \"2025-01-15T16:00:00\",\n  \"amount\": 100,\n  \"currency\": \"SYP\",\n  \"paymentCurrency\": \"SYP\",\n  \"exchangeRate\": null,\n  \"description\": \"مصروفات أخرى - هدايا\",\n  \"paidBy\": \"نور الدين\",\n  \"isConfirmed\": true,\n  \"referenceType\": 2\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Payment/CreatePayment",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "Payment", "CreatePayment"]
+						},
+						"description": "Create a new other expense payment"
+					},
+					"response": []
+				}
+			],
+			"description": "إدارة المدفوعات والمصروفات"
+		},
+		{
+			"name": "📊 Filter Examples",
+			"item": [
+				{
+					"name": "Get Income Payments Only",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/Payment/GetPagedListPayment?pageNumber=1&pageSize=10&isIncome=true",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "Payment", "GetPagedListPayment"],
+							"query": [
+								{"key": "pageNumber", "value": "1"},
+								{"key": "pageSize", "value": "10"},
+								{"key": "isIncome", "value": "true"}
+							]
+						},
+						"description": "Get only income payments (sales payments)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Expense Payments Only",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/Payment/GetPagedListPayment?pageNumber=1&pageSize=10&isExpense=true",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "Payment", "GetPagedListPayment"],
+							"query": [
+								{"key": "pageNumber", "value": "1"},
+								{"key": "pageSize", "value": "10"},
+								{"key": "isExpense", "value": "true"}
+							]
+						},
+						"description": "Get only expense payments"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Payments by Date Range",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/Payment/GetPagedListPayment?pageNumber=1&pageSize=10&fromDate=2025-01-01&toDate=2025-01-31",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "Payment", "GetPagedListPayment"],
+							"query": [
+								{"key": "pageNumber", "value": "1"},
+								{"key": "pageSize", "value": "10"},
+								{"key": "fromDate", "value": "2025-01-01"},
+								{"key": "toDate", "value": "2025-01-31"}
+							]
+						},
+						"description": "Get payments within a specific date range"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Payments by Type",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/Payment/GetPagedListPayment?pageNumber=1&pageSize=10&paymentType=3",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "Payment", "GetPagedListPayment"],
+							"query": [
+								{"key": "pageNumber", "value": "1"},
+								{"key": "pageSize", "value": "10"},
+								{"key": "paymentType", "value": "3"}
+							]
+						},
+						"description": "Get payments by specific type (General Expense)"
+					},
+					"response": []
+				}
+			],
+			"description": "أمثلة على الفلترة والبحث"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "https://localhost:7001",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

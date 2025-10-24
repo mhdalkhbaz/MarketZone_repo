@@ -1,0 +1,118 @@
+{
+	"info": {
+		"_postman_id": "marketzone-auth",
+		"name": "🔐 MarketZone Authentication",
+		"description": "مجموعة APIs للمصادقة والهوية في نظام MarketZone",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "تسجيل الدخول",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"admin@marketzone.com\",\n  \"password\": \"Admin@123\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/Account/Login",
+					"host": ["{{base_url}}"],
+					"path": ["api", "Account", "Login"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "تسجيل مستخدم جديد",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"firstName\": \"أحمد\",\n  \"lastName\": \"محمد\",\n  \"email\": \"ahmed@marketzone.com\",\n  \"password\": \"Ahmed@123\",\n  \"confirmPassword\": \"Ahmed@123\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/Account/Register",
+					"host": ["{{base_url}}"],
+					"path": ["api", "Account", "Register"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "تحديث الملف الشخصي",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"firstName\": \"أحمد\",\n  \"lastName\": \"محمد\",\n  \"email\": \"ahmed@marketzone.com\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/Account/UpdateProfile",
+					"host": ["{{base_url}}"],
+					"path": ["api", "Account", "UpdateProfile"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "تغيير كلمة المرور",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"currentPassword\": \"Admin@123\",\n  \"newPassword\": \"NewPassword@123\",\n  \"confirmPassword\": \"NewPassword@123\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/Account/ChangePassword",
+					"host": ["{{base_url}}"],
+					"path": ["api", "Account", "ChangePassword"]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "https://localhost:7001",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

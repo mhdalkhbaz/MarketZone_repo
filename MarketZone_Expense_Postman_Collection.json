@@ -1,0 +1,420 @@
+{
+	"info": {
+		"_postman_id": "marketzone-expense-collection",
+		"name": "MarketZone - Expense API",
+		"description": "Complete API collection for MarketZone Expense management system. Includes all CRUD operations for Expenses with detailed examples.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "marketzone-expense"
+	},
+	"item": [
+		{
+			"name": "🔐 Authentication",
+			"item": [
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userName\": \"admin\",\n  \"password\": \"123123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/account/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "account", "login"]
+						},
+						"description": "تسجيل الدخول للحصول على JWT Token"
+					},
+					"response": []
+				}
+			],
+			"description": "عمليات المصادقة والتحكم في الوصول"
+		},
+		{
+			"name": "💰 Expenses (Income & Expenses)",
+			"item": [
+				{
+					"name": "Get Paged List Expenses",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/Expense/GetPagedListExpense?pageNumber=1&pageSize=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "Expense", "GetPagedListExpense"],
+							"query": [
+								{"key": "pageNumber", "value": "1", "description": "Page number (starts from 1)"},
+								{"key": "pageSize", "value": "10", "description": "Number of items per page"},
+								{"key": "cashRegisterId", "value": "", "description": "Filter by cash register ID (optional)"},
+								{"key": "transactionType", "value": "", "description": "Filter by transaction type (0=Income, 1=Expense) (optional)"},
+								{"key": "fromDate", "value": "", "description": "Filter from date (optional)"},
+								{"key": "toDate", "value": "", "description": "Filter to date (optional)"},
+								{"key": "referenceType", "value": "", "description": "Filter by reference type (optional)"},
+								{"key": "referenceId", "value": "", "description": "Filter by reference ID (optional)"}
+							]
+						},
+						"description": "Retrieve a paginated list of expenses"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Expense By ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/Expense/GetExpenseById?id=1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "Expense", "GetExpenseById"],
+							"query": [
+								{"key": "id", "value": "1", "description": "Expense ID"}
+							]
+						},
+						"description": "Retrieve a specific expense by its ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Income Expense",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cashRegisterId\": 1,\n  \"transactionType\": 0,\n  \"amount\": 1000,\n  \"transactionDate\": \"2025-01-15T10:00:00\",\n  \"referenceType\": null,\n  \"referenceId\": null,\n  \"description\": \"إيراد نقدي - بيع نقدي\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Expense/CreateExpense",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "Expense", "CreateExpense"]
+						},
+						"description": "Create a new income expense"
+					},
+					"response": []
+				},
+				{
+					"name": "Create General Expense",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cashRegisterId\": 1,\n  \"transactionType\": 1,\n  \"amount\": 200,\n  \"transactionDate\": \"2025-01-15T11:00:00\",\n  \"referenceType\": 2,\n  \"referenceId\": null,\n  \"description\": \"مصروف عام - قرطاسية\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Expense/CreateExpense",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "Expense", "CreateExpense"]
+						},
+						"description": "Create a new general expense"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Office Expense",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cashRegisterId\": 1,\n  \"transactionType\": 1,\n  \"amount\": 150,\n  \"transactionDate\": \"2025-01-15T12:00:00\",\n  \"referenceType\": 2,\n  \"referenceId\": null,\n  \"description\": \"مصروف مكتبي - إصلاح طابعة\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Expense/CreateExpense",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "Expense", "CreateExpense"]
+						},
+						"description": "Create a new office expense"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Transportation Expense",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cashRegisterId\": 1,\n  \"transactionType\": 1,\n  \"amount\": 300,\n  \"transactionDate\": \"2025-01-15T13:00:00\",\n  \"referenceType\": 2,\n  \"referenceId\": null,\n  \"description\": \"مصروف نقل - وقود\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Expense/CreateExpense",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "Expense", "CreateExpense"]
+						},
+						"description": "Create a new transportation expense"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Maintenance Expense",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cashRegisterId\": 1,\n  \"transactionType\": 1,\n  \"amount\": 500,\n  \"transactionDate\": \"2025-01-15T14:00:00\",\n  \"referenceType\": 2,\n  \"referenceId\": null,\n  \"description\": \"مصروف صيانة - إصلاح آلة\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Expense/CreateExpense",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "Expense", "CreateExpense"]
+						},
+						"description": "Create a new maintenance expense"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Expense",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": 1,\n  \"cashRegisterId\": 1,\n  \"transactionType\": 1,\n  \"amount\": 250,\n  \"transactionDate\": \"2025-01-15T15:00:00\",\n  \"referenceType\": 2,\n  \"referenceId\": null,\n  \"description\": \"مصروف محدث - قرطاسية\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Expense/UpdateExpense",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "Expense", "UpdateExpense"]
+						},
+						"description": "Update an existing expense"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Expense",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/Expense/DeleteExpense?id=1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "Expense", "DeleteExpense"],
+							"query": [
+								{"key": "id", "value": "1", "description": "Expense ID to delete"}
+							]
+						},
+						"description": "Delete an expense"
+					},
+					"response": []
+				}
+			],
+			"description": "إدارة المصاريف والإيرادات"
+		},
+		{
+			"name": "📊 Filter Examples",
+			"item": [
+				{
+					"name": "Get Income Only",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/Expense/GetPagedListExpense?pageNumber=1&pageSize=10&transactionType=0",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "Expense", "GetPagedListExpense"],
+							"query": [
+								{"key": "pageNumber", "value": "1"},
+								{"key": "pageSize", "value": "10"},
+								{"key": "transactionType", "value": "0"}
+							]
+						},
+						"description": "Get only income transactions"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Expenses Only",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/Expense/GetPagedListExpense?pageNumber=1&pageSize=10&transactionType=1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "Expense", "GetPagedListExpense"],
+							"query": [
+								{"key": "pageNumber", "value": "1"},
+								{"key": "pageSize", "value": "10"},
+								{"key": "transactionType", "value": "1"}
+							]
+						},
+						"description": "Get only expense transactions"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Expenses by Date Range",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/Expense/GetPagedListExpense?pageNumber=1&pageSize=10&fromDate=2025-01-01&toDate=2025-01-31",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "Expense", "GetPagedListExpense"],
+							"query": [
+								{"key": "pageNumber", "value": "1"},
+								{"key": "pageSize", "value": "10"},
+								{"key": "fromDate", "value": "2025-01-01"},
+								{"key": "toDate", "value": "2025-01-31"}
+							]
+						},
+						"description": "Get expenses within a specific date range"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Expenses by Cash Register",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/Expense/GetPagedListExpense?pageNumber=1&pageSize=10&cashRegisterId=1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "Expense", "GetPagedListExpense"],
+							"query": [
+								{"key": "pageNumber", "value": "1"},
+								{"key": "pageSize", "value": "10"},
+								{"key": "cashRegisterId", "value": "1"}
+							]
+						},
+						"description": "Get expenses for a specific cash register"
+					},
+					"response": []
+				}
+			],
+			"description": "أمثلة على الفلترة والبحث"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "https://localhost:7001",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

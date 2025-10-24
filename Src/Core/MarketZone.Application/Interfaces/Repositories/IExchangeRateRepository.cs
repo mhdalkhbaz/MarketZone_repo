@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using MarketZone.Application.Wrappers;
 using MarketZone.Domain.Cash.Entities;
 using MarketZone.Domain.Cash.DTOs;
 

@@ -1,14 +1,15 @@
+using MarketZone.Application.DTOs;
+using MarketZone.Application.Interfaces.Repositories;
+using MarketZone.Application.Wrappers;
+using MarketZone.Domain.Cash.DTOs;
+using MarketZone.Domain.Cash.Entities;
+using MarketZone.Infrastructure.Persistence.Contexts;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using MarketZone.Application.Interfaces.Repositories;
-using MarketZone.Application.Wrappers;
-using MarketZone.Domain.Cash.Entities;
-using MarketZone.Domain.Cash.DTOs;
-using MarketZone.Infrastructure.Persistence.Contexts;
-using Microsoft.EntityFrameworkCore;
 
 namespace MarketZone.Infrastructure.Persistence.Repositories
 {
@@ -68,7 +69,7 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
                 })
                 .ToListAsync();
 
-            return PagedResponse<ExchangeRateDto>.Ok(items, totalCount, pageNumber, pageSize);
+            return PagedResponse<ExchangeRateDto>.Ok(new PaginationResponseDto<ExchangeRateDto>(items, totalCount, pageNumber, pageSize));
         }
     }
 }

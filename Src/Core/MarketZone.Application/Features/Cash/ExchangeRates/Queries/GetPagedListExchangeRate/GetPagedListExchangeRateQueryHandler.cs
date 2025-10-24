@@ -12,7 +12,7 @@ namespace MarketZone.Application.Features.Cash.ExchangeRates.Queries.GetPagedLis
         public async Task<PagedResponse<ExchangeRateDto>> Handle(GetPagedListExchangeRateQuery request, CancellationToken cancellationToken)
         {
             var paged = await repository.GetPagedListAsync(request.PageNumber, request.PageSize, request.IsActive);
-            return PagedResponse<ExchangeRateDto>.Ok(paged);
+            return paged;
         }
     }
 }

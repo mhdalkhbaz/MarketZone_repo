@@ -28,6 +28,24 @@ namespace MarketZone.Domain.Cash.Entities
 		public ReferenceType? ReferenceType { get; private set; }
 		public long? ReferenceId { get; private set; }
 		public string Description { get; private set; }
+
+		public void Update(long? cashRegisterId, TransactionType? transactionType, decimal? amount, DateTime? transactionDate, ReferenceType? referenceType, long? referenceId, string description)
+		{
+			if (cashRegisterId.HasValue)
+				CashRegisterId = cashRegisterId.Value;
+			if (transactionType.HasValue)
+				TransactionType = transactionType.Value;
+			if (amount.HasValue)
+				Amount = amount.Value;
+			if (transactionDate.HasValue)
+				TransactionDate = transactionDate.Value;
+			if (referenceType.HasValue)
+				ReferenceType = referenceType.Value;
+			if (referenceId.HasValue)
+				ReferenceId = referenceId.Value;
+			if (!string.IsNullOrEmpty(description))
+				Description = description;
+		}
 	}
 }
 
