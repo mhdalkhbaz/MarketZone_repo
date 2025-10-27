@@ -24,9 +24,11 @@ namespace MarketZone.Application.Features.Cash.Payments.Commands.CreatePayment
 				entity = new Payment(
 					request.PaymentType,
 					request.InvoiceId.Value,
-					request.Amount,
+                    request.InvoiceType.Value,
+                    request.Amount,
 					request.PaymentDate ?? DateTime.UtcNow,
 					request.Currency,
+					request.PaymentCurrency,
 					request.ExchangeRate,
 					request.Notes,
 					request.ReceivedBy,
