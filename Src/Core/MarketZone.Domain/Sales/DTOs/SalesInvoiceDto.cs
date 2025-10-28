@@ -22,9 +22,11 @@ namespace MarketZone.Domain.Sales.DTOs
 			Discount = invoice.Discount;
 			PaymentMethod = invoice.PaymentMethod;
 			Notes = invoice.Notes;
+			Currency = invoice.Currency;
 			Status = invoice.Status;
 			Type = invoice.Type;
 			DistributionTripId = invoice.DistributionTripId;
+			CreatedDateTime = invoice.Created;
 			Details = invoice.Details?.Select(d => new SalesInvoiceDetailDto(d)).ToList() ?? new List<SalesInvoiceDetailDto>();
 		}
 
@@ -36,9 +38,13 @@ namespace MarketZone.Domain.Sales.DTOs
 		public decimal Discount { get; set; }
 		public string PaymentMethod { get; set; } = string.Empty;
 		public string Notes { get; set; } = string.Empty;
+		public string? Currency { get; set; }
 		public SalesInvoiceStatus Status { get; set; }
 		public SalesInvoiceType Type { get; set; }
 		public long? DistributionTripId { get; set; }
+		public DateTime CreatedDateTime { get; set; }
+		public decimal PaidAmount { get; set; }
+		public decimal UnpaidAmount { get; set; }
 		public List<SalesInvoiceDetailDto> Details { get; set; } = new List<SalesInvoiceDetailDto>();
 	}
 }

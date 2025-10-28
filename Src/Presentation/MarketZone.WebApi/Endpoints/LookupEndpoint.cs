@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Http;
 using MarketZone.Domain.Cash.DTOs;
 using MarketZone.Domain.Sales.Enums;
 using MarketZone.Domain.Purchases.Enums;
+using MarketZone.Domain.Cash.Enums;
 
 namespace MarketZone.WebApi.Endpoints
 {
@@ -44,6 +45,8 @@ namespace MarketZone.WebApi.Endpoints
             builder.MapGet(GetUnroastedProducts);
             builder.MapGet(GetAllProductsForPurchase);
             builder.MapGet(GetRoastingEmployeesSelectList);
+            builder.MapGet(GetCustomersWithDebts);
+            builder.MapGet(GetSuppliersWithDebts);
         }
         async Task<BaseResult<List<SelectListDto>>> GetProductSelectList(ApplicationDbContext db, IMapper mapper)
             => BaseResult<List<SelectListDto>>.Ok(await db.Products.AsNoTracking().OrderBy(p => p.Id).ProjectTo<SelectListDto>(mapper.ConfigurationProvider).ToListAsync());
@@ -244,6 +247,82 @@ namespace MarketZone.WebApi.Endpoints
                 .ToListAsync();
 
             return BaseResult<List<SelectListDto>>.Ok(employees);
+        }
+
+        // Returns customers who have invoices with incomplete payment status (customers with debts)
+        async Task<BaseResult<List<SelectListDto>>> GetCustomersWithDebts(ApplicationDbContext db)
+        {
+            var customersWithDebts = await db.SalesInvoices
+                .Where(si => si.Status == SalesInvoiceStatus.Posted)
+                .GroupJoin(
+                    db.Payments.Where(p => p.PaymentType == PaymentType.SalesPayment && p.Status == MarketZone.Domain.Cash.Entities.PaymentStatus.Posted),
+                    si => si.Id,
+                    p => p.InvoiceId,
+                    (si, payments) => new { Invoice = si, Payments = payments }
+                )
+                .SelectMany(
+                    x => x.Payments.DefaultIfEmpty(),
+                    (x, payment) => new { x.Invoice, Payment = payment }
+                )
+                .GroupBy(x => x.Invoice.Id)
+                .Select(g => new
+                {
+                    InvoiceId = g.Key,
+                    CustomerId = g.First().Invoice.CustomerId,
+                    CustomerName = g.First().Invoice.Customer.Name,
+                    TotalAmount = g.First().Invoice.TotalAmount - g.First().Invoice.Discount,
+                    PaidAmount = g.Where(x => x.Payment != null).Sum(x => x.Payment.Amount)
+                })
+                .Where(x => x.PaidAmount < x.TotalAmount) // فواتير لم يتم دفعها بالكامل (جزئياً أو غير مسددة)
+                .GroupBy(x => x.CustomerId)
+                .Select(g => new
+                {
+                    CustomerId = g.Key,
+                    CustomerName = g.First().CustomerName
+                })
+                .OrderBy(x => x.CustomerName)
+                .Select(x => new SelectListDto(x.CustomerName, x.CustomerId.ToString()))
+                .ToListAsync();
+
+            return BaseResult<List<SelectListDto>>.Ok(customersWithDebts);
+        }
+
+        // Returns suppliers who have invoices with incomplete payment status (suppliers with debts)
+        async Task<BaseResult<List<SelectListDto>>> GetSuppliersWithDebts(ApplicationDbContext db)
+        {
+            var suppliersWithDebts = await db.PurchaseInvoices
+                .Where(pi => pi.Status == MarketZone.Domain.Purchases.Enums.PurchaseInvoiceStatus.Posted)
+                .GroupJoin(
+                    db.Payments.Where(p => p.PaymentType == PaymentType.PurchasePayment && p.Status == MarketZone.Domain.Cash.Entities.PaymentStatus.Posted),
+                    pi => pi.Id,
+                    p => p.InvoiceId,
+                    (pi, payments) => new { Invoice = pi, Payments = payments }
+                )
+                .SelectMany(
+                    x => x.Payments.DefaultIfEmpty(),
+                    (x, payment) => new { x.Invoice, Payment = payment }
+                )
+                .GroupBy(x => x.Invoice.Id)
+                .Select(g => new
+                {
+                    InvoiceId = g.Key,
+                    SupplierId = g.First().Invoice.SupplierId,
+                    SupplierName = g.First().Invoice.Supplier.Name,
+                    TotalAmount = g.First().Invoice.TotalAmount - g.First().Invoice.Discount,
+                    PaidAmount = g.Where(x => x.Payment != null).Sum(x => x.Payment.Amount)
+                })
+                .Where(x => x.PaidAmount < x.TotalAmount) // فواتير لم يتم دفعها بالكامل (جزئياً أو غير مسددة)
+                .GroupBy(x => x.SupplierId)
+                .Select(g => new
+                {
+                    SupplierId = g.Key,
+                    SupplierName = g.First().SupplierName
+                })
+                .OrderBy(x => x.SupplierName)
+                .Select(x => new SelectListDto(x.SupplierName, x.SupplierId.ToString()))
+                .ToListAsync();
+
+            return BaseResult<List<SelectListDto>>.Ok(suppliersWithDebts);
         }
 
     }

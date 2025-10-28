@@ -5,6 +5,7 @@ using MarketZone.Application.Features.Customers.Commands.UpdateCustomer;
 using MarketZone.Application.Features.Customers.Queries.GetActiveCustomersSelectList;
 using MarketZone.Application.Features.Customers.Queries.GetCustomerById;
 using MarketZone.Application.Features.Customers.Queries.GetPagedListCustomer;
+using MarketZone.Application.Features.Customers.Queries.GetUnpaidInvoicesByCustomer;
 using MarketZone.Application.Interfaces;
 using MarketZone.Application.Wrappers;
 using MarketZone.Domain.Customers.DTOs;
@@ -23,6 +24,7 @@ namespace MarketZone.WebApi.Endpoints
         {
             builder.MapGet(GetPagedListCustomer);
             builder.MapGet(GetCustomerById);
+            builder.MapGet(GetUnpaidInvoicesByCustomer);
             builder.MapPost(CreateCustomer).RequireAuthorization();
             builder.MapPut(UpdateCustomer).RequireAuthorization();
             builder.MapDelete(DeleteCustomer).RequireAuthorization();
@@ -34,6 +36,9 @@ namespace MarketZone.WebApi.Endpoints
 
         async Task<BaseResult<CustomerDto>> GetCustomerById(IMediator mediator, [AsParameters] GetCustomerByIdQuery model)
             => await mediator.Send<GetCustomerByIdQuery, BaseResult<CustomerDto>>(model);
+
+        async Task<BaseResult<List<MarketZone.Domain.Sales.DTOs.SalesInvoiceDto>>> GetUnpaidInvoicesByCustomer(IMediator mediator, [AsParameters] GetUnpaidInvoicesByCustomerQuery model)
+            => await mediator.Send<GetUnpaidInvoicesByCustomerQuery, BaseResult<List<MarketZone.Domain.Sales.DTOs.SalesInvoiceDto>>>(model);
 
         async Task<BaseResult<long>> CreateCustomer(IMediator mediator, CreateCustomerCommand model)
             => await mediator.Send<CreateCustomerCommand, BaseResult<long>>(model);
