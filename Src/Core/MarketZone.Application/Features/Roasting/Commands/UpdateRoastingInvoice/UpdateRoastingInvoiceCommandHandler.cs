@@ -59,6 +59,7 @@ namespace MarketZone.Application.Features.Roasting.Commands.UpdateRoastingInvoic
 
             // Update basic properties
             roastingInvoice.SetInvoiceNumber(request.InvoiceNumber);
+            roastingInvoice.SetEmployeeId(request.EmployeeId);
             // Note: We can't update InvoiceDate and TotalAmount directly as they're private set
             // This would need to be handled differently if needed
 

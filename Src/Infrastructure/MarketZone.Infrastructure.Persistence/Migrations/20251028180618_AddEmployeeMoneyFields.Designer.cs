@@ -4,6 +4,7 @@ using MarketZone.Infrastructure.Persistence.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MarketZone.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251028180618_AddEmployeeMoneyFields")]
+    partial class AddEmployeeMoneyFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -965,9 +968,6 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<long?>("EmployeeId")
-                        .HasColumnType("bigint");
-
                     b.Property<DateTime>("InvoiceDate")
                         .HasColumnType("datetime2");
 
@@ -1002,8 +1002,6 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                         .HasColumnType("decimal(18,6)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("EmployeeId");
 
                     b.HasIndex("InvoiceNumber")
                         .IsUnique();
@@ -1412,14 +1410,6 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                     b.Navigation("Invoice");
 
                     b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("MarketZone.Domain.Roasting.Entities.RoastingInvoice", b =>
-                {
-                    b.HasOne("MarketZone.Domain.Employees.Entities.Employee", null)
-                        .WithMany()
-                        .HasForeignKey("EmployeeId")
-                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("MarketZone.Domain.Roasting.Entities.RoastingInvoiceDetail", b =>

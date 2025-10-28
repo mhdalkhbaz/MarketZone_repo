@@ -43,6 +43,7 @@ namespace MarketZone.WebApi.Endpoints
             builder.MapGet(GetUnroastedProductsWithQty);
             builder.MapGet(GetUnroastedProducts);
             builder.MapGet(GetAllProductsForPurchase);
+            builder.MapGet(GetRoastingEmployeesSelectList);
         }
         async Task<BaseResult<List<SelectListDto>>> GetProductSelectList(ApplicationDbContext db, IMapper mapper)
             => BaseResult<List<SelectListDto>>.Ok(await db.Products.AsNoTracking().OrderBy(p => p.Id).ProjectTo<SelectListDto>(mapper.ConfigurationProvider).ToListAsync());
@@ -233,6 +234,17 @@ namespace MarketZone.WebApi.Endpoints
             return BaseResult<List<UnroastedProductDto>>.Ok(list);
         }
 
+        // Returns employees with job title "roasting" (محماصين)
+        async Task<BaseResult<List<SelectListDto>>> GetRoastingEmployeesSelectList(ApplicationDbContext db)
+        {
+            var employees = await db.Employees.AsNoTracking()
+                .Where(e => e.JobTitle == "roasting" && e.IsActive)
+                .OrderBy(e => e.FirstName + " " + e.LastName)
+                .Select(e => new SelectListDto(e.FirstName + " " + e.LastName, e.Id.ToString()))
+                .ToListAsync();
+
+            return BaseResult<List<SelectListDto>>.Ok(employees);
+        }
 
     }
 }

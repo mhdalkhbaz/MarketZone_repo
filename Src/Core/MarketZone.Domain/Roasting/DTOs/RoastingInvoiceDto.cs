@@ -12,6 +12,7 @@ namespace MarketZone.Domain.Roasting.DTOs
         public DateTime InvoiceDate { get; set; }
         public decimal TotalAmount { get; set; }
         public string Notes { get; set; }
+        public long? EmployeeId { get; set; }
         public RoastingInvoiceStatus Status { get; set; }
         public RoastingPaymentStatus PaymentStatus { get; set; }
         public DateTime Created { get; set; }

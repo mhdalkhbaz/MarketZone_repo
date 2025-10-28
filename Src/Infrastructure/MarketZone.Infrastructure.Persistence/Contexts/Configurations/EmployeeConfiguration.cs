@@ -19,6 +19,8 @@ namespace MarketZone.Infrastructure.Persistence.Contexts.Configurations
 			builder.Property(p => p.Salary).HasColumnType("decimal(18,2)").IsRequired();
 			builder.Property(p => p.HireDate).HasColumnType("date").IsRequired();
 			builder.Property(p => p.IsActive).HasDefaultValue(true);
+			builder.Property(p => p.SyrianMoney).HasColumnType("decimal(18,2)");
+			builder.Property(p => p.DollarMoney).HasColumnType("decimal(18,2)");
 		}
 	}
 }

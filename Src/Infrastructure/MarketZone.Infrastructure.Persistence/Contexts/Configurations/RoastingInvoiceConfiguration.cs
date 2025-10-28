@@ -23,6 +23,9 @@ namespace MarketZone.Infrastructure.Persistence.Contexts.Configurations
             builder.Property(x => x.Notes)
                 .HasMaxLength(500);
 
+            builder.Property(x => x.EmployeeId)
+                .IsRequired(false);
+
             builder.Property(x => x.Status)
                 .HasConversion<short>()
                 .HasDefaultValue(RoastingInvoiceStatus.Draft)
@@ -32,6 +35,12 @@ namespace MarketZone.Infrastructure.Persistence.Contexts.Configurations
                 .HasConversion<short>()
                 .HasDefaultValue(RoastingPaymentStatus.InProgress)
                 .IsRequired();
+
+            // Foreign key relationship to Employee
+            builder.HasOne<MarketZone.Domain.Employees.Entities.Employee>()
+                .WithMany()
+                .HasForeignKey(x => x.EmployeeId)
+                .OnDelete(DeleteBehavior.SetNull);
 
             // Unique index on InvoiceNumber
             builder.HasIndex(x => x.InvoiceNumber)

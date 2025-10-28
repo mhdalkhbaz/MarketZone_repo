@@ -12,12 +12,13 @@ namespace MarketZone.Domain.Roasting.Entities
         {
         }
 
-        public RoastingInvoice(string invoiceNumber, DateTime invoiceDate, decimal totalAmount, string notes)
+        public RoastingInvoice(string invoiceNumber, DateTime invoiceDate, decimal totalAmount, string notes, long? employeeId = null)
         {
             InvoiceNumber = invoiceNumber;
             InvoiceDate = invoiceDate;
             TotalAmount = totalAmount;
             Notes = notes;
+            EmployeeId = employeeId;
             Status = RoastingInvoiceStatus.Draft;
             PaymentStatus = RoastingPaymentStatus.InProgress;
         }
@@ -26,6 +27,7 @@ namespace MarketZone.Domain.Roasting.Entities
         public DateTime InvoiceDate { get; private set; }
         public decimal TotalAmount { get; private set; }
         public string Notes { get; private set; }
+        public long? EmployeeId { get; private set; }
         public RoastingInvoiceStatus Status { get; private set; }
         public RoastingPaymentStatus PaymentStatus { get; private set; }
         public List<RoastingInvoiceDetail> Details { get; private set; }
@@ -45,6 +47,11 @@ namespace MarketZone.Domain.Roasting.Entities
         public void SetInvoiceNumber(string invoiceNumber)
         {
             InvoiceNumber = invoiceNumber;
+        }
+
+        public void SetEmployeeId(long? employeeId)
+        {
+            EmployeeId = employeeId;
         }
 
         public void AddDetail(RoastingInvoiceDetail detail)

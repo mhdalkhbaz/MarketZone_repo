@@ -19,7 +19,20 @@ namespace MarketZone.Application.Features.Employees.Commands.UpdateEmployee
 				return new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.EmployeeMessages.Employee_NotFound_with_id(request.Id)), nameof(request.Id));
 			}
 
-			mapper.Map(request, employee);
+			employee.Update(
+				request.FirstName,
+				request.LastName,
+				request.Phone,
+				request.WhatsAppPhone,
+				request.Email,
+				request.Address,
+				request.JobTitle,
+				request.Salary ?? employee.Salary,
+				request.HireDate ?? employee.HireDate,
+				request.IsActive ?? employee.IsActive,
+				request.SyrianMoney,
+				request.DollarMoney
+			);
 			await unitOfWork.SaveChangesAsync();
 
 			return BaseResult.Ok();

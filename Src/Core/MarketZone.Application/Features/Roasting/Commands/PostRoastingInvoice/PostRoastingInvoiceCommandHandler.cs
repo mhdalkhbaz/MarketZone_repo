@@ -20,6 +20,7 @@ namespace MarketZone.Application.Features.Roasting.Commands.PostRoastingInvoice
             private readonly IInventoryHistoryRepository _inventoryHistoryRepository;
             private readonly IUnitOfWork _unitOfWork;
             private readonly IProductRepository _productRepository;
+            private readonly IEmployeeRepository _employeeRepository;
 
             public PostRoastingInvoiceCommandHandler(
                 IRoastingInvoiceRepository repository,
@@ -27,7 +28,8 @@ namespace MarketZone.Application.Features.Roasting.Commands.PostRoastingInvoice
                 IProductBalanceRepository productBalanceRepository,
                 IInventoryHistoryRepository inventoryHistoryRepository,
                 IUnitOfWork unitOfWork,
-                IProductRepository productRepository)
+                IProductRepository productRepository,
+                IEmployeeRepository employeeRepository)
             {
                 _repository = repository;
                 // تم حذف _unroastedRepository
@@ -35,6 +37,7 @@ namespace MarketZone.Application.Features.Roasting.Commands.PostRoastingInvoice
                 _inventoryHistoryRepository = inventoryHistoryRepository;
                 _unitOfWork = unitOfWork;
                 _productRepository = productRepository;
+                _employeeRepository = employeeRepository;
             }
 
         public async Task<BaseResult<long>> Handle(PostRoastingInvoiceCommand request, CancellationToken cancellationToken)
@@ -114,6 +117,12 @@ namespace MarketZone.Application.Features.Roasting.Commands.PostRoastingInvoice
             roastingInvoice.SetStatus(RoastingInvoiceStatus.Posted);
             _repository.Update(roastingInvoice);
 
+            // Update employee balance if employee is assigned
+            if (roastingInvoice.EmployeeId.HasValue)
+            {
+                await UpdateEmployeeBalance(roastingInvoice.EmployeeId.Value, roastingInvoice, cancellationToken);
+            }
+
             await _unitOfWork.SaveChangesAsync();
 
             return new BaseResult<long> { Success = true, Data = roastingInvoice.Id };
@@ -147,6 +156,41 @@ namespace MarketZone.Application.Features.Roasting.Commands.PostRoastingInvoice
                 $"Roasted product added to inventory - Actual quantity: {actualQuantity}kg, Added value: {valueToAdd}");
 
             await _inventoryHistoryRepository.AddAsync(inventoryHistory);
+        }
+
+        private async Task UpdateEmployeeBalance(long employeeId, RoastingInvoice roastingInvoice, CancellationToken cancellationToken)
+        {
+            var employee = await _employeeRepository.GetByIdAsync(employeeId);
+            if (employee == null)
+            {
+                throw new InvalidOperationException($"Employee with ID {employeeId} not found.");
+            }
+
+            // Calculate total roasting cost from all receipts
+            decimal totalRoastingCost = 0;
+            foreach (var receipt in roastingInvoice.Receipts)
+            {
+                totalRoastingCost += receipt.TotalRoastingCost;
+            }
+
+            // Update employee's Syrian money balance
+            var currentSyrianMoney = employee.SyrianMoney ?? 0;
+            employee.Update(
+                employee.FirstName,
+                employee.LastName,
+                employee.Phone,
+                employee.WhatsAppPhone,
+                employee.Email,
+                employee.Address,
+                employee.JobTitle,
+                employee.Salary,
+                employee.HireDate,
+                employee.IsActive,
+                currentSyrianMoney + totalRoastingCost,
+                employee.DollarMoney
+            );
+
+            _employeeRepository.Update(employee);
         }
     }
 }

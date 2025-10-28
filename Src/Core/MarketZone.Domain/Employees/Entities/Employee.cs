@@ -10,7 +10,7 @@ namespace MarketZone.Domain.Employees.Entities
         {
         }
 #pragma warning restore
-        public Employee(string firstName, string lastName, string phone, string whatsAppPhone, string? email, string address, string jobTitle, decimal salary, DateTime hireDate, bool isActive = true)
+        public Employee(string firstName, string lastName, string phone, string whatsAppPhone, string? email, string address, string jobTitle, decimal salary, DateTime hireDate, bool isActive = true, decimal? syrianMoney = null, decimal? dollarMoney = null)
         {
             FirstName = firstName;
             LastName = lastName;
@@ -22,6 +22,8 @@ namespace MarketZone.Domain.Employees.Entities
             Salary = salary;
             HireDate = hireDate;
             IsActive = isActive;
+            SyrianMoney = syrianMoney;
+            DollarMoney = dollarMoney;
         }
 
         public string FirstName { get; private set; }
@@ -34,8 +36,10 @@ namespace MarketZone.Domain.Employees.Entities
         public decimal Salary { get; private set; }
         public DateTime HireDate { get; private set; }
         public bool IsActive { get; private set; } = true;
+        public decimal? SyrianMoney { get; private set; }
+        public decimal? DollarMoney { get; private set; }
 
-        public void Update(string firstName, string lastName, string phone, string whatsAppPhone, string? email, string address, string jobTitle, decimal salary, DateTime hireDate, bool isActive)
+        public void Update(string firstName, string lastName, string phone, string whatsAppPhone, string? email, string address, string jobTitle, decimal salary, DateTime hireDate, bool isActive, decimal? syrianMoney = null, decimal? dollarMoney = null)
         {
             FirstName = firstName;
             LastName = lastName;
@@ -47,6 +51,8 @@ namespace MarketZone.Domain.Employees.Entities
             Salary = salary;
             HireDate = hireDate;
             IsActive = isActive;
+            SyrianMoney = syrianMoney;
+            DollarMoney = dollarMoney;
         }
     }
 }

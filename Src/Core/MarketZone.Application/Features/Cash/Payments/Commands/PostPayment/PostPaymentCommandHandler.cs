@@ -15,6 +15,8 @@ namespace MarketZone.Application.Features.Cash.Payments.Commands.PostPayment
 		ICashTransactionRepository cashTransactionRepository,
 		ICashRegisterRepository cashRegisterRepository,
 		IPurchaseInvoiceRepository purchaseInvoiceRepository,
+		IEmployeeRepository employeeRepository,
+		IRoastingInvoiceRepository roastingInvoiceRepository,
 		IUnitOfWork unitOfWork,
 		ITranslator translator
 	) : IRequestHandler<PostPaymentCommand, BaseResult>
@@ -78,9 +80,45 @@ namespace MarketZone.Application.Features.Cash.Payments.Commands.PostPayment
 				}
 			}
 
+			// Update employee balance for roasting payment
+			if (payment.PaymentType == Domain.Cash.Enums.PaymentType.RoastingPayment && payment.InvoiceId.HasValue)
+			{
+				await UpdateEmployeeBalanceForRoastingPayment(payment.InvoiceId.Value, payment.Amount, cancellationToken);
+			}
+
 			payment.Post();
 			await unitOfWork.SaveChangesAsync();
 			return BaseResult.Ok();
+		}
+
+		private async Task UpdateEmployeeBalanceForRoastingPayment(long roastingInvoiceId, decimal paymentAmount, CancellationToken cancellationToken)
+		{
+			var roastingInvoice = await roastingInvoiceRepository.GetByIdAsync(roastingInvoiceId);
+			if (roastingInvoice == null || !roastingInvoice.EmployeeId.HasValue)
+				return;
+
+			var employee = await employeeRepository.GetByIdAsync(roastingInvoice.EmployeeId.Value);
+			if (employee == null)
+				return;
+
+			// Add payment amount to employee's Syrian money balance
+			var currentSyrianMoney = employee.SyrianMoney ?? 0;
+			employee.Update(
+				employee.FirstName,
+				employee.LastName,
+				employee.Phone,
+				employee.WhatsAppPhone,
+				employee.Email,
+				employee.Address,
+				employee.JobTitle,
+				employee.Salary,
+				employee.HireDate,
+				employee.IsActive,
+				currentSyrianMoney + paymentAmount,
+				employee.DollarMoney
+			);
+
+			employeeRepository.Update(employee);
 		}
 	}
 }

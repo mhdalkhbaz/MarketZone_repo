@@ -16,6 +16,8 @@ namespace MarketZone.Application.Features.Employees.Commands.CreateEmployee
 		public decimal Salary { get; set; }
 		public DateTime HireDate { get; set; }
 		public bool IsActive { get; set; } = true;
+		public decimal? SyrianMoney { get; set; }
+		public decimal? DollarMoney { get; set; }
 	}
 }
 
