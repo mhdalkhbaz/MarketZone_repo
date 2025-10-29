@@ -71,8 +71,8 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 					Type = g.First().Invoice.Type,
 					DistributionTripId = g.First().Invoice.DistributionTripId,
 					CreatedDateTime = g.First().Invoice.Created,
-					PaidAmount = g.Where(x => x.Payment != null).Sum(x => x.Payment.Amount),
-					UnpaidAmount = g.First().Invoice.TotalAmount - g.First().Invoice.Discount - g.Where(x => x.Payment != null).Sum(x => x.Payment.Amount)
+					PaidAmount = g.Where(x => x.Payment != null).Sum(x => x.Payment.AmountInPaymentCurrency ?? x.Payment.Amount),
+					UnpaidAmount = g.First().Invoice.TotalAmount - g.First().Invoice.Discount - g.Where(x => x.Payment != null).Sum(x => x.Payment.AmountInPaymentCurrency ?? x.Payment.Amount)
 				})
 				.Where(x => x.UnpaidAmount > 0) // فواتير لم يتم دفعها بالكامل (جزئياً أو غير مسددة)
 				.OrderByDescending(x => x.InvoiceDate)

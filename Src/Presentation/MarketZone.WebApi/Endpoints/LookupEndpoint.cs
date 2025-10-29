@@ -45,6 +45,7 @@ namespace MarketZone.WebApi.Endpoints
             builder.MapGet(GetUnroastedProducts);
             builder.MapGet(GetAllProductsForPurchase);
             builder.MapGet(GetRoastingEmployeesSelectList);
+            builder.MapGet(GetRoastingEmployeesWithBalance);
             builder.MapGet(GetCustomersWithDebts);
             builder.MapGet(GetSuppliersWithDebts);
         }
@@ -249,6 +250,19 @@ namespace MarketZone.WebApi.Endpoints
             return BaseResult<List<SelectListDto>>.Ok(employees);
         }
 
+        // Returns roasting employees who have balance (SyrianMoney or DollarMoney > 0)
+        async Task<BaseResult<List<SelectListDto>>> GetRoastingEmployeesWithBalance(ApplicationDbContext db)
+        {
+            var employees = await db.Employees.AsNoTracking()
+                .Where(e => e.JobTitle == "roasting" && e.IsActive && 
+                           (e.SyrianMoney > 0 || e.DollarMoney > 0))
+                .OrderBy(e => e.FirstName + " " + e.LastName)
+                .Select(e => new SelectListDto(e.FirstName + " " + e.LastName, e.Id.ToString()))
+                .ToListAsync();
+
+            return BaseResult<List<SelectListDto>>.Ok(employees);
+        }
+
         // Returns customers who have invoices with incomplete payment status (customers with debts)
         async Task<BaseResult<List<SelectListDto>>> GetCustomersWithDebts(ApplicationDbContext db)
         {
@@ -271,7 +285,7 @@ namespace MarketZone.WebApi.Endpoints
                     CustomerId = g.First().Invoice.CustomerId,
                     CustomerName = g.First().Invoice.Customer.Name,
                     TotalAmount = g.First().Invoice.TotalAmount - g.First().Invoice.Discount,
-                    PaidAmount = g.Where(x => x.Payment != null).Sum(x => x.Payment.Amount)
+                    PaidAmount = g.Where(x => x.Payment != null).Sum(x => x.Payment.AmountInPaymentCurrency ?? x.Payment.Amount)
                 })
                 .Where(x => x.PaidAmount < x.TotalAmount) // فواتير لم يتم دفعها بالكامل (جزئياً أو غير مسددة)
                 .GroupBy(x => x.CustomerId)
@@ -309,7 +323,7 @@ namespace MarketZone.WebApi.Endpoints
                     SupplierId = g.First().Invoice.SupplierId,
                     SupplierName = g.First().Invoice.Supplier.Name,
                     TotalAmount = g.First().Invoice.TotalAmount - g.First().Invoice.Discount,
-                    PaidAmount = g.Where(x => x.Payment != null).Sum(x => x.Payment.Amount)
+                    PaidAmount = g.Where(x => x.Payment != null).Sum(x => x.Payment.AmountInPaymentCurrency ?? x.Payment.Amount)
                 })
                 .Where(x => x.PaidAmount < x.TotalAmount) // فواتير لم يتم دفعها بالكامل (جزئياً أو غير مسددة)
                 .GroupBy(x => x.SupplierId)

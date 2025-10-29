@@ -17,6 +17,9 @@ namespace MarketZone.Domain.Roasting.DTOs
         public RoastingPaymentStatus PaymentStatus { get; set; }
         public DateTime Created { get; set; }
         public DateTime? LastModified { get; set; }
+        public DateTime CreatedDateTime { get; set; }
+        public decimal PaidAmount { get; set; }
+        public decimal UnpaidAmount { get; set; }
         public List<RoastingInvoiceDetailDto> Details { get; set; } = new List<RoastingInvoiceDetailDto>();
         public List<PaymentDto> Payments { get; set; } = new List<PaymentDto>();
     }

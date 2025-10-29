@@ -107,7 +107,7 @@ namespace MarketZone.WebApi.Endpoints
                 {
                     InvoiceId = g.Key,
                     TotalAmount = g.First().Invoice.TotalAmount - g.First().Invoice.Discount,
-                    PaidAmount = g.Where(x => x.Payment != null).Sum(x => x.Payment.Amount)
+                    PaidAmount = g.Where(x => x.Payment != null).Sum(x => x.Payment.AmountInPaymentCurrency ?? x.Payment.Amount)
                 })
                 .Where(x => x.PaidAmount < x.TotalAmount)
                 .SumAsync(x => x.TotalAmount - x.PaidAmount);
@@ -130,7 +130,7 @@ namespace MarketZone.WebApi.Endpoints
                 {
                     InvoiceId = g.Key,
                     TotalAmount = g.First().Invoice.TotalAmount - g.First().Invoice.Discount,
-                    PaidAmount = g.Where(x => x.Payment != null).Sum(x => x.Payment.Amount)
+                    PaidAmount = g.Where(x => x.Payment != null).Sum(x => x.Payment.AmountInPaymentCurrency ?? x.Payment.Amount)
                 })
                 .Where(x => x.PaidAmount < x.TotalAmount)
                 .SumAsync(x => x.TotalAmount - x.PaidAmount);
@@ -165,7 +165,7 @@ namespace MarketZone.WebApi.Endpoints
                     CustomerName = g.First().Invoice.Customer.Name,
                     InvoiceDate = g.First().Invoice.InvoiceDate,
                     TotalAmount = g.First().Invoice.TotalAmount - g.First().Invoice.Discount,
-                    PaidAmount = g.Where(x => x.Payment != null).Sum(x => x.Payment.Amount),
+                    PaidAmount = g.Where(x => x.Payment != null).Sum(x => x.Payment.AmountInPaymentCurrency ?? x.Payment.Amount),
                     UnpaidAmount = g.First().Invoice.TotalAmount - g.First().Invoice.Discount - g.Where(x => x.Payment != null).Sum(x => x.Payment.Amount)
                 })
                 .Where(x => x.UnpaidAmount > 0)
@@ -196,7 +196,7 @@ namespace MarketZone.WebApi.Endpoints
                     SupplierName = g.First().Invoice.Supplier.Name,
                     InvoiceDate = g.First().Invoice.InvoiceDate,
                     TotalAmount = g.First().Invoice.TotalAmount - g.First().Invoice.Discount,
-                    PaidAmount = g.Where(x => x.Payment != null).Sum(x => x.Payment.Amount),
+                    PaidAmount = g.Where(x => x.Payment != null).Sum(x => x.Payment.AmountInPaymentCurrency ?? x.Payment.Amount),
                     UnpaidAmount = g.First().Invoice.TotalAmount - g.First().Invoice.Discount - g.Where(x => x.Payment != null).Sum(x => x.Payment.Amount)
                 })
                 .Where(x => x.UnpaidAmount > 0)

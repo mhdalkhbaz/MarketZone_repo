@@ -1,8 +1,12 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MarketZone.Application.DTOs;
 using MarketZone.Application.Interfaces.Repositories;
+using MarketZone.Domain.Cash.Enums;
+using MarketZone.Domain.Roasting.DTOs;
 using MarketZone.Domain.Roasting.Entities;
+using MarketZone.Domain.Roasting.Enums;
 using MarketZone.Infrastructure.Persistence.Contexts;
 using Microsoft.EntityFrameworkCore;
 
@@ -34,6 +38,46 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
                 .OrderByDescending(x => x.Created);
 
             return await Paged(query, pageNumber, pageSize);
+        }
+
+        public async Task<List<RoastingInvoiceDto>> GetUnpaidInvoicesByEmployeeAsync(long employeeId, System.Threading.CancellationToken cancellationToken = default)
+        {
+            var unpaidInvoices = await dbContext.RoastingInvoices
+                .Where(ri => ri.EmployeeId == employeeId && ri.Status == RoastingInvoiceStatus.Posted)
+                .GroupJoin(
+                    dbContext.Payments.Where(p => p.PaymentType == PaymentType.RoastingPayment && p.Status == MarketZone.Domain.Cash.Entities.PaymentStatus.Posted),
+                    ri => ri.Id,
+                    p => p.InvoiceId,
+                    (ri, payments) => new { Invoice = ri, Payments = payments }
+                )
+                .SelectMany(
+                    x => x.Payments.DefaultIfEmpty(),
+                    (x, payment) => new { x.Invoice, Payment = payment }
+                )
+                .GroupBy(x => x.Invoice.Id)
+                .Select(g => new RoastingInvoiceDto
+                {
+                    Id = g.First().Invoice.Id,
+                    InvoiceNumber = g.First().Invoice.InvoiceNumber,
+                    InvoiceDate = g.First().Invoice.InvoiceDate,
+                    TotalAmount = g.First().Invoice.TotalAmount,
+                    Notes = g.First().Invoice.Notes,
+                    Status = g.First().Invoice.Status,
+                    EmployeeId = g.First().Invoice.EmployeeId,
+                    CreatedDateTime = g.First().Invoice.Created,
+                    PaidAmount = g.Where(x => x.Payment != null).Sum(x => x.Payment.AmountInPaymentCurrency ?? x.Payment.Amount),
+                    UnpaidAmount = g.First().Invoice.TotalAmount - g.Where(x => x.Payment != null).Sum(x => x.Payment.AmountInPaymentCurrency ?? x.Payment.Amount)
+                })
+                .Where(x => x.UnpaidAmount > 0) // فواتير لم يتم دفعها بالكامل (جزئياً أو غير مسددة)
+                .OrderByDescending(x => x.InvoiceDate)
+                .ToListAsync(cancellationToken);
+
+            return unpaidInvoices;
+        }
+
+        public async Task<bool> EmployeeExistsAsync(long employeeId)
+        {
+            return await dbContext.Employees.AnyAsync(e => e.Id == employeeId);
         }
     }
 }

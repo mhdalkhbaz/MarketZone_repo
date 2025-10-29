@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using MarketZone.Application.Features.Roasting.Commands.CreateRoastingInvoice;
 using MarketZone.Application.Features.Roasting.Commands.UpdateRoastingInvoice;
@@ -5,6 +6,7 @@ using MarketZone.Application.Features.Roasting.Commands.DeleteRoastingInvoice;
 using MarketZone.Application.Features.Roasting.Commands.PostRoastingInvoice;
 using MarketZone.Application.Features.Roasting.Queries.GetPagedListRoastingInvoice;
 using MarketZone.Application.Features.Roasting.Queries.GetRoastingInvoiceById;
+using MarketZone.Application.Features.Roasting.Queries.GetUnpaidRoastingInvoicesByEmployee;
 using MarketZone.Application.Interfaces;
 using MarketZone.Application.Wrappers;
 using MarketZone.Domain.Roasting.DTOs;
@@ -23,6 +25,7 @@ namespace MarketZone.WebApi.Endpoints
         {
             builder.MapGet(GetPagedList);
             builder.MapGet(GetById);
+            builder.MapGet(GetUnpaidInvoicesByEmployee);
             builder.MapPost(Create).RequireAuthorization();
             builder.MapPut(Update).RequireAuthorization();
             builder.MapDelete(Delete).RequireAuthorization();
@@ -34,6 +37,9 @@ namespace MarketZone.WebApi.Endpoints
 
         async Task<BaseResult<RoastingInvoiceDto>> GetById(IMediator mediator, [AsParameters] GetRoastingInvoiceByIdQuery model)
             => await mediator.Send<GetRoastingInvoiceByIdQuery, BaseResult<RoastingInvoiceDto>>(model);
+
+        async Task<BaseResult<List<RoastingInvoiceDto>>> GetUnpaidInvoicesByEmployee(IMediator mediator, [AsParameters] GetUnpaidRoastingInvoicesByEmployeeQuery model)
+            => await mediator.Send<GetUnpaidRoastingInvoicesByEmployeeQuery, BaseResult<List<RoastingInvoiceDto>>>(model);
 
         async Task<BaseResult<long>> Create(IMediator mediator, [FromBody] CreateRoastingInvoiceCommand model)
             => await mediator.Send<CreateRoastingInvoiceCommand, BaseResult<long>>(model);
