@@ -8,6 +8,7 @@ namespace MarketZone.Domain.Cash.Enums
 		// مصروفات
 		PurchasePayment = 1,        // دفعات فواتير الشراء
 		RoastingPayment = 2,        // دفع أجور التحميص
+		SalaryPayment = 4,          // دفع رواتب الموظفين
 		GeneralExpense = 3         // مصروفات عامة
 	}
 }

@@ -1,6 +1,7 @@
 using System;
 using MarketZone.Application.Interfaces;
 using MarketZone.Application.Wrappers;
+using MarketZone.Domain.Employees.Enums;
 
 namespace MarketZone.Application.Features.Employees.Commands.UpdateEmployee
 {
@@ -19,6 +20,8 @@ namespace MarketZone.Application.Features.Employees.Commands.UpdateEmployee
 		public bool? IsActive { get; set; }
 		public decimal? SyrianMoney { get; set; }
 		public decimal? DollarMoney { get; set; }
+		public SalaryType? SalaryType { get; set; }
+		public decimal? SalaryPercentage { get; set; }
 	}
 }
 

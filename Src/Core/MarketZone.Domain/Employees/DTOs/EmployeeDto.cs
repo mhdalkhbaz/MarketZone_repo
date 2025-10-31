@@ -1,5 +1,6 @@
 using System;
 using MarketZone.Domain.Employees.Entities;
+using MarketZone.Domain.Employees.Enums;
 
 namespace MarketZone.Domain.Employees.DTOs
 {
@@ -25,6 +26,8 @@ namespace MarketZone.Domain.Employees.DTOs
 			IsActive = employee.IsActive;
 			SyrianMoney = employee.SyrianMoney;
 			DollarMoney = employee.DollarMoney;
+			SalaryType = employee.SalaryType;
+			SalaryPercentage = employee.SalaryPercentage;
 			CreatedDateTime = employee.Created;
 		}
 
@@ -41,6 +44,9 @@ namespace MarketZone.Domain.Employees.DTOs
 		public bool IsActive { get; set; }
 		public decimal? SyrianMoney { get; set; }
 		public decimal? DollarMoney { get; set; }
+		public SalaryType SalaryType { get; set; }
+		public decimal? SalaryPercentage { get; set; }
+		public decimal RemainingSalary { get; set; }  // الرصيد المتبقي من الراتب
 		public DateTime CreatedDateTime { get; set; }
 	}
 }

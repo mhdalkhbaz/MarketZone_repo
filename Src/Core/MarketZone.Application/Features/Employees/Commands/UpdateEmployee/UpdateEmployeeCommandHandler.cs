@@ -31,7 +31,9 @@ namespace MarketZone.Application.Features.Employees.Commands.UpdateEmployee
 				request.HireDate ?? employee.HireDate,
 				request.IsActive ?? employee.IsActive,
 				request.SyrianMoney,
-				request.DollarMoney
+				request.DollarMoney,
+				request.SalaryType,
+				request.SalaryPercentage
 			);
 			await unitOfWork.SaveChangesAsync();
 

@@ -85,6 +85,15 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 		{
 			return await dbContext.Customers.AnyAsync(c => c.Id == customerId);
 		}
+
+		public async Task<List<SalesInvoice>> GetInvoicesByTripIdAsync(long tripId, System.Threading.CancellationToken cancellationToken = default)
+		{
+			return await dbContext.SalesInvoices
+				.Include(si => si.Details)
+					.ThenInclude(d => d.Product)
+				.Where(si => si.DistributionTripId == tripId)
+				.ToListAsync(cancellationToken);
+		}
 	}
 }
 

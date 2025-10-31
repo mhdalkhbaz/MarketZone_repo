@@ -1,6 +1,7 @@
 using System;
 using MarketZone.Application.Interfaces;
 using MarketZone.Application.Wrappers;
+using MarketZone.Domain.Employees.Enums;
 
 namespace MarketZone.Application.Features.Employees.Commands.CreateEmployee
 {
@@ -18,6 +19,8 @@ namespace MarketZone.Application.Features.Employees.Commands.CreateEmployee
 		public bool IsActive { get; set; } = true;
 		public decimal? SyrianMoney { get; set; }
 		public decimal? DollarMoney { get; set; }
+		public SalaryType SalaryType { get; set; } = SalaryType.Fixed;
+		public decimal? SalaryPercentage { get; set; }
 	}
 }
 

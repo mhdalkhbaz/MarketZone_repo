@@ -12,6 +12,7 @@ namespace MarketZone.Application.Interfaces.Repositories
 		Task<SalesInvoice> GetWithDetailsByIdAsync(long id, System.Threading.CancellationToken cancellationToken = default);
 		Task<List<SalesInvoiceDto>> GetUnpaidInvoicesByCustomerAsync(long customerId, System.Threading.CancellationToken cancellationToken = default);
 		Task<bool> CustomerExistsAsync(long customerId);
+		Task<List<SalesInvoice>> GetInvoicesByTripIdAsync(long tripId, System.Threading.CancellationToken cancellationToken = default);
 	}
 }
 
