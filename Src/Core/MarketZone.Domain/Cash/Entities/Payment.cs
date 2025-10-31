@@ -11,7 +11,7 @@ namespace MarketZone.Domain.Cash.Entities
 		}
 
 		// Constructor for invoice-related payments (Sales, Purchase, Roasting)
-		public Payment(PaymentType paymentType, long invoiceId, InvoiceType invoiceType, decimal amount, DateTime? paymentDate, string currency, string paymentCurrency, decimal? exchangeRate, string notes, string receivedBy, bool isConfirmed = true)
+		public Payment(PaymentType paymentType, long invoiceId, InvoiceType invoiceType, decimal amount, DateTime? paymentDate, Currency currency, Currency paymentCurrency, decimal? exchangeRate, string notes, string receivedBy, bool isConfirmed = true)
 		{
 			if (!RequiresInvoice(paymentType))
 				throw new ArgumentException("This payment type requires an invoice", nameof(paymentType));
@@ -62,8 +62,8 @@ namespace MarketZone.Domain.Cash.Entities
 		public InvoiceType? InvoiceType { get; private set; }
 		public DateTime PaymentDate { get; private set; }
 		public decimal Amount { get; private set; }
-		public string Currency { get; private set; }           // عملة المورد/الفاتورة
-		public string PaymentCurrency { get; private set; }     // العملة المراد الدفع بها
+		public Currency Currency { get; private set; }           // عملة المورد/الفاتورة
+		public Currency PaymentCurrency { get; private set; }     // العملة المراد الدفع بها
 		public decimal? ExchangeRate { get; private set; }     // سعر الصرف
 		public decimal? AmountInPaymentCurrency { get; private set; } // المبلغ بالعملة المدفوعة
 		public string Notes { get; private set; }

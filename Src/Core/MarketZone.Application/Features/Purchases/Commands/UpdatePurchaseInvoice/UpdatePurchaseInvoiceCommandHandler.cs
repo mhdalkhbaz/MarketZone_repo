@@ -1,4 +1,3 @@
-using AutoMapper;
 using MarketZone.Application.Helpers;
 using MarketZone.Application.Interfaces;
 using MarketZone.Application.Interfaces.Repositories;
@@ -11,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace MarketZone.Application.Features.Purchases.Commands.UpdatePurchaseInvoice
 {
-    public class UpdatePurchaseInvoiceCommandHandler(IPurchaseInvoiceRepository repository, IUnitOfWork unitOfWork, ITranslator translator, IMapper mapper) : IRequestHandler<UpdatePurchaseInvoiceCommand, BaseResult>
+    public class UpdatePurchaseInvoiceCommandHandler(IPurchaseInvoiceRepository repository, IUnitOfWork unitOfWork, ITranslator translator) : IRequestHandler<UpdatePurchaseInvoiceCommand, BaseResult>
     {
         public async Task<BaseResult> Handle(UpdatePurchaseInvoiceCommand request, CancellationToken cancellationToken)
         {
@@ -22,7 +21,16 @@ namespace MarketZone.Application.Features.Purchases.Commands.UpdatePurchaseInvoi
             if (entity.Status == PurchaseInvoiceStatus.Posted)
                 return new Error(ErrorCode.AccessDenied, translator.GetString("PurchaseInvoice_Update_NotAllowed_After_Post"), nameof(request.Id));
 
-            mapper.Map(request, entity);
+            entity.Update(
+                request.InvoiceNumber ?? entity.InvoiceNumber,
+                request.SupplierId ?? entity.SupplierId,
+                request.InvoiceDate ?? entity.InvoiceDate,
+                request.TotalAmount ?? entity.TotalAmount,
+                request.Discount ?? entity.Discount,
+                request.Notes ?? entity.Notes,
+                request.Currency ?? entity.Currency
+            );
+            
             if (request.Status.HasValue)
             {
                 entity.SetStatus(request.Status.Value);

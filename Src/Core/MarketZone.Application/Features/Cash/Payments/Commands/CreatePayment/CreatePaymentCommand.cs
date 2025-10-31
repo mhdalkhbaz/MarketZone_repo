@@ -13,8 +13,8 @@ namespace MarketZone.Application.Features.Cash.Payments.Commands.CreatePayment
 		public InvoiceType? InvoiceType { get; set; }  // ربط بفاتورة (اختياري)
         public DateTime? PaymentDate { get; set; }
 		public decimal Amount { get; set; }
-		public string Currency { get; set; } = "SYP";
-		public string PaymentCurrency { get; set; } = "SYP";
+		public Currency Currency { get; set; } = Currency.SY;
+		public Currency PaymentCurrency { get; set; } = Currency.SY;
         public decimal? ExchangeRate { get; set; }
 		public string Notes { get; set; }
 		public string Description { get; set; }

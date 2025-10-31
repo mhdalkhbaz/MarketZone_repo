@@ -25,6 +25,7 @@ namespace MarketZone.Application.Features.Sales
 
 			CreateMap<UpdateSalesInvoiceCommand, SalesInvoice>()
 				.ForMember(dest => dest.Details, opt => opt.Ignore())
+				.ForMember(dest => dest.Currency, opt => opt.Ignore())
 				.ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 		}
 	}

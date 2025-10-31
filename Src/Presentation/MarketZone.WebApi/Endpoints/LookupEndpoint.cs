@@ -130,7 +130,7 @@ namespace MarketZone.WebApi.Endpoints
                 {
                     Id = s.Id,
                     Name = s.Name,
-                    Currency = s.Currency ?? "SYP" // Default currency
+                    Currency = s.Currency ?? MarketZone.Domain.Cash.Enums.Currency.SY // Default currency
                 })
                 .ToListAsync();
 
@@ -147,7 +147,7 @@ namespace MarketZone.WebApi.Endpoints
                     Id = p.Id,
                     InvoiceNumber = p.InvoiceNumber,
                     TotalAmount = p.TotalAmount,
-                    Currency = p.Currency ?? "SYP",
+                    Currency = p.Currency ?? MarketZone.Domain.Cash.Enums.Currency.SY,
                     InvoiceDate = p.InvoiceDate,
                     Status = p.Status.ToString()
                 })
@@ -165,7 +165,7 @@ namespace MarketZone.WebApi.Endpoints
                 {
                     Id = c.Id,
                     Name = c.Name,
-                    Currency = c.Currency ?? "SYP", // Default currency
+                    Currency = c.Currency ?? MarketZone.Domain.Cash.Enums.Currency.SY, // Default currency
                     Phone = c.Phone,
                     Address = c.Address
                 })
@@ -184,7 +184,7 @@ namespace MarketZone.WebApi.Endpoints
                     Id = s.Id,
                     InvoiceNumber = s.InvoiceNumber,
                     TotalAmount = s.TotalAmount,
-                    Currency = s.Currency ?? "SYP",
+                    Currency = s.Currency ?? MarketZone.Domain.Cash.Enums.Currency.SY,
                     InvoiceDate = s.InvoiceDate,
                     Status = s.Status.ToString(),
                     DistributionTripId = s.DistributionTripId,

@@ -1,6 +1,7 @@
 using System;
 using MarketZone.Application.Interfaces;
 using MarketZone.Application.Wrappers;
+using MarketZone.Domain.Cash.Enums;
 
 namespace MarketZone.Application.Features.Sales.Commands.UpdateSalesInvoice
 {
@@ -14,6 +15,7 @@ namespace MarketZone.Application.Features.Sales.Commands.UpdateSalesInvoice
 		public decimal? Discount { get; set; }
 		public string PaymentMethod { get; set; }
 		public string Notes { get; set; }
+		public Currency? Currency { get; set; }
 	}
 }
 

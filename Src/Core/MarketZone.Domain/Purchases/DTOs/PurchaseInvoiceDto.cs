@@ -1,5 +1,6 @@
 using MarketZone.Domain.Purchases.Entities;
 using MarketZone.Domain.Purchases.Enums;
+using MarketZone.Domain.Cash.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,7 +37,7 @@ namespace MarketZone.Domain.Purchases.DTOs
         public decimal TotalAmount { get; set; }
         public decimal Discount { get; set; }
         public string Notes { get; set; }
-        public string? Currency { get; set; }
+        public Currency? Currency { get; set; }
         public PurchaseInvoiceStatus Status { get; set; }
         public PurchasePaymentStatus? PaymentStatus { get; set; }
         public DateTime CreatedDateTime { get; set; }

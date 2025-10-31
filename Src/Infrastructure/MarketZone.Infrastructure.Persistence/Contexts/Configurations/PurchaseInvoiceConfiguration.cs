@@ -24,6 +24,7 @@ namespace MarketZone.Infrastructure.Persistence.Contexts.Configurations
 				.HasConversion<short>()
 				.HasDefaultValue(PurchasePaymentStatus.InProgress)
 				.IsRequired();
+			builder.Property(x => x.Currency).HasConversion<short>();
 
 			builder.HasMany(x => x.Details)
 				.WithOne(d => d.Invoice)

@@ -18,6 +18,7 @@ namespace MarketZone.Infrastructure.Persistence.Contexts.Configurations
 			builder.Property(p => p.Notes).HasMaxLength(255);
 			builder.Property(p => p.Status).HasConversion<short>().HasDefaultValue(SalesInvoiceStatus.Draft);
 			builder.Property(p => p.Type).HasConversion<short>().HasDefaultValue(SalesInvoiceType.Regular);
+			builder.Property(p => p.Currency).HasConversion<short>();
 
 			builder.HasOne(p => p.Customer)
 				.WithMany()

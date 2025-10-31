@@ -15,6 +15,7 @@ namespace MarketZone.Infrastructure.Persistence.Contexts.Configurations
 			builder.Property(p => p.Email).HasMaxLength(100);
 			builder.Property(p => p.Address).HasMaxLength(500);
 			builder.Property(p => p.IsActive).HasDefaultValue(true);
+			builder.Property(p => p.Currency).HasConversion<short>();
 		}
 	}
 }

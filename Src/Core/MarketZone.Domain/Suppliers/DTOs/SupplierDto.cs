@@ -1,5 +1,6 @@
 using System;
 using MarketZone.Domain.Suppliers.Entities;
+using MarketZone.Domain.Cash.Enums;
 
 namespace MarketZone.Domain.Suppliers.DTOs
 {
@@ -18,6 +19,7 @@ namespace MarketZone.Domain.Suppliers.DTOs
 			WhatsAppPhone = supplier.WhatsAppPhone;
 			Email = supplier.Email;
 			Address = supplier.Address;
+			Currency = supplier.Currency;
 			IsActive = supplier.IsActive;
 			CreatedDateTime = supplier.Created;
 		}
@@ -28,6 +30,7 @@ namespace MarketZone.Domain.Suppliers.DTOs
 		public string WhatsAppPhone { get; set; }
 		public string Email { get; set; }
 		public string Address { get; set; }
+		public Currency? Currency { get; set; }
 		public bool IsActive { get; set; }
 		public DateTime CreatedDateTime { get; set; }
 	}

@@ -40,8 +40,8 @@ namespace MarketZone.Domain.Cash.DTOs
 		public InvoiceType? InvoiceType { get; set; }
 		public DateTime PaymentDate { get; set; }
 		public decimal Amount { get; set; }
-		public string Currency { get; set; }                    // عملة المورد/الفاتورة
-		public string PaymentCurrency { get; set; }            // العملة المراد الدفع بها
+		public Currency Currency { get; set; }                    // عملة المورد/الفاتورة
+		public Currency PaymentCurrency { get; set; }            // العملة المراد الدفع بها
 		public decimal? ExchangeRate { get; set; }            // سعر الصرف
 		public decimal? AmountInPaymentCurrency { get; set; }  // المبلغ بالعملة المدفوعة
 		public string Notes { get; set; }

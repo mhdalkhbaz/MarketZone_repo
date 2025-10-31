@@ -19,6 +19,8 @@ namespace MarketZone.Infrastructure.Persistence.Contexts.Configurations
 			builder.Property(p => p.PaidBy).HasMaxLength(50);
 			builder.Property(p => p.IsConfirmed).HasDefaultValue(true);
 			builder.Property(p => p.Status).HasConversion<short>().HasDefaultValue(PaymentStatus.Draft);
+			builder.Property(p => p.Currency).HasConversion<short>();
+			builder.Property(p => p.PaymentCurrency).HasConversion<short>();
 		}
 	}
 }

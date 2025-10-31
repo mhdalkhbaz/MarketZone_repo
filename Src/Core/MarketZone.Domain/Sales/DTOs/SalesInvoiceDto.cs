@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MarketZone.Domain.Sales.Entities;
 using MarketZone.Domain.Sales.Enums;
+using MarketZone.Domain.Cash.Enums;
 
 namespace MarketZone.Domain.Sales.DTOs
 {
@@ -38,7 +39,7 @@ namespace MarketZone.Domain.Sales.DTOs
 		public decimal Discount { get; set; }
 		public string PaymentMethod { get; set; } = string.Empty;
 		public string Notes { get; set; } = string.Empty;
-		public string? Currency { get; set; }
+		public Currency? Currency { get; set; }
 		public SalesInvoiceStatus Status { get; set; }
 		public SalesInvoiceType Type { get; set; }
 		public long? DistributionTripId { get; set; }

@@ -1,4 +1,5 @@
 using MarketZone.Domain.Common;
+using MarketZone.Domain.Cash.Enums;
 
 namespace MarketZone.Domain.Suppliers.Entities
 {
@@ -7,7 +8,7 @@ namespace MarketZone.Domain.Suppliers.Entities
         private Supplier()
         {
         }
-        public Supplier(string name, string phone, string whatsAppPhone, string? email, string address, string? currency = null, bool isActive = true)
+        public Supplier(string name, string phone, string whatsAppPhone, string? email, string address, Currency? currency = null, bool isActive = true)
         {
             Name = name;
             Phone = phone;
@@ -23,10 +24,10 @@ namespace MarketZone.Domain.Suppliers.Entities
         public string? WhatsAppPhone { get; private set; }
         public string? Email { get; private set; }
         public string Address { get; private set; }
-        public string? Currency { get; private set; }
+        public Currency? Currency { get; private set; }
         public bool IsActive { get; private set; } = true;
 
-        public void Update(string name, string phone, string whatsAppPhone, string? email, string address, string? currency, bool isActive)
+        public void Update(string name, string phone, string whatsAppPhone, string? email, string address, Currency? currency, bool isActive)
         {
             Name = name;
             Phone = phone;

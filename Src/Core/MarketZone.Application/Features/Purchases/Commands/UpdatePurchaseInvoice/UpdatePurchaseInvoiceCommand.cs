@@ -1,5 +1,6 @@
 using MarketZone.Application.Interfaces;
 using MarketZone.Application.Wrappers;
+using MarketZone.Domain.Cash.Enums;
 using System;
 using System.Collections.Generic;
 using MarketZone.Domain.Purchases.Enums;
@@ -15,6 +16,7 @@ namespace MarketZone.Application.Features.Purchases.Commands.UpdatePurchaseInvoi
         public decimal? TotalAmount { get; set; }
         public decimal? Discount { get; set; }
         public string Notes { get; set; }
+        public Currency? Currency { get; set; }
         public PurchaseInvoiceStatus? Status { get; set; }
         public PurchasePaymentStatus? PaymentStatus { get; set; }
         public List<UpdatePurchaseInvoiceDetailItem> Details { get; set; }

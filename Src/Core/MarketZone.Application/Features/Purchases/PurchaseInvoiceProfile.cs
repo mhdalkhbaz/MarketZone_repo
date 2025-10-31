@@ -30,6 +30,7 @@ namespace MarketZone.Application.Features.Purchases
                 .ForMember(d => d.Status, opt => opt.Ignore())
                 .ForMember(d => d.PaymentStatus, opt => opt.Ignore())
                 .ForMember(d => d.Details, opt => opt.Ignore())
+                .ForMember(d => d.Currency, opt => opt.Ignore())
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
         }
     }

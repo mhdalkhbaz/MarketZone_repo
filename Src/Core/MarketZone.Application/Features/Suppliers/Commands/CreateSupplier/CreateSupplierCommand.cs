@@ -1,5 +1,6 @@
 using MarketZone.Application.Interfaces;
 using MarketZone.Application.Wrappers;
+using MarketZone.Domain.Cash.Enums;
 
 namespace MarketZone.Application.Features.Suppliers.Commands.CreateSupplier
 {
@@ -10,7 +11,7 @@ namespace MarketZone.Application.Features.Suppliers.Commands.CreateSupplier
 		public string WhatsAppPhone { get; set; }
 		public string Email { get; set; }
 		public string Address { get; set; }
-		public string? Currency { get; set; }
+		public Currency? Currency { get; set; }
 		public bool IsActive { get; set; } = true;
 	}
 }

@@ -1,5 +1,6 @@
 using MarketZone.Application.Interfaces;
 using MarketZone.Application.Wrappers;
+using MarketZone.Domain.Cash.Enums;
 using System;
 using System.Collections.Generic;
 
@@ -13,7 +14,7 @@ namespace MarketZone.Application.Features.Purchases.Commands.CreatePurchaseInvoi
         public decimal TotalAmount { get; set; }
         public decimal Discount { get; set; } = 0;
         public string Notes { get; set; }
-        public string? Currency { get; set; }
+        public Currency? Currency { get; set; }
 
         public List<CreatePurchaseInvoiceDetailItem> Details { get; set; } = [];
     }
