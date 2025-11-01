@@ -38,8 +38,8 @@ namespace MarketZone.WebApi.Endpoints
         async Task<BaseResult<RoastingInvoiceDto>> GetById(IMediator mediator, [AsParameters] GetRoastingInvoiceByIdQuery model)
             => await mediator.Send<GetRoastingInvoiceByIdQuery, BaseResult<RoastingInvoiceDto>>(model);
 
-        async Task<BaseResult<List<RoastingInvoiceDto>>> GetUnpaidInvoicesByEmployee(IMediator mediator, [AsParameters] GetUnpaidRoastingInvoicesByEmployeeQuery model)
-            => await mediator.Send<GetUnpaidRoastingInvoicesByEmployeeQuery, BaseResult<List<RoastingInvoiceDto>>>(model);
+        async Task<BaseResult<List<RoastingInvoiceUnpaidDto>>> GetUnpaidInvoicesByEmployee(IMediator mediator, [AsParameters] GetUnpaidRoastingInvoicesByEmployeeQuery model)
+            => await mediator.Send<GetUnpaidRoastingInvoicesByEmployeeQuery, BaseResult<List<RoastingInvoiceUnpaidDto>>>(model);
 
         async Task<BaseResult<long>> Create(IMediator mediator, [FromBody] CreateRoastingInvoiceCommand model)
             => await mediator.Send<CreateRoastingInvoiceCommand, BaseResult<long>>(model);

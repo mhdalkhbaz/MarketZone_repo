@@ -12,9 +12,9 @@ using MarketZone.Domain.Roasting.Enums;
 
 namespace MarketZone.Application.Features.Roasting.Queries.GetUnpaidRoastingInvoicesByEmployee
 {
-    public class GetUnpaidRoastingInvoicesByEmployeeQueryHandler(IRoastingInvoiceRepository roastingInvoiceRepository, IPaymentRepository paymentRepository, ITranslator translator) : IRequestHandler<GetUnpaidRoastingInvoicesByEmployeeQuery, BaseResult<List<RoastingInvoiceDto>>>
+    public class GetUnpaidRoastingInvoicesByEmployeeQueryHandler(IRoastingInvoiceRepository roastingInvoiceRepository, IPaymentRepository paymentRepository, ITranslator translator) : IRequestHandler<GetUnpaidRoastingInvoicesByEmployeeQuery, BaseResult<List<RoastingInvoiceUnpaidDto>>>
     {
-        public async Task<BaseResult<List<RoastingInvoiceDto>>> Handle(GetUnpaidRoastingInvoicesByEmployeeQuery request, CancellationToken cancellationToken)
+        public async Task<BaseResult<List<RoastingInvoiceUnpaidDto>>> Handle(GetUnpaidRoastingInvoicesByEmployeeQuery request, CancellationToken cancellationToken)
         {
             // التحقق من وجود الموظف
             var employeeExists = await roastingInvoiceRepository.EmployeeExistsAsync(request.EmployeeId);
@@ -26,7 +26,7 @@ namespace MarketZone.Application.Features.Roasting.Queries.GetUnpaidRoastingInvo
             // الحصول على فواتير التحميص غير المسددة للموظف
             var unpaidInvoices = await roastingInvoiceRepository.GetUnpaidInvoicesByEmployeeAsync(request.EmployeeId, cancellationToken);
 
-            return BaseResult<List<RoastingInvoiceDto>>.Ok(unpaidInvoices);
+            return BaseResult<List<RoastingInvoiceUnpaidDto>>.Ok(unpaidInvoices);
         }
     }
 }

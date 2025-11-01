@@ -5,7 +5,7 @@ using MarketZone.Domain.Roasting.DTOs;
 
 namespace MarketZone.Application.Features.Roasting.Queries.GetUnpaidRoastingInvoicesByEmployee
 {
-    public class GetUnpaidRoastingInvoicesByEmployeeQuery : IRequest<BaseResult<List<RoastingInvoiceDto>>>
+    public class GetUnpaidRoastingInvoicesByEmployeeQuery : IRequest<BaseResult<List<RoastingInvoiceUnpaidDto>>>
     {
         public long EmployeeId { get; set; }
     }

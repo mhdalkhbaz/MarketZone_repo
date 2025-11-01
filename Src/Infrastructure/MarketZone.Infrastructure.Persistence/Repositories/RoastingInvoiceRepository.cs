@@ -40,7 +40,7 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
             return await Paged(query, pageNumber, pageSize);
         }
 
-        public async Task<List<RoastingInvoiceDto>> GetUnpaidInvoicesByEmployeeAsync(long employeeId, System.Threading.CancellationToken cancellationToken = default)
+        public async Task<List<RoastingInvoiceUnpaidDto>> GetUnpaidInvoicesByEmployeeAsync(long employeeId, System.Threading.CancellationToken cancellationToken = default)
         {
             var unpaidInvoices = await dbContext.RoastingInvoices
                 .Where(ri => ri.EmployeeId == employeeId && ri.Status == RoastingInvoiceStatus.Posted)
@@ -55,21 +55,14 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
                     (x, payment) => new { x.Invoice, Payment = payment }
                 )
                 .GroupBy(x => x.Invoice.Id)
-                .Select(g => new RoastingInvoiceDto
+                .Select(g => new RoastingInvoiceUnpaidDto
                 {
-                    Id = g.First().Invoice.Id,
+                    Id = g.Key,
                     InvoiceNumber = g.First().Invoice.InvoiceNumber,
-                    InvoiceDate = g.First().Invoice.InvoiceDate,
-                    TotalAmount = g.First().Invoice.TotalAmount,
-                    Notes = g.First().Invoice.Notes,
-                    Status = g.First().Invoice.Status,
-                    EmployeeId = g.First().Invoice.EmployeeId,
-                    CreatedDateTime = g.First().Invoice.Created,
-                    PaidAmount = g.Where(x => x.Payment != null).Sum(x => x.Payment.AmountInPaymentCurrency ?? x.Payment.Amount),
                     UnpaidAmount = g.First().Invoice.TotalAmount - g.Where(x => x.Payment != null).Sum(x => x.Payment.AmountInPaymentCurrency ?? x.Payment.Amount)
                 })
                 .Where(x => x.UnpaidAmount > 0) // فواتير لم يتم دفعها بالكامل (جزئياً أو غير مسددة)
-                .OrderByDescending(x => x.InvoiceDate)
+                .OrderByDescending(x => x.Id)
                 .ToListAsync(cancellationToken);
 
             return unpaidInvoices;
