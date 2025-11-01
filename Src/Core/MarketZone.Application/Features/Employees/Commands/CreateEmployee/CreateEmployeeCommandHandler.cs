@@ -12,12 +12,20 @@ namespace MarketZone.Application.Features.Employees.Commands.CreateEmployee
 	{
 		public async Task<BaseResult<long>> Handle(CreateEmployeeCommand request, CancellationToken cancellationToken)
 		{
-			var employee = mapper.Map<Employee>(request);
+			try
+			{
+                var employee = mapper.Map<Employee>(request);
 
-			await employeeRepository.AddAsync(employee);
-			await unitOfWork.SaveChangesAsync();
+                await employeeRepository.AddAsync(employee);
+                await unitOfWork.SaveChangesAsync();
 
-			return employee.Id;
+                return employee.Id;
+            }
+			catch (System.Exception ex)
+			{
+
+				throw;
+			}
 		}
 	}
 }

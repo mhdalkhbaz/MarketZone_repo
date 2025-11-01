@@ -106,6 +106,7 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                     WhatsAppPhone = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     Address = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    Currency = table.Column<short>(type: "smallint", nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Created = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -129,10 +130,14 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                     WhatsAppPhone = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     Address = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    JobTitle = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    JobTitle = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     Salary = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     HireDate = table.Column<DateTime>(type: "date", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
+                    SyrianMoney = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    DollarMoney = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    SalaryType = table.Column<int>(type: "int", nullable: false, defaultValue: 1),
+                    SalaryPercentage = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Created = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
@@ -149,11 +154,9 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    CurrencyCode = table.Column<string>(type: "nvarchar(8)", maxLength: 8, nullable: false),
-                    RateToUSD = table.Column<decimal>(type: "decimal(18,3)", nullable: false),
-                    EffectiveAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Source = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Notes = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Rate = table.Column<decimal>(type: "decimal(18,6)", nullable: false),
+                    EffectiveDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Created = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
@@ -162,6 +165,29 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ExchangeRates", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ExchangeTransactions",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CashRegisterId = table.Column<long>(type: "bigint", nullable: false),
+                    Direction = table.Column<short>(type: "smallint", nullable: false),
+                    FromAmount = table.Column<decimal>(type: "decimal(18,6)", nullable: false),
+                    ToAmount = table.Column<decimal>(type: "decimal(18,6)", nullable: false),
+                    ExchangeRate = table.Column<decimal>(type: "decimal(18,6)", nullable: false),
+                    TransactionDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Notes = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Created = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    LastModified = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ExchangeTransactions", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -184,28 +210,6 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "RoastingInvoices",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    InvoiceNumber = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    InvoiceDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    TotalAmount = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 2, nullable: false),
-                    Notes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    Status = table.Column<short>(type: "smallint", nullable: false, defaultValue: (short)0),
-                    PaymentStatus = table.Column<short>(type: "smallint", nullable: false, defaultValue: (short)0),
-                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Created = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    LastModified = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_RoastingInvoices", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Suppliers",
                 columns: table => new
                 {
@@ -216,6 +220,7 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                     WhatsAppPhone = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     Address = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    Currency = table.Column<short>(type: "smallint", nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Created = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -263,6 +268,72 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "EmployeeSalaries",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    EmployeeId = table.Column<long>(type: "bigint", nullable: false),
+                    EmployeeId1 = table.Column<long>(type: "bigint", nullable: false),
+                    Year = table.Column<int>(type: "int", nullable: false),
+                    Month = table.Column<int>(type: "int", nullable: false),
+                    BaseSalary = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    PercentageAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false, defaultValue: 0m),
+                    PaidAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false, defaultValue: 0m),
+                    TotalSalary = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    RemainingAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Created = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    LastModified = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EmployeeSalaries", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_EmployeeSalaries_Employees_EmployeeId",
+                        column: x => x.EmployeeId,
+                        principalTable: "Employees",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_EmployeeSalaries_Employees_EmployeeId1",
+                        column: x => x.EmployeeId1,
+                        principalTable: "Employees",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "RoastingInvoices",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    InvoiceNumber = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    InvoiceDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    TotalAmount = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 2, nullable: false),
+                    Notes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    EmployeeId = table.Column<long>(type: "bigint", nullable: true),
+                    Status = table.Column<short>(type: "smallint", nullable: false, defaultValue: (short)0),
+                    PaymentStatus = table.Column<short>(type: "smallint", nullable: false, defaultValue: (short)0),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Created = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    LastModified = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RoastingInvoices", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_RoastingInvoices_Employees_EmployeeId",
+                        column: x => x.EmployeeId,
+                        principalTable: "Employees",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "DistributionTrips",
                 columns: table => new
                 {
@@ -304,39 +375,6 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Payments",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    CashRegisterId = table.Column<long>(type: "bigint", nullable: true),
-                    PaymentType = table.Column<short>(type: "smallint", nullable: false),
-                    InvoiceId = table.Column<long>(type: "bigint", nullable: true),
-                    PaymentDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
-                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Notes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    ReceivedBy = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    PaidBy = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    IsConfirmed = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
-                    Status = table.Column<short>(type: "smallint", nullable: false, defaultValue: (short)0),
-                    RoastingInvoiceId = table.Column<long>(type: "bigint", nullable: true),
-                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Created = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    LastModified = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Payments", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Payments_RoastingInvoices_RoastingInvoiceId",
-                        column: x => x.RoastingInvoiceId,
-                        principalTable: "RoastingInvoices",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "PurchaseInvoices",
                 columns: table => new
                 {
@@ -347,7 +385,8 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                     InvoiceDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     TotalAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Discount = table.Column<decimal>(type: "decimal(18,2)", nullable: false, defaultValue: 0m),
-                    Notes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    Notes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    Currency = table.Column<short>(type: "smallint", nullable: true),
                     Status = table.Column<short>(type: "smallint", nullable: false, defaultValue: (short)0),
                     PaymentStatus = table.Column<short>(type: "smallint", nullable: false, defaultValue: (short)0),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -421,6 +460,44 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Payments",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CashRegisterId = table.Column<long>(type: "bigint", nullable: true),
+                    PaymentType = table.Column<short>(type: "smallint", nullable: false),
+                    InvoiceId = table.Column<long>(type: "bigint", nullable: true),
+                    InvoiceType = table.Column<short>(type: "smallint", nullable: true),
+                    PaymentDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Currency = table.Column<short>(type: "smallint", nullable: false),
+                    PaymentCurrency = table.Column<short>(type: "smallint", nullable: false),
+                    ExchangeRate = table.Column<decimal>(type: "decimal(18,6)", nullable: true),
+                    AmountInPaymentCurrency = table.Column<decimal>(type: "decimal(18,6)", nullable: true),
+                    Notes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    ReceivedBy = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    PaidBy = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    IsConfirmed = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
+                    Status = table.Column<short>(type: "smallint", nullable: false, defaultValue: (short)0),
+                    RoastingInvoiceId = table.Column<long>(type: "bigint", nullable: true),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Created = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    LastModified = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Payments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Payments_RoastingInvoices_RoastingInvoiceId",
+                        column: x => x.RoastingInvoiceId,
+                        principalTable: "RoastingInvoices",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "RoastingInvoiceDetails",
                 columns: table => new
                 {
@@ -488,6 +565,46 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "SalaryPayments",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    EmployeeId = table.Column<long>(type: "bigint", nullable: false),
+                    Year = table.Column<int>(type: "int", nullable: false),
+                    Month = table.Column<int>(type: "int", nullable: false),
+                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    PaymentDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CashRegisterId = table.Column<long>(type: "bigint", nullable: true),
+                    Notes = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
+                    SalaryType = table.Column<int>(type: "int", nullable: false),
+                    DistributionTripId = table.Column<long>(type: "bigint", nullable: true),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Created = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    LastModified = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SalaryPayments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SalaryPayments_CashRegisters_CashRegisterId",
+                        column: x => x.CashRegisterId,
+                        principalTable: "CashRegisters",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_SalaryPayments_DistributionTrips_DistributionTripId",
+                        column: x => x.DistributionTripId,
+                        principalTable: "DistributionTrips",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_SalaryPayments_Employees_EmployeeId",
+                        column: x => x.EmployeeId,
+                        principalTable: "Employees",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "SalesInvoices",
                 columns: table => new
                 {
@@ -500,6 +617,7 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                     Discount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     PaymentMethod = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Notes = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Currency = table.Column<short>(type: "smallint", nullable: true),
                     Status = table.Column<short>(type: "smallint", nullable: false, defaultValue: (short)0),
                     Type = table.Column<short>(type: "smallint", nullable: false, defaultValue: (short)0),
                     DistributionTripId = table.Column<long>(type: "bigint", nullable: true),
@@ -536,7 +654,7 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                     Quantity = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     UnitPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     TotalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Notes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    Notes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Created = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
@@ -582,15 +700,11 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                 {
                     table.PrimaryKey("PK_RoastingInvoiceDetailReceipts", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_RoastingInvoiceDetailReceipts_Products_ReadyProductId",
-                        column: x => x.ReadyProductId,
-                        principalTable: "Products",
-                        principalColumn: "Id");
-                    table.ForeignKey(
                         name: "FK_RoastingInvoiceDetailReceipts_RoastingInvoiceDetails_DetailId",
                         column: x => x.DetailId,
                         principalTable: "RoastingInvoiceDetails",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_RoastingInvoiceDetailReceipts_RoastingInvoices_RoastingInvoiceId",
                         column: x => x.RoastingInvoiceId,
@@ -659,10 +773,15 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                 column: "RegionId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ExchangeRates_CurrencyCode_EffectiveAtUtc",
-                table: "ExchangeRates",
-                columns: new[] { "CurrencyCode", "EffectiveAtUtc" },
+                name: "IX_EmployeeSalaries_EmployeeId_Year_Month",
+                table: "EmployeeSalaries",
+                columns: new[] { "EmployeeId", "Year", "Month" },
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EmployeeSalaries_EmployeeId1",
+                table: "EmployeeSalaries",
+                column: "EmployeeId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_InventoryHistories_ProductId",
@@ -711,11 +830,6 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                 column: "DetailId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RoastingInvoiceDetailReceipts_ReadyProductId",
-                table: "RoastingInvoiceDetailReceipts",
-                column: "ReadyProductId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_RoastingInvoiceDetailReceipts_RoastingInvoiceId",
                 table: "RoastingInvoiceDetailReceipts",
                 column: "RoastingInvoiceId");
@@ -731,10 +845,30 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                 column: "RoastingInvoiceId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_RoastingInvoices_EmployeeId",
+                table: "RoastingInvoices",
+                column: "EmployeeId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_RoastingInvoices_InvoiceNumber",
                 table: "RoastingInvoices",
                 column: "InvoiceNumber",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SalaryPayments_CashRegisterId",
+                table: "SalaryPayments",
+                column: "CashRegisterId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SalaryPayments_DistributionTripId",
+                table: "SalaryPayments",
+                column: "DistributionTripId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SalaryPayments_EmployeeId",
+                table: "SalaryPayments",
+                column: "EmployeeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SalesInvoiceDetails_InvoiceId",
@@ -761,16 +895,19 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "CashRegisters");
-
-            migrationBuilder.DropTable(
                 name: "CashTransactions");
 
             migrationBuilder.DropTable(
                 name: "DistributionTripDetails");
 
             migrationBuilder.DropTable(
+                name: "EmployeeSalaries");
+
+            migrationBuilder.DropTable(
                 name: "ExchangeRates");
+
+            migrationBuilder.DropTable(
+                name: "ExchangeTransactions");
 
             migrationBuilder.DropTable(
                 name: "InventoryHistories");
@@ -788,6 +925,9 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                 name: "RoastingInvoiceDetailReceipts");
 
             migrationBuilder.DropTable(
+                name: "SalaryPayments");
+
+            migrationBuilder.DropTable(
                 name: "SalesInvoiceDetails");
 
             migrationBuilder.DropTable(
@@ -795,6 +935,9 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "RoastingInvoiceDetails");
+
+            migrationBuilder.DropTable(
+                name: "CashRegisters");
 
             migrationBuilder.DropTable(
                 name: "SalesInvoices");
