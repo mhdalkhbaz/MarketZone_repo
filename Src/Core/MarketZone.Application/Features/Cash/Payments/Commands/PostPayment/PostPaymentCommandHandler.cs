@@ -83,7 +83,7 @@ namespace MarketZone.Application.Features.Cash.Payments.Commands.PostPayment
 			// Update employee balance for roasting payment
 			if (payment.PaymentType == Domain.Cash.Enums.PaymentType.RoastingPayment && payment.InvoiceId.HasValue)
 			{
-				await UpdateEmployeeBalanceForRoastingPayment(payment.InvoiceId.Value, payment.Amount, cancellationToken);
+				await UpdateEmployeeBalanceForRoastingPayment(payment, cancellationToken);
 			}
 
 			payment.Post();
@@ -91,9 +91,12 @@ namespace MarketZone.Application.Features.Cash.Payments.Commands.PostPayment
 			return BaseResult.Ok();
 		}
 
-		private async Task UpdateEmployeeBalanceForRoastingPayment(long roastingInvoiceId, decimal paymentAmount, CancellationToken cancellationToken)
+		private async Task UpdateEmployeeBalanceForRoastingPayment(Payment payment, CancellationToken cancellationToken)
 		{
-			var roastingInvoice = await roastingInvoiceRepository.GetByIdAsync(roastingInvoiceId);
+			if (!payment.InvoiceId.HasValue)
+				return;
+
+			var roastingInvoice = await roastingInvoiceRepository.GetByIdAsync(payment.InvoiceId.Value);
 			if (roastingInvoice == null || !roastingInvoice.EmployeeId.HasValue)
 				return;
 
@@ -101,8 +104,39 @@ namespace MarketZone.Application.Features.Cash.Payments.Commands.PostPayment
 			if (employee == null)
 				return;
 
-			// Add payment amount to employee's Syrian money balance
+			// تحديد المبلغ والعملة للدفع
+			// PaymentCurrency هي العملة التي تم الدفع بها فعلياً
+			// Amount هو المبلغ بالعملة المدفوعة (PaymentCurrency)
+			var paymentAmount = payment.Amount;
+			var paymentCurrency = payment.PaymentCurrency;
+			
 			var currentSyrianMoney = employee.SyrianMoney ?? 0;
+			var currentDollarMoney = employee.DollarMoney ?? 0;
+
+			// تحديث الرصيد حسب العملة التي تم الدفع بها
+			if (paymentCurrency == Currency.SY)
+			{
+				// الدفع بالليرة السورية
+				currentSyrianMoney += paymentAmount;
+			}
+			else if (paymentCurrency == Currency.Dollar)
+			{
+				// الدفع بالدولار
+				currentDollarMoney += paymentAmount;
+			}
+			else
+			{
+				// افتراضياً: إذا لم تحدد PaymentCurrency، نستخدم Currency (عملة الفاتورة)
+				if (payment.Currency == Currency.SY)
+				{
+					currentSyrianMoney += paymentAmount;
+				}
+				else if (payment.Currency == Currency.Dollar)
+				{
+					currentDollarMoney += paymentAmount;
+				}
+			}
+
 			employee.Update(
 				employee.FirstName,
 				employee.LastName,
@@ -114,8 +148,8 @@ namespace MarketZone.Application.Features.Cash.Payments.Commands.PostPayment
 				employee.Salary,
 				employee.HireDate,
 				employee.IsActive,
-				currentSyrianMoney + paymentAmount,
-				employee.DollarMoney
+				currentSyrianMoney,
+				currentDollarMoney
 			);
 
 			employeeRepository.Update(employee);
