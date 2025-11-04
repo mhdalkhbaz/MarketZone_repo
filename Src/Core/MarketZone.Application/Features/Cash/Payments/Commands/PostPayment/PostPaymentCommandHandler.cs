@@ -28,9 +28,9 @@ namespace MarketZone.Application.Features.Cash.Payments.Commands.PostPayment
 				return new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.PurchaseInvoiceMessages.PurchaseInvoice_NotFound_with_id(request.Id)), nameof(request.Id));
 
 			if (payment.Status == PaymentStatus.Posted)
-				return BaseResult.Ok();
+                return new Error(ErrorCode.FieldDataInvalid, "PaymentStatus = Posted", nameof(payment.CashRegisterId));
 
-			if (!payment.CashRegisterId.HasValue)
+
 				return new Error(ErrorCode.FieldDataInvalid, "CashRegisterId is required to post a payment", nameof(payment.CashRegisterId));
 
 			string transactionDescription;

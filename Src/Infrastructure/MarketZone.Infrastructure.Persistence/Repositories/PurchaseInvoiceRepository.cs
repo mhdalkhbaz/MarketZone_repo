@@ -68,6 +68,11 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 
 		public async Task<List<PurchaseInvoiceDto>> GetUnpaidInvoicesBySupplierAsync(long supplierId, CancellationToken cancellationToken = default)
 		{
+			var supplierCurrency = await dbContext.Suppliers
+				.Where(s => s.Id == supplierId)
+				.Select(s => s.Currency)
+				.FirstOrDefaultAsync(cancellationToken);
+
 			var unpaidInvoices = await dbContext.PurchaseInvoices
 				.Where(pi => pi.SupplierId == supplierId && pi.Status == PurchaseInvoiceStatus.Posted)
 				.GroupJoin(
@@ -100,6 +105,8 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 				.Where(x => x.UnpaidAmount > 0) // فواتير لم يتم دفعها بالكامل (جزئياً أو غير مسددة)
 				.OrderByDescending(x => x.InvoiceDate)
 				.ToListAsync(cancellationToken);
+
+			unpaidInvoices.ForEach(i => i.Currency = supplierCurrency);
 
 			return unpaidInvoices;
 		}

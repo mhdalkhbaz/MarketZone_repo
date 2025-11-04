@@ -1,8 +1,7 @@
-using System.Threading.Tasks;
 using MarketZone.Application.Features.Purchases.Commands.CreatePurchaseInvoice;
 using MarketZone.Application.Features.Purchases.Commands.DeletePurchaseInvoice;
-using MarketZone.Application.Features.Purchases.Commands.UpdatePurchaseInvoice;
 using MarketZone.Application.Features.Purchases.Commands.PostPurchaseInvoice;
+using MarketZone.Application.Features.Purchases.Commands.UpdatePurchaseInvoice;
 using MarketZone.Application.Features.Purchases.Queries.GetPagedListPurchaseInvoice;
 using MarketZone.Application.Features.Purchases.Queries.GetPurchaseInvoiceById;
 using MarketZone.Application.Interfaces;
@@ -11,7 +10,9 @@ using MarketZone.Domain.Purchases.DTOs;
 using MarketZone.WebApi.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using System.Threading.Tasks;
 
 namespace MarketZone.WebApi.Endpoints
 {
@@ -33,10 +34,10 @@ namespace MarketZone.WebApi.Endpoints
 		async Task<BaseResult<PurchaseInvoiceDto>> GetPurchaseInvoiceById(IMediator mediator, [AsParameters] GetPurchaseInvoiceByIdQuery model)
 			=> await mediator.Send<GetPurchaseInvoiceByIdQuery, BaseResult<PurchaseInvoiceDto>>(model);
 
-		async Task<BaseResult<long>> CreatePurchaseInvoice(IMediator mediator, CreatePurchaseInvoiceCommand model)
+		async Task<BaseResult<long>> CreatePurchaseInvoice(IMediator mediator, [FromBody] CreatePurchaseInvoiceCommand model)
 			=> await mediator.Send<CreatePurchaseInvoiceCommand, BaseResult<long>>(model);
 
-		async Task<BaseResult> UpdatePurchaseInvoice(IMediator mediator, UpdatePurchaseInvoiceCommand model)
+		async Task<BaseResult> UpdatePurchaseInvoice(IMediator mediator, [FromBody] UpdatePurchaseInvoiceCommand model)
 			=> await mediator.Send<UpdatePurchaseInvoiceCommand, BaseResult>(model);
 
 		async Task<BaseResult> PostPurchaseInvoice(IMediator mediator, PostPurchaseInvoiceCommand model)

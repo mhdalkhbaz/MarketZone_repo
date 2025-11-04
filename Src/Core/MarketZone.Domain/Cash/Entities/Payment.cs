@@ -67,9 +67,9 @@ namespace MarketZone.Domain.Cash.Entities
 		public decimal? ExchangeRate { get; private set; }     // سعر الصرف
 		public decimal? AmountInPaymentCurrency { get; private set; } // المبلغ بالعملة المدفوعة
 		public string Notes { get; private set; }
-		public string Description { get; private set; }
-		public string ReceivedBy { get; private set; }
-		public string PaidBy { get; private set; }
+		public string? Description { get; private set; }
+		public string? ReceivedBy { get; private set; }
+		public string? PaidBy { get; private set; }
 		public bool IsConfirmed { get; private set; } = true;
 		public PaymentStatus Status { get; private set; }
 

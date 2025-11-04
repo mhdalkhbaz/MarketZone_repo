@@ -10,6 +10,7 @@ using MarketZone.WebApi.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Mvc;
 
 namespace MarketZone.WebApi.Endpoints
 {
@@ -32,7 +33,7 @@ namespace MarketZone.WebApi.Endpoints
         async Task<BaseResult> UpdatePayment(IMediator mediator, UpdatePaymentCommand model)
             => await mediator.Send<UpdatePaymentCommand, BaseResult>(model);
 
-        async Task<BaseResult> PostPayment(IMediator mediator, PostPaymentCommand model)
+        async Task<BaseResult> PostPayment(IMediator mediator, [AsParameters] PostPaymentCommand model)
             => await mediator.Send<PostPaymentCommand, BaseResult>(model);
     }
 }

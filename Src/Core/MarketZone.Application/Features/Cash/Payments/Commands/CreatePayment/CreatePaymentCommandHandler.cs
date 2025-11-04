@@ -14,6 +14,12 @@ namespace MarketZone.Application.Features.Cash.Payments.Commands.CreatePayment
 		public async Task<BaseResult<long>> Handle(CreatePaymentCommand request, CancellationToken cancellationToken)
 		{
 			Payment entity;
+
+			// Validate amount
+			if (request.Amount <= 0)
+			{
+				return new Error(ErrorCode.FieldDataInvalid, "Amount must be greater than 0", nameof(request.Amount));
+			}
 			
 			// Check if payment type requires an invoice
 			if (RequiresInvoice(request.PaymentType))
