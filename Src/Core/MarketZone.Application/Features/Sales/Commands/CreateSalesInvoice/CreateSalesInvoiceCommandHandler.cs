@@ -7,6 +7,7 @@ using MarketZone.Application.Interfaces.Repositories;
 using MarketZone.Application.Wrappers;
 using MarketZone.Domain.Sales.Entities;
 using MarketZone.Domain.Sales.Enums;
+using MarketZone.Application.Interfaces.Services;
 
 namespace MarketZone.Application.Features.Sales.Commands.CreateSalesInvoice
 {
@@ -15,24 +16,33 @@ namespace MarketZone.Application.Features.Sales.Commands.CreateSalesInvoice
 		private readonly ISalesInvoiceRepository _repository;
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly IMapper _mapper;
-		private readonly IDistributionTripRepository _tripRepository;
+        private readonly IDistributionTripRepository _tripRepository;
+        private readonly IInvoiceNumberGenerator _numberGenerator;
 
 		public CreateSalesInvoiceCommandHandler(
 			ISalesInvoiceRepository repository,
 			IUnitOfWork unitOfWork,
 			IMapper mapper,
-			IDistributionTripRepository tripRepository)
+            IDistributionTripRepository tripRepository,
+            IInvoiceNumberGenerator numberGenerator)
 		{
 			_repository = repository;
 			_unitOfWork = unitOfWork;
 			_mapper = mapper;
 			_tripRepository = tripRepository;
+			_numberGenerator = numberGenerator;
 		}
 
 		public async Task<BaseResult<long>> Handle(CreateSalesInvoiceCommand request, CancellationToken cancellationToken)
 		{
 			try
 			{
+				// Ensure invoice number is generated if not provided
+                if (string.IsNullOrWhiteSpace(request.InvoiceNumber))
+                {
+                    request.InvoiceNumber = await _numberGenerator.GenerateAsync(MarketZone.Domain.Cash.Enums.InvoiceType.SalesInvoice, cancellationToken);
+                }
+
 				var invoice = _mapper.Map<SalesInvoice>(request);
 
 				// إذا كانت فاتورة موزع، التحقق من رحلة التوزيع

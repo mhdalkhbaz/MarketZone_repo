@@ -29,12 +29,11 @@ namespace MarketZone.Infrastructure.Persistence
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.RegisterRepositories();
-            services.AddTransient<IPurchaseInvoiceNumberGenerator, PurchaseInvoiceNumberGenerator>();
-            services.AddTransient<ISalesInvoiceNumberGenerator, SalesInvoiceNumberGenerator>();
+            services.AddTransient<IInvoiceNumberGenerator, InvoiceNumberGenerator>();
             services.AddTransient<IInventoryAdjustmentService, InventoryAdjustmentService>();
             services.AddTransient<ISalesInventoryService, SalesInventoryService>();
             services.AddTransient<IRoastingService, RoastingService>();
-            services.AddTransient<IRoastingInvoiceNumberGenerator, RoastingInvoiceNumberGenerator>();
+            // Centralized invoice numbering used instead of specific generators
 
             return services;
         }

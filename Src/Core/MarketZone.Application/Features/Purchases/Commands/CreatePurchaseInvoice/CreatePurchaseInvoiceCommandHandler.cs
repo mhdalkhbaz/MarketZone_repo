@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace MarketZone.Application.Features.Purchases.Commands.CreatePurchaseInvoice
 {
-    public class CreatePurchaseInvoiceCommandHandler(IPurchaseInvoiceRepository purchaseInvoiceRepository, IProductRepository productRepository, IUnitOfWork unitOfWork, IMapper mapper, IPurchaseInvoiceNumberGenerator numberGenerator) : IRequestHandler<CreatePurchaseInvoiceCommand, BaseResult<long>>
+    public class CreatePurchaseInvoiceCommandHandler(IPurchaseInvoiceRepository purchaseInvoiceRepository, IProductRepository productRepository, IUnitOfWork unitOfWork, IMapper mapper, IInvoiceNumberGenerator numberGenerator) : IRequestHandler<CreatePurchaseInvoiceCommand, BaseResult<long>>
     {
         public async Task<BaseResult<long>> Handle(CreatePurchaseInvoiceCommand request, CancellationToken cancellationToken)
         {
@@ -30,7 +30,7 @@ namespace MarketZone.Application.Features.Purchases.Commands.CreatePurchaseInvoi
             invoice.SetStatus(PurchaseInvoiceStatus.Draft);
             if (string.IsNullOrWhiteSpace(invoice.InvoiceNumber))
             {
-                var nextNumber = await numberGenerator.GenerateAsync(cancellationToken);
+                var nextNumber = await numberGenerator.GenerateAsync(MarketZone.Domain.Cash.Enums.InvoiceType.PurchaseInvoice, cancellationToken);
                 invoice.SetInvoiceNumber(nextNumber);
             }
 

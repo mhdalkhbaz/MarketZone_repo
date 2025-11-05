@@ -15,14 +15,14 @@ namespace MarketZone.Application.Features.Roasting.Commands.CreateRoastingInvoic
             public class CreateRoastingInvoiceCommandHandler : IRequestHandler<CreateRoastingInvoiceCommand, BaseResult<long>>
         {
             private readonly IRoastingInvoiceRepository _repository;
-            private readonly IRoastingInvoiceNumberGenerator _numberGenerator;
+            private readonly IInvoiceNumberGenerator _numberGenerator;
             private readonly IProductBalanceRepository _productBalanceRepository;
             private readonly IMapper _mapper;
             private readonly IUnitOfWork _unitOfWork;
 
             public CreateRoastingInvoiceCommandHandler(
                 IRoastingInvoiceRepository repository,
-                IRoastingInvoiceNumberGenerator numberGenerator,
+                IInvoiceNumberGenerator numberGenerator,
                 IProductBalanceRepository productBalanceRepository,
                 IMapper mapper,
                 IUnitOfWork unitOfWork)
@@ -37,7 +37,7 @@ namespace MarketZone.Application.Features.Roasting.Commands.CreateRoastingInvoic
         public async Task<BaseResult<long>> Handle(CreateRoastingInvoiceCommand request, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(request.InvoiceNumber))
-                request.InvoiceNumber = await _numberGenerator.GenerateAsync();
+                request.InvoiceNumber = await _numberGenerator.GenerateAsync(MarketZone.Domain.Cash.Enums.InvoiceType.RoastingInvoice, cancellationToken);
 
             var roastingInvoice = _mapper.Map<RoastingInvoice>(request);
 
