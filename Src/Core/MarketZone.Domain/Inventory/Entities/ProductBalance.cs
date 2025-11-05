@@ -16,6 +16,7 @@ namespace MarketZone.Domain.Inventory.Entities
 			Qty = qty;
 			AvailableQty = availableQty;
 			TotalValue = totalValue;
+			AverageCost = Qty > 0 ? decimal.Round(TotalValue / Qty, 6) : 0;
 		}
 
 		public long ProductId { get; private set; }
@@ -23,6 +24,7 @@ namespace MarketZone.Domain.Inventory.Entities
 		public decimal Qty { get; private set; }
 		public decimal AvailableQty { get; private set; }
 		public decimal TotalValue { get; private set; }
+		public decimal AverageCost { get; private set; }
 
 		public void Adjust(decimal qtyDelta, decimal availableDelta)
 		{
@@ -35,6 +37,7 @@ namespace MarketZone.Domain.Inventory.Entities
 			Qty += qtyDelta;
 			AvailableQty += availableDelta;
 			TotalValue += valueDelta;
+			AverageCost = Qty > 0 ? decimal.Round(TotalValue / Qty, 6) : 0;
 		}
 	}
 }

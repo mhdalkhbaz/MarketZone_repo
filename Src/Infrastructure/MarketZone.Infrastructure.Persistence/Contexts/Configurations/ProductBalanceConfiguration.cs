@@ -12,6 +12,7 @@ namespace MarketZone.Infrastructure.Persistence.Contexts.Configurations
             builder.Property(x => x.Qty).HasColumnType("decimal(18,2)").HasDefaultValue(0);
             builder.Property(x => x.AvailableQty).HasColumnType("decimal(18,2)").HasDefaultValue(0);
             builder.Property(x => x.TotalValue).HasColumnType("decimal(18,6)").HasDefaultValue(0);
+            builder.Property(x => x.AverageCost).HasColumnType("decimal(18,6)").HasDefaultValue(0);
 
             builder.HasOne(x => x.Product)
                 .WithMany()

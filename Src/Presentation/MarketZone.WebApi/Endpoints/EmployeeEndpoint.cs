@@ -54,8 +54,8 @@ namespace MarketZone.WebApi.Endpoints
         async Task<BaseResult> DeleteEmployee(IMediator mediator, [AsParameters] DeleteEmployeeCommand model)
             => await mediator.Send<DeleteEmployeeCommand, BaseResult>(model);
 
-        async Task<BaseResult<List<SelectListDto>>> GetActiveEmployeesSelectList(IMediator mediator)
-            => await mediator.Send<GetActiveEmployeesSelectListQuery, BaseResult<List<SelectListDto>>>(new GetActiveEmployeesSelectListQuery());
+        async Task<BaseResult<List<SelectListDto>>> GetActiveEmployeesSelectList(IMediator mediator, [AsParameters] GetActiveEmployeesSelectListQuery model)
+            => await mediator.Send<GetActiveEmployeesSelectListQuery, BaseResult<List<SelectListDto>>>(model);
 
         // Salary endpoints
         async Task<BaseResult<List<EmployeeDto>>> GetEmployeesWithRemainingSalary(IMediator mediator, [AsParameters] GetEmployeesWithRemainingSalaryQuery model)

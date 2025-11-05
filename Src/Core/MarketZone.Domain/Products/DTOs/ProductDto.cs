@@ -46,5 +46,6 @@ namespace MarketZone.Domain.Products.DTOs
         public DateTime CreatedDateTime { get; set; }
         public decimal Qty { get; set; }
         public decimal AvailableQty { get; set; }
+        public decimal AverageCost { get; set; }
     }
 }

@@ -4,6 +4,7 @@ using MarketZone.Application.Features.Products.Commands.DeleteProduct;
 using MarketZone.Application.Features.Products.Commands.UpdateProduct;
 using MarketZone.Application.Features.Products.Queries.GetPagedListProduct;
 using MarketZone.Application.Features.Products.Queries.GetProductById;
+using MarketZone.Application.Features.Products.Queries.GetProductAverageCost;
 using MarketZone.Application.Interfaces;
 using MarketZone.Application.Wrappers;
 using MarketZone.Domain.Products.DTOs;
@@ -23,6 +24,8 @@ namespace MarketZone.WebApi.Endpoints
 
             builder.MapGet(GetProductById);
 
+			builder.MapGet(GetProductAverageCost);
+
             builder.MapPost(CreateProduct).RequireAuthorization();
 
             builder.MapPut(UpdateProduct).RequireAuthorization();
@@ -35,6 +38,9 @@ namespace MarketZone.WebApi.Endpoints
 
         async Task<BaseResult<ProductDto>> GetProductById(IMediator mediator, [AsParameters] GetProductByIdQuery model)
             => await mediator.Send<GetProductByIdQuery, BaseResult<ProductDto>>(model);
+
+		async Task<BaseResult<decimal>> GetProductAverageCost(IMediator mediator, [AsParameters] GetProductAverageCostQuery model)
+			=> await mediator.Send<GetProductAverageCostQuery, BaseResult<decimal>>(model);
 
         async Task<BaseResult<long>> CreateProduct(IMediator mediator, [FromBody] CreateProductCommand model)
             => await mediator.Send<CreateProductCommand, BaseResult<long>>(model);

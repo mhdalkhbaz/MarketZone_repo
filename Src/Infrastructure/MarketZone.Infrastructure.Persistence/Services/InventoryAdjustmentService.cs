@@ -15,17 +15,15 @@ namespace MarketZone.Infrastructure.Persistence.Services
 		public async Task AdjustOnPurchasePostedAsync(PurchaseInvoice invoice, CancellationToken cancellationToken = default)
 		{
 			var productIds = GetDistinctProductIds(invoice);
-			var products = await LoadProductsAsync(productIds, cancellationToken);
 			var balances = await LoadBalancesAsync(productIds, cancellationToken);
 
-			var totalByProduct = GroupTotalQuantities(invoice);
+			var totalsByProduct = GroupTotals(invoice);
 
-			foreach (var (productId, quantity) in totalByProduct)
+			foreach (var kvp in totalsByProduct)
 			{
-				if (!products.TryGetValue(productId, out var product))
-					continue;
-
-					await IncreaseReadyToSellAsync(balances, productId, quantity, cancellationToken);
+				var productId = kvp.Key;
+				var (quantity, value) = kvp.Value;
+				await IncreaseReadyToSellAsync(balances, productId, quantity, value, cancellationToken);
 			}
 		}
 
@@ -35,17 +33,16 @@ namespace MarketZone.Infrastructure.Persistence.Services
 				.Distinct()
 				.ToList();
 
-		private static Dictionary<long, decimal> GroupTotalQuantities(PurchaseInvoice invoice)
+		private static Dictionary<long, (decimal qty, decimal value)> GroupTotals(PurchaseInvoice invoice)
 			=> invoice.Details
 				.GroupBy(d => d.ProductId)
-				.ToDictionary(g => g.Key, g => g.Sum(x => x.Quantity));
-
-		private async Task<Dictionary<long, Domain.Products.Entities.Product>> LoadProductsAsync(List<long> productIds, CancellationToken cancellationToken)
-		{
-			return await dbContext.Products
-				.Where(p => productIds.Contains(p.Id))
-				.ToDictionaryAsync(p => p.Id, cancellationToken);
-		}
+				.ToDictionary(
+					g => g.Key,
+					g => (
+						qty: g.Sum(x => x.Quantity),
+						value: g.Sum(x => x.Quantity * x.UnitPrice)
+					)
+				);
 
 		private async Task<Dictionary<long, ProductBalance>> LoadBalancesAsync(List<long> productIds, CancellationToken cancellationToken)
 		{
@@ -55,29 +52,17 @@ namespace MarketZone.Infrastructure.Persistence.Services
 			return list.ToDictionary(b => b.ProductId, b => b);
 		}
 
-		private async Task IncreaseReadyToSellAsync(Dictionary<long, ProductBalance> cache, long productId, decimal quantity, CancellationToken cancellationToken)
+		private async Task IncreaseReadyToSellAsync(Dictionary<long, ProductBalance> cache, long productId, decimal quantity, decimal valueToAdd, CancellationToken cancellationToken)
 		{
 			if (!cache.TryGetValue(productId, out var balance))
 			{
-				var unitPrice = await dbContext.Set<PurchaseInvoiceDetail>()
-					.Where(d => d.ProductId == productId)
-					.OrderByDescending(d => d.Id)
-					.Select(d => d.UnitPrice)
-					.FirstOrDefaultAsync(cancellationToken);
-				var value = unitPrice * quantity;
-				balance = new ProductBalance(productId, quantity, quantity, value);
+				balance = new ProductBalance(productId, quantity, quantity, valueToAdd);
 				await dbContext.Set<ProductBalance>().AddAsync(balance, cancellationToken);
 				cache[productId] = balance;
 				return;
 			}
 
-			var latestUnitPrice = await dbContext.Set<PurchaseInvoiceDetail>()
-				.Where(d => d.ProductId == productId)
-				.OrderByDescending(d => d.Id)
-				.Select(d => d.UnitPrice)
-				.FirstOrDefaultAsync(cancellationToken);
-			var addValue = latestUnitPrice * quantity;
-			balance.AdjustWithValue(quantity, quantity, addValue);
+			balance.AdjustWithValue(quantity, quantity, valueToAdd);
 		}
 	}
 }

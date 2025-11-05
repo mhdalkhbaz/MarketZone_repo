@@ -12,7 +12,7 @@ namespace MarketZone.Application.Features.Employees.Queries.GetActiveEmployeesSe
 	{
 		public async Task<BaseResult<List<SelectListDto>>> Handle(GetActiveEmployeesSelectListQuery request, CancellationToken cancellationToken)
 		{
-			var list = await employeeRepository.GetActiveSelectListAsync();
+			var list = await employeeRepository.GetActiveSelectListAsync(request.Type);
 			return list;
 		}
 	}

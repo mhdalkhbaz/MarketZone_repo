@@ -26,6 +26,7 @@ namespace MarketZone.Application.Features.Products.Queries.GetProductById
             var productBalance = await productBalanceRepository.GetByProductIdAsync(request.Id, cancellationToken);
                 productDto.Qty = productBalance?.Qty  ?? 0;
                 productDto.AvailableQty = productBalance?.AvailableQty ?? 0 ;
+                productDto.AverageCost = productBalance?.AverageCost ?? 0;
           
 
             return productDto;
