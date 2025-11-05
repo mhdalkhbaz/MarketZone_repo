@@ -34,7 +34,7 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 		public async Task<List<SelectListDto>> GetActiveSelectListAsync(string? type = null)
 		{
 			return await dbContext.Set<Employee>()
-				.Where(x => x.IsActive && x.JobTitle ==  type)
+				.Where(x => x.IsActive && (type == null || x.JobTitle == type))
 				.OrderBy(x => x.FirstName)
 				.Select(x => new SelectListDto(x.FirstName + " " + x.LastName, x.Id.ToString()))
 				.AsNoTracking()
