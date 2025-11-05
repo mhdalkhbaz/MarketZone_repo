@@ -129,4 +129,10 @@
   <data name="Username_is_already_taken" xml:space="preserve">
     <value>Username {0} is registered in the system</value>
   </data>
+  <data name="Cannot_change_currency_when_customer_has_operations" xml:space="preserve">
+    <value>Cannot change customer's currency because it is linked to other operations</value>
+  </data>
+  <data name="Supplier_CurrencyChange_NotAllowed_due_to_linked_operations" xml:space="preserve">
+    <value>Cannot change supplier's currency because it is linked to other operations</value>
+  </data>
 </root>

@@ -10,6 +10,7 @@ namespace MarketZone.Application.Interfaces.Repositories
 	{
 		Task<PaginationResponseDto<SupplierDto>> GetPagedListAsync(int pageNumber, int pageSize, string name);
 		Task<List<SelectListDto>> GetActiveSelectListAsync();
+		Task<bool> HasAnyTransactionsAsync(long supplierId);
 	}
 }
 

@@ -38,6 +38,12 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 				.AsNoTracking()
 				.ToListAsync();
 		}
+
+		public async Task<bool> HasAnyTransactionsAsync(long supplierId)
+		{
+			// Any purchase invoice linked to this supplier counts as a related transaction
+			return await dbContext.PurchaseInvoices.AnyAsync(pi => pi.SupplierId == supplierId);
+		}
 	}
 }
 

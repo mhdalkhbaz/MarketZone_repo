@@ -26,12 +26,15 @@ namespace MarketZone.Application.Helpers
 		{
 			public static TranslatorMessageDto Customer_NotFound_with_id(long id)
 				=> new(nameof(Customer_NotFound_with_id), [id.ToString()]);
+			public static string Cannot_change_currency_when_customer_has_operations() => nameof(Cannot_change_currency_when_customer_has_operations);
 		}
 
 		public static class SupplierMessages
 		{
 			public static TranslatorMessageDto Supplier_NotFound_with_id(long id)
 				=> new(nameof(Supplier_NotFound_with_id), [id.ToString()]);
+			public static string Supplier_CurrencyChange_NotAllowed_due_to_linked_operations()
+				=> nameof(Supplier_CurrencyChange_NotAllowed_due_to_linked_operations);
 		}
 
 		public static class EmployeeMessages

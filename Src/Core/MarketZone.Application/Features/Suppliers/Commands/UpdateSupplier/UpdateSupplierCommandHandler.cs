@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MarketZone.Application.Helpers;
@@ -16,6 +17,20 @@ namespace MarketZone.Application.Features.Suppliers.Commands.UpdateSupplier
 		if (supplier is null)
 		{
 			return new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.SupplierMessages.Supplier_NotFound_with_id(request.Id)), nameof(request.Id));
+		}
+
+		// Prevent changing currency if supplier has linked transactions
+		if (request.Currency.HasValue && supplier.Currency != request.Currency)
+		{
+			var hasLinkedTransactions = await supplierRepository.HasAnyTransactionsAsync(request.Id);
+			if (hasLinkedTransactions)
+			{
+				return new Error(
+					ErrorCode.FieldDataInvalid,
+					translator.GetString(TranslatorMessages.SupplierMessages.Supplier_CurrencyChange_NotAllowed_due_to_linked_operations()),
+					nameof(request.Currency)
+				);
+			}
 		}
 
 		supplier.Update(

@@ -129,4 +129,10 @@
   <data name="Username_is_already_taken" xml:space="preserve">
     <value>نام کاربری {0} در سیستم ثبت شده است</value>
   </data>
+  <data name="Cannot_change_currency_when_customer_has_operations" xml:space="preserve">
+    <value>امکان تغییر ارز مشتری وجود ندارد زیرا به عملیات دیگری مرتبط است</value>
+  </data>
+  <data name="Supplier_CurrencyChange_NotAllowed_due_to_linked_operations" xml:space="preserve">
+    <value>امکان تغییر ارز تامین‌کننده وجود ندارد زیرا به عملیات دیگری مرتبط است</value>
+  </data>
 </root>
