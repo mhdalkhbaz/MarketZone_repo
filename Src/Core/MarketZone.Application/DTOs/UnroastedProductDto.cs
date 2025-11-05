@@ -5,12 +5,21 @@ namespace MarketZone.Application.DTOs
         public string Value { get; set; }  // ID
         public string Label { get; set; }  // Product Name
         public decimal AvailableQty { get; set; }  // Available Quantity
+        public decimal AverageCost { get; set; }  // Average cost per unit
 
         public UnroastedProductDto(string value, string label, decimal availableQty)
         {
             Value = value;
             Label = label;
             AvailableQty = availableQty;
+        }
+
+        public UnroastedProductDto(string value, string label, decimal availableQty, decimal averageCost)
+        {
+            Value = value;
+            Label = label;
+            AvailableQty = availableQty;
+            AverageCost = averageCost;
         }
     }
 }

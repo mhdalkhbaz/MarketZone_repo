@@ -39,6 +39,12 @@ namespace MarketZone.Domain.Inventory.Entities
 			TotalValue += valueDelta;
 			AverageCost = Qty > 0 ? decimal.Round(TotalValue / Qty, 6) : 0;
 		}
+
+		public void SetAverageCost(decimal averageCost)
+		{
+			AverageCost = averageCost;
+			TotalValue = Qty > 0 ? decimal.Round(AverageCost * Qty, 6) : 0;
+		}
 	}
 }
 

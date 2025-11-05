@@ -84,7 +84,7 @@ namespace MarketZone.Application.Features.Roasting.Commands.PostRoastingInvoice
                     //}
 
                     // Consume raw product quantity
-                    rawProductBalance.Adjust(-readyDetail.ActualQuantityAfterRoasting, -readyDetail.ActualQuantityAfterRoasting);
+                    rawProductBalance.Adjust(-detail.QuantityKg,0);
                     _productBalanceRepository.Update(rawProductBalance);
 
                     // Calculate values
@@ -93,8 +93,8 @@ namespace MarketZone.Application.Features.Roasting.Commands.PostRoastingInvoice
                     var commissionValue = readyDetail.CommissionPerKg * readyDetail.ActualQuantityAfterRoasting;
                     var totalValue = rawConsumedValue + commissionValue;
 
-                    // Add ready product to inventory
-                    await AddRoastedProductToInventoryWithValue(readyDetail.ReadyProductId, readyDetail.ActualQuantityAfterRoasting, totalValue, cancellationToken);
+                    // Add ready product to inventory and set its balance average cost to SalePricePerKg
+                    await AddRoastedProductToInventoryWithValue(readyDetail.ReadyProductId, readyDetail.ActualQuantityAfterRoasting, totalValue, readyDetail.SalePricePerKg, cancellationToken);
 
                     // Create receipt record
                     var receipt = new RoastingInvoiceDetailReceipt(
@@ -128,7 +128,7 @@ namespace MarketZone.Application.Features.Roasting.Commands.PostRoastingInvoice
             return new BaseResult<long> { Success = true, Data = roastingInvoice.Id };
         }
 
-        private async Task AddRoastedProductToInventoryWithValue(long productId, decimal actualQuantity, decimal valueToAdd, CancellationToken cancellationToken)
+        private async Task AddRoastedProductToInventoryWithValue(long productId, decimal actualQuantity, decimal valueToAdd, decimal salePricePerKg, CancellationToken cancellationToken)
         {
             // Get or create ProductBalance for the roasted product
             var balance = await _productBalanceRepository.GetByProductIdAsync(productId, cancellationToken);
@@ -137,12 +137,22 @@ namespace MarketZone.Application.Features.Roasting.Commands.PostRoastingInvoice
             {
                 // Create new ProductBalance for roasted product
                 balance = new ProductBalance(productId, actualQuantity, actualQuantity, valueToAdd);
+                // Set average cost from sale price per kg if provided
+                if (salePricePerKg > 0)
+                {
+                    balance.SetAverageCost(salePricePerKg);
+                }
                 await _productBalanceRepository.AddAsync(balance);
             }
             else
             {
                 // Adjust existing ProductBalance
                 balance.AdjustWithValue(actualQuantity, actualQuantity, valueToAdd);
+                // Override average cost from sale price per kg if provided
+                if (salePricePerKg > 0)
+                {
+                    balance.SetAverageCost(salePricePerKg);
+                }
                 _productBalanceRepository.Update(balance);
             }
 
