@@ -16,7 +16,6 @@ namespace MarketZone.Application.Features.Roasting
                 .ForMember(dest => dest.RawProductId, opt => opt.MapFrom(src => src.RawProductId))
                 .ForMember(dest => dest.RawProductName, opt => opt.MapFrom(src => src.RawProduct != null ? src.RawProduct.Name : null))
                 .ForMember(dest => dest.RoastingCost, opt => opt.MapFrom(src => src.RoastingCost))
-                .ForMember(dest => dest.PurchasePrice, opt => opt.MapFrom(src => src.RawProduct.PurchasePrice))
                 .ForMember(dest => dest.ReceivedQuantityKg, opt => opt.MapFrom(src => src.ReceivedQuantityKg))
                 .ForMember(dest => dest.RemainingQuantity, opt => opt.MapFrom(src => src.RemainingQuantity));
 
