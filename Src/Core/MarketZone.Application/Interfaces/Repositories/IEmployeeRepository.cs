@@ -10,7 +10,7 @@ namespace MarketZone.Application.Interfaces.Repositories
 	public interface IEmployeeRepository : IGenericRepository<Employee>
 	{
 		Task<PaginationResponseDto<EmployeeDto>> GetPagedListAsync(int pageNumber, int pageSize, string name);
-		Task<List<SelectListDto>> GetActiveSelectListAsync(SalaryType? type = null);
+		Task<List<SelectListDto>> GetActiveSelectListAsync(string? type = null);
 	}
 }
 

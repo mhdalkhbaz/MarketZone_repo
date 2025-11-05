@@ -10,6 +10,7 @@ using MarketZone.Domain.Employees.Entities;
 using MarketZone.Domain.Employees.Enums;
 using MarketZone.Infrastructure.Persistence.Contexts;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 
 namespace MarketZone.Infrastructure.Persistence.Repositories
 {
@@ -30,10 +31,10 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 				pageSize);
 		}
 
-		public async Task<List<SelectListDto>> GetActiveSelectListAsync(SalaryType? type = null)
+		public async Task<List<SelectListDto>> GetActiveSelectListAsync(string? type = null)
 		{
 			return await dbContext.Set<Employee>()
-				.Where(x => x.IsActive && (!type.HasValue || x.SalaryType == type.Value))
+				.Where(x => x.IsActive && x.JobTitle ==  type)
 				.OrderBy(x => x.FirstName)
 				.Select(x => new SelectListDto(x.FirstName + " " + x.LastName, x.Id.ToString()))
 				.AsNoTracking()

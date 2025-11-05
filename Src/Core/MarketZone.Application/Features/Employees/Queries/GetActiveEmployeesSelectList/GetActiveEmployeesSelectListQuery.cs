@@ -8,7 +8,7 @@ namespace MarketZone.Application.Features.Employees.Queries.GetActiveEmployeesSe
 {
 	public class GetActiveEmployeesSelectListQuery : IRequest<BaseResult<List<SelectListDto>>>
 	{
-		public SalaryType? Type { get; set; }
+		public string? Type { get; set; }
 	}
 }
 
