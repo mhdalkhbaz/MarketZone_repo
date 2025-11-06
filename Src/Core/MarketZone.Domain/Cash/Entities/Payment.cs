@@ -42,7 +42,7 @@ namespace MarketZone.Domain.Cash.Entities
 		}
 
 		// Constructor for general expenses (not invoice-related)
-		public Payment(PaymentType paymentType, decimal amount, DateTime paymentDate, string description, string paidBy, bool isConfirmed = true)
+		public Payment(PaymentType paymentType, decimal amount, DateTime paymentDate, string description,string notes, string paidBy, bool isConfirmed = true)
 		{
 			if (RequiresInvoice(paymentType))
 				throw new ArgumentException("This payment type requires an invoice", nameof(paymentType));
@@ -53,7 +53,8 @@ namespace MarketZone.Domain.Cash.Entities
 			Description = description;
 			PaidBy = paidBy;
 			IsConfirmed = isConfirmed;
-			Status = PaymentStatus.Draft;
+			Notes = notes;
+            Status = PaymentStatus.Draft;
 		}
 
 		public long? CashRegisterId { get; private set; }
@@ -66,7 +67,7 @@ namespace MarketZone.Domain.Cash.Entities
 		public Currency PaymentCurrency { get; private set; }     // العملة المراد الدفع بها
 		public decimal? ExchangeRate { get; private set; }     // سعر الصرف
 		public decimal? AmountInPaymentCurrency { get; private set; } // المبلغ بالعملة المدفوعة
-		public string Notes { get; private set; }
+		public string? Notes { get; private set; }
 		public string? Description { get; private set; }
 		public string? ReceivedBy { get; private set; }
 		public string? PaidBy { get; private set; }

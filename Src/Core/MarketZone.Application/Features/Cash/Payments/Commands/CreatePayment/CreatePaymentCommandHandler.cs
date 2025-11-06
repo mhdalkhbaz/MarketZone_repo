@@ -48,6 +48,7 @@ namespace MarketZone.Application.Features.Cash.Payments.Commands.CreatePayment
 					request.Amount,
 					request.PaymentDate ?? DateTime.UtcNow,
 					request.Description,
+					request.Notes,
 					request.PaidBy,
 					request.IsConfirmed
 				);
