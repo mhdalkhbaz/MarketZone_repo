@@ -59,7 +59,8 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
                 {
                     Id = g.Key,
                     InvoiceNumber = g.First().Invoice.InvoiceNumber,
-                    UnpaidAmount = g.First().Invoice.TotalAmount - g.Where(x => x.Payment != null).Sum(x => x.Payment.AmountInPaymentCurrency ?? x.Payment.Amount)
+                    UnpaidAmount = g.First().Invoice.TotalAmount - g.Where(x => x.Payment != null).Sum(x => x.Payment.AmountInPaymentCurrency ?? x.Payment.Amount),
+                    Currency = Currency.SY
                 })
                 .Where(x => x.UnpaidAmount > 0) // فواتير لم يتم دفعها بالكامل (جزئياً أو غير مسددة)
                 .OrderByDescending(x => x.Id)

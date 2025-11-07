@@ -16,7 +16,8 @@ namespace MarketZone.Application.Features.Sales.Commands.PostSalesInvoice
             if (invoice is null)
                 return new Error(ErrorCode.NotFound, translator.GetString("SalesInvoice_NotFound_with_id"), nameof(request.Id));
             if (invoice.Status == SalesInvoiceStatus.Posted)
-                return BaseResult.Ok();
+                return new Error(ErrorCode.ModelStateNotValid, translator.GetString("PostedInvoice"), nameof(request.Id));
+
 
             await inventoryService.ApplyOnPostAsync(invoice, cancellationToken);
             invoice.SetStatus(SalesInvoiceStatus.Posted);

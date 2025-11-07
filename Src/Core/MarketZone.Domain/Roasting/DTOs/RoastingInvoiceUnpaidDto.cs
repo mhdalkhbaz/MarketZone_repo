@@ -1,3 +1,5 @@
+using MarketZone.Domain.Cash.Enums;
+
 namespace MarketZone.Domain.Roasting.DTOs
 {
     public class RoastingInvoiceUnpaidDto
@@ -5,6 +7,7 @@ namespace MarketZone.Domain.Roasting.DTOs
         public long Id { get; set; }
         public string InvoiceNumber { get; set; }
         public decimal UnpaidAmount { get; set; }
+        public Currency Currency { get; set; }
     }
 }
 

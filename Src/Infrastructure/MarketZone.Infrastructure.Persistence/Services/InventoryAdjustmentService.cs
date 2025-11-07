@@ -3,14 +3,17 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using MarketZone.Application.Interfaces.Services;
+using MarketZone.Application.Interfaces.Repositories;
 using MarketZone.Domain.Inventory.Entities;
 using MarketZone.Domain.Purchases.Entities;
+using MarketZone.Domain.Cash.Enums;
 using MarketZone.Infrastructure.Persistence.Contexts;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace MarketZone.Infrastructure.Persistence.Services
 {
-	public class InventoryAdjustmentService(ApplicationDbContext dbContext) : IInventoryAdjustmentService
+	public class InventoryAdjustmentService(ApplicationDbContext dbContext, IExchangeRateRepository exchangeRateRepository) : IInventoryAdjustmentService
 	{
 		public async Task AdjustOnPurchasePostedAsync(PurchaseInvoice invoice, CancellationToken cancellationToken = default)
 		{
@@ -19,11 +22,22 @@ namespace MarketZone.Infrastructure.Persistence.Services
 
 			var totalsByProduct = GroupTotals(invoice);
 
+			var requiresConversion = invoice.Currency.HasValue && invoice.Currency.Value == Currency.SY;
+			decimal rate = 1m;
+			if (requiresConversion)
+			{
+				var latest = await exchangeRateRepository.GetLatestActiveRateAsync(cancellationToken);
+				if (latest == null || latest.Rate <= 0)
+					throw new Exception("Active exchange rate is required to post a SYP purchase invoice.");
+				rate = latest.Rate;
+			}
+
 			foreach (var kvp in totalsByProduct)
 			{
 				var productId = kvp.Key;
 				var (quantity, value) = kvp.Value;
-				await IncreaseReadyToSellAsync(balances, productId, quantity, value, cancellationToken);
+				var valueInUsd = requiresConversion ? decimal.Round(value / rate, 6) : value;
+				await IncreaseReadyToSellAsync(balances, productId, quantity, valueInUsd, cancellationToken);
 			}
 		}
 

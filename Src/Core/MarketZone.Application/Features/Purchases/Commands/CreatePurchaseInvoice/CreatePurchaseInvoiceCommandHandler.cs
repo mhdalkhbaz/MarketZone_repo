@@ -2,6 +2,7 @@ using AutoMapper;
 using MarketZone.Application.Interfaces;
 using MarketZone.Application.Interfaces.Repositories;
 using MarketZone.Application.Interfaces.Services;
+using MarketZone.Domain.Cash.Enums;
 using MarketZone.Application.Wrappers;
 using MarketZone.Domain.Purchases.Entities;
 using MarketZone.Domain.Purchases.Enums;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace MarketZone.Application.Features.Purchases.Commands.CreatePurchaseInvoice
 {
-    public class CreatePurchaseInvoiceCommandHandler(IPurchaseInvoiceRepository purchaseInvoiceRepository, IProductRepository productRepository, IUnitOfWork unitOfWork, IMapper mapper, IInvoiceNumberGenerator numberGenerator) : IRequestHandler<CreatePurchaseInvoiceCommand, BaseResult<long>>
+    public class CreatePurchaseInvoiceCommandHandler(IPurchaseInvoiceRepository purchaseInvoiceRepository, IProductRepository productRepository, ISupplierRepository supplierRepository, IUnitOfWork unitOfWork, IMapper mapper, IInvoiceNumberGenerator numberGenerator) : IRequestHandler<CreatePurchaseInvoiceCommand, BaseResult<long>>
     {
         public async Task<BaseResult<long>> Handle(CreatePurchaseInvoiceCommand request, CancellationToken cancellationToken)
         {
@@ -24,6 +25,16 @@ namespace MarketZone.Application.Features.Purchases.Commands.CreatePurchaseInvoi
                     return new Error(ErrorCode.NotFound, $"Product with ID {detail.ProductId} not found", nameof(detail.ProductId));
                 if (product.RawProductId.HasValue)
                     return new Error(ErrorCode.FieldDataInvalid, $"Roasted products cannot be purchased directly. Product: {product.Name}", nameof(detail.ProductId));
+            }
+
+            // Default invoice currency from supplier if not provided
+            if (!request.Currency.HasValue)
+            {
+                var supplier = await supplierRepository.GetByIdAsync(request.SupplierId);
+                if (supplier?.Currency != null)
+                {
+                    request.Currency = supplier.Currency;
+                }
             }
 
             var invoice = mapper.Map<PurchaseInvoice>(request);

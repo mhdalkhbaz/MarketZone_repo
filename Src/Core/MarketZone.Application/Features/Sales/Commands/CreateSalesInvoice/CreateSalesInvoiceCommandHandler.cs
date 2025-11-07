@@ -18,19 +18,22 @@ namespace MarketZone.Application.Features.Sales.Commands.CreateSalesInvoice
 		private readonly IMapper _mapper;
         private readonly IDistributionTripRepository _tripRepository;
         private readonly IInvoiceNumberGenerator _numberGenerator;
+        private readonly IProductRepository _productRepository;
 
 		public CreateSalesInvoiceCommandHandler(
 			ISalesInvoiceRepository repository,
 			IUnitOfWork unitOfWork,
 			IMapper mapper,
             IDistributionTripRepository tripRepository,
-            IInvoiceNumberGenerator numberGenerator)
+            IInvoiceNumberGenerator numberGenerator,
+            IProductRepository productRepository)
 		{
 			_repository = repository;
 			_unitOfWork = unitOfWork;
 			_mapper = mapper;
 			_tripRepository = tripRepository;
 			_numberGenerator = numberGenerator;
+            _productRepository = productRepository;
 		}
 
 		public async Task<BaseResult<long>> Handle(CreateSalesInvoiceCommand request, CancellationToken cancellationToken)
@@ -42,6 +45,36 @@ namespace MarketZone.Application.Features.Sales.Commands.CreateSalesInvoice
                 {
                     request.InvoiceNumber = await _numberGenerator.GenerateAsync(MarketZone.Domain.Cash.Enums.InvoiceType.SalesInvoice, cancellationToken);
                 }
+
+				// Validate and normalize details pricing: prevent zero/negative prices, use default product SalePrice when needed
+				if (request.Details?.Any() == true)
+				{
+					// Fetch products for lines that need a default price
+					var detailsNeedingPrice = request.Details.Where(d => d.UnitPrice <= 0).ToList();
+					if (detailsNeedingPrice.Count > 0)
+					{
+						var productIds = detailsNeedingPrice.Select(d => d.ProductId).Distinct().ToList();
+						var productsById = await _productRepository.GetByIdsAsync(productIds, cancellationToken);
+						foreach (var d in detailsNeedingPrice)
+						{
+							if (!productsById.TryGetValue(d.ProductId, out var product) || !product.SalePrice.HasValue || product.SalePrice!.Value <= 0)
+							{
+								return new Error(ErrorCode.FieldDataInvalid, $"Unit price must be greater than zero and no default SalePrice found for product {d.ProductId}", nameof(d.UnitPrice));
+							}
+							d.UnitPrice = product.SalePrice!.Value;
+						}
+					}
+
+					// Recalculate subtotals based on normalized prices
+					foreach (var d in request.Details)
+					{
+						d.SubTotal = d.Quantity * d.UnitPrice;
+					}
+
+					// Recalculate invoice total amount prior to mapping to entity
+					var computedTotal = request.Details.Sum(x => x.SubTotal) - request.Discount;
+					request.TotalAmount = computedTotal < 0 ? 0 : computedTotal;
+				}
 
 				var invoice = _mapper.Map<SalesInvoice>(request);
 
