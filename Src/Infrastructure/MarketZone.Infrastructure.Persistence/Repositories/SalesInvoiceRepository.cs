@@ -66,7 +66,7 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 					Discount = g.First().Invoice.Discount,
 					PaymentMethod = g.First().Invoice.PaymentMethod,
 					Notes = g.First().Invoice.Notes,
-					Currency = g.First().Invoice.Currency,
+					Currency = g.First().Invoice.Currency ?? Currency.SY,
 					Status = g.First().Invoice.Status,
 					Type = g.First().Invoice.Type,
 					DistributionTripId = g.First().Invoice.DistributionTripId,

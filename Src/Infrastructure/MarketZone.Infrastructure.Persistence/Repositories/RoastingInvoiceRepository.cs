@@ -42,6 +42,11 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 
         public async Task<List<RoastingInvoiceUnpaidDto>> GetUnpaidInvoicesByEmployeeAsync(long employeeId, System.Threading.CancellationToken cancellationToken = default)
         {
+            var employeeCurrency = await dbContext.Employees
+                .Where(e => e.Id == employeeId)
+                .Select(e => e.Currency)
+                .FirstOrDefaultAsync(cancellationToken);
+
             var unpaidInvoices = await dbContext.RoastingInvoices
                 .Where(ri => ri.EmployeeId == employeeId && ri.Status == RoastingInvoiceStatus.Posted)
                 .GroupJoin(
@@ -60,7 +65,7 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
                     Id = g.Key,
                     InvoiceNumber = g.First().Invoice.InvoiceNumber,
                     UnpaidAmount = g.First().Invoice.TotalAmount - g.Where(x => x.Payment != null).Sum(x => x.Payment.AmountInPaymentCurrency ?? x.Payment.Amount),
-                    Currency = Currency.SY
+                    Currency = employeeCurrency ?? Currency.SY
                 })
                 .Where(x => x.UnpaidAmount > 0) // فواتير لم يتم دفعها بالكامل (جزئياً أو غير مسددة)
                 .OrderByDescending(x => x.Id)

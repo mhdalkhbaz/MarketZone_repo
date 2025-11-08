@@ -247,8 +247,7 @@ namespace MarketZone.WebApi.Endpoints
                 .Select(e => new SelectListWithCurrencyDto(
                     e.FirstName + " " + e.LastName,
                     e.Id.ToString(),
-                    // If employee has dollar balance prefer Dollar, otherwise default to SY
-                    (e.DollarMoney.HasValue && e.DollarMoney > 0) ? Currency.Dollar : Currency.SY
+                    e.Currency ?? Currency.SY
                 ))
                 .ToListAsync();
 
@@ -268,43 +267,45 @@ namespace MarketZone.WebApi.Endpoints
             return BaseResult<List<SelectListDto>>.Ok(employees);
         }
 
-        // Returns customers who have invoices with incomplete payment status (customers with debts)
-        async Task<BaseResult<List<SelectListDto>>> GetCustomersWithDebts(ApplicationDbContext db)
-        {
-            var customersWithDebts = await db.SalesInvoices
-                .Where(si => si.Status == SalesInvoiceStatus.Posted)
-                .GroupJoin(
-                    db.Payments.Where(p => p.PaymentType == PaymentType.SalesPayment && p.Status == MarketZone.Domain.Cash.Entities.PaymentStatus.Posted),
-                    si => si.Id,
-                    p => p.InvoiceId,
-                    (si, payments) => new { Invoice = si, Payments = payments }
-                )
-                .SelectMany(
-                    x => x.Payments.DefaultIfEmpty(),
-                    (x, payment) => new { x.Invoice, Payment = payment }
-                )
-                .GroupBy(x => x.Invoice.Id)
-                .Select(g => new
-                {
-                    InvoiceId = g.Key,
-                    CustomerId = g.First().Invoice.CustomerId,
-                    CustomerName = g.First().Invoice.Customer.Name,
-                    TotalAmount = g.First().Invoice.TotalAmount - g.First().Invoice.Discount,
-                    PaidAmount = g.Where(x => x.Payment != null).Sum(x => x.Payment.AmountInPaymentCurrency ?? x.Payment.Amount)
-                })
-                .Where(x => x.PaidAmount < x.TotalAmount) // فواتير لم يتم دفعها بالكامل (جزئياً أو غير مسددة)
-                .GroupBy(x => x.CustomerId)
-                .Select(g => new
-                {
-                    CustomerId = g.Key,
-                    CustomerName = g.First().CustomerName
-                })
-                .OrderBy(x => x.CustomerName)
-                .Select(x => new SelectListDto(x.CustomerName, x.CustomerId.ToString()))
-                .ToListAsync();
+		// Returns customers who have invoices with incomplete payment status (customers with debts)
+		async Task<BaseResult<List<SelectListWithCurrencyDto>>> GetCustomersWithDebts(ApplicationDbContext db)
+		{
+			var customersWithDebts = await db.SalesInvoices
+				.Where(si => si.Status == SalesInvoiceStatus.Posted)
+				.GroupJoin(
+					db.Payments.Where(p => p.PaymentType == PaymentType.SalesPayment && p.Status == MarketZone.Domain.Cash.Entities.PaymentStatus.Posted),
+					si => si.Id,
+					p => p.InvoiceId,
+					(si, payments) => new { Invoice = si, Payments = payments }
+				)
+				.SelectMany(
+					x => x.Payments.DefaultIfEmpty(),
+					(x, payment) => new { x.Invoice, Payment = payment }
+				)
+				.GroupBy(x => x.Invoice.Id)
+				.Select(g => new
+				{
+					InvoiceId = g.Key,
+					CustomerId = g.First().Invoice.CustomerId,
+					CustomerName = g.First().Invoice.Customer.Name,
+					CustomerCurrency = g.First().Invoice.Customer.Currency ?? Currency.SY,
+					TotalAmount = g.First().Invoice.TotalAmount - g.First().Invoice.Discount,
+					PaidAmount = g.Where(x => x.Payment != null).Sum(x => x.Payment.AmountInPaymentCurrency ?? x.Payment.Amount)
+				})
+				.Where(x => x.PaidAmount < x.TotalAmount) // فواتير لم يتم دفعها بالكامل (جزئياً أو غير مسددة)
+				.GroupBy(x => x.CustomerId)
+				.Select(g => new
+				{
+					CustomerId = g.Key,
+					CustomerName = g.First().CustomerName,
+					CustomerCurrency = g.First().CustomerCurrency
+				})
+				.OrderBy(x => x.CustomerName)
+				.Select(x => new SelectListWithCurrencyDto(x.CustomerName, x.CustomerId.ToString(), x.CustomerCurrency))
+				.ToListAsync();
 
-            return BaseResult<List<SelectListDto>>.Ok(customersWithDebts);
-        }
+			return BaseResult<List<SelectListWithCurrencyDto>>.Ok(customersWithDebts);
+		}
 
         // Returns suppliers who have invoices with incomplete payment status (suppliers with debts)
         async Task<BaseResult<List<SelectListDto>>> GetSuppliersWithDebts(ApplicationDbContext db)

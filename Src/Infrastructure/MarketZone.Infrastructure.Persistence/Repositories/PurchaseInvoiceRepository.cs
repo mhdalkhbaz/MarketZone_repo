@@ -22,7 +22,7 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 		{
 			var query = dbContext.Set<PurchaseInvoice>()
 				.Include(x => x.Details)
-				.OrderByDescending(p => p.InvoiceDate)
+				.OrderByDescending(p => p.Id)
 				.AsQueryable();
 
 			if (!string.IsNullOrEmpty(invoiceNumber))

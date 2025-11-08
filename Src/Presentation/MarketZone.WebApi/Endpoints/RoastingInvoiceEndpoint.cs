@@ -11,10 +11,14 @@ using MarketZone.Application.Interfaces;
 using MarketZone.Application.Wrappers;
 using MarketZone.Domain.Roasting.DTOs;
 using MarketZone.WebApi.Infrastructure.Extensions;
+using MarketZone.Application.DTOs;
+using MarketZone.Infrastructure.Persistence.Contexts;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace MarketZone.WebApi.Endpoints
 {
@@ -26,6 +30,7 @@ namespace MarketZone.WebApi.Endpoints
             builder.MapGet(GetPagedList);
             builder.MapGet(GetById);
             builder.MapGet(GetUnpaidInvoicesByEmployee);
+            builder.MapGet(GetRoastingDetailsSelectList);
             builder.MapPost(Create).RequireAuthorization();
             builder.MapPut(Update).RequireAuthorization();
             builder.MapDelete(Delete).RequireAuthorization();
@@ -52,5 +57,21 @@ namespace MarketZone.WebApi.Endpoints
 
         async Task<BaseResult<long>> Post(IMediator mediator, [FromBody] PostRoastingInvoiceCommand model)
             => await mediator.Send<PostRoastingInvoiceCommand, BaseResult<long>>(model);
+
+        // Returns select list of (line number, roasting cost) for a roasting invoice
+        async Task<BaseResult<List<SelectListDto>>> GetRoastingDetailsSelectList(ApplicationDbContext db, long invoiceId)
+        {
+            var details = await db.RoastingInvoiceDetails.AsNoTracking()
+                .Where(d => d.RoastingInvoiceId == invoiceId)
+                .OrderBy(d => d.Id)
+                .Select(d => new { d.RoastingCost })
+                .ToListAsync();
+
+            var list = details
+                .Select((d, index) => new SelectListDto((index + 1).ToString(), d.RoastingCost.ToString()))
+                .ToList();
+
+            return BaseResult<List<SelectListDto>>.Ok(list);
+        }
     }
 }
