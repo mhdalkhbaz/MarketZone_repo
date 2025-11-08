@@ -55,11 +55,11 @@ namespace MarketZone.WebApi.Endpoints
         async Task<BaseResult<List<ProductSelectListDto>>> GetProductSelectListForDistribution(IMediator mediator, [AsParameters] GetProductSelectListQuery model)
             => await mediator.Send<GetProductSelectListQuery, BaseResult<List<ProductSelectListDto>>>(model);
 
-        async Task<BaseResult<List<SelectListDto>>> GetCustomerSelectList(ApplicationDbContext db, IMapper mapper)
-            => BaseResult<List<SelectListDto>>.Ok(await db.Customers.AsNoTracking().OrderBy(p => p.Id).ProjectTo<SelectListDto>(mapper.ConfigurationProvider).ToListAsync());
+        async Task<BaseResult<List<SelectListWithCurrencyDto>>> GetCustomerSelectList(ApplicationDbContext db, IMapper mapper)
+            => BaseResult<List<SelectListWithCurrencyDto>>.Ok(await db.Customers.AsNoTracking().OrderBy(p => p.Id).ProjectTo<SelectListWithCurrencyDto>(mapper.ConfigurationProvider).ToListAsync());
 
-        async Task<BaseResult<List<SelectListDto>>> GetSupplierSelectList(ApplicationDbContext db, IMapper mapper)
-            => BaseResult<List<SelectListDto>>.Ok(await db.Suppliers.AsNoTracking().OrderBy(p => p.Id).ProjectTo<SelectListDto>(mapper.ConfigurationProvider).ToListAsync());
+        async Task<BaseResult<List<SelectListWithCurrencyDto>>> GetSupplierSelectList(ApplicationDbContext db, IMapper mapper)
+            => BaseResult<List<SelectListWithCurrencyDto>>.Ok(await db.Suppliers.AsNoTracking().OrderBy(p => p.Id).ProjectTo<SelectListWithCurrencyDto>(mapper.ConfigurationProvider).ToListAsync());
 
         async Task<BaseResult<List<SelectListDto>>> GetEmployeeSelectList(ApplicationDbContext db, IMapper mapper)
             => BaseResult<List<SelectListDto>>.Ok(await db.Employees.AsNoTracking().OrderBy(p => p.FirstName + p.LastName).ProjectTo<SelectListDto>(mapper.ConfigurationProvider).ToListAsync());
@@ -239,15 +239,20 @@ namespace MarketZone.WebApi.Endpoints
         }
 
         // Returns employees with job title "roasting" (محماصين)
-        async Task<BaseResult<List<SelectListDto>>> GetRoastingEmployeesSelectList(ApplicationDbContext db)
+        async Task<BaseResult<List<SelectListWithCurrencyDto>>> GetRoastingEmployeesSelectList(ApplicationDbContext db)
         {
             var employees = await db.Employees.AsNoTracking()
                 .Where(e => e.JobTitle == "roasting" && e.IsActive)
                 .OrderBy(e => e.FirstName + " " + e.LastName)
-                .Select(e => new SelectListDto(e.FirstName + " " + e.LastName, e.Id.ToString()))
+                .Select(e => new SelectListWithCurrencyDto(
+                    e.FirstName + " " + e.LastName,
+                    e.Id.ToString(),
+                    // If employee has dollar balance prefer Dollar, otherwise default to SY
+                    (e.DollarMoney.HasValue && e.DollarMoney > 0) ? Currency.Dollar : Currency.SY
+                ))
                 .ToListAsync();
 
-            return BaseResult<List<SelectListDto>>.Ok(employees);
+            return BaseResult<List<SelectListWithCurrencyDto>>.Ok(employees);
         }
 
         // Returns roasting employees who have balance (SyrianMoney or DollarMoney > 0)

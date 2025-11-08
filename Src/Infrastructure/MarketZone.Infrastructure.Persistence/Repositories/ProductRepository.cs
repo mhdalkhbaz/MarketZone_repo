@@ -38,8 +38,16 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
                             Name = p.Name,
                             Description = p.Description,
                             UnitOfMeasure = p.UnitOfMeasure,
-                            PurchasePrice = p.PurchasePrice,
-                            SalePrice = p.SalePrice,
+							// Purchase price comes from AverageCost in ProductBalance
+							PurchasePrice = balance != null ? balance.AverageCost : 0m,
+							// Sale price comes from the last sales invoice detail unit price (fallback to product.SalePrice if no sales found)
+							SalePrice = (
+								(from d in _dbContext.SalesInvoiceDetails
+								 where d.ProductId == p.Id
+								 orderby d.Created descending
+								 select (decimal?)d.UnitPrice)
+								.FirstOrDefault()
+							) ?? p.SalePrice,
                             MinStockLevel = p.MinStockLevel,
                             IsActive = p.IsActive,
                             NeedsRoasting = p.NeedsRoasting,
@@ -49,7 +57,8 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
                             BarCode = p.BarCode,
                             CreatedDateTime = p.Created,
                             Qty = balance != null ? balance.Qty : 0,
-                            AvailableQty = balance != null ? balance.AvailableQty : 0
+							AvailableQty = balance != null ? balance.AvailableQty : 0,
+							AverageCost = balance != null ? balance.AverageCost : 0m
                         };
 
             if (!string.IsNullOrEmpty(name))
