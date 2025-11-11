@@ -29,7 +29,7 @@ namespace MarketZone.Application.Features.Products
                 .AfterMap((src, dest) =>
                 {
                     dest.SetRawProduct(src.RawProductId);
-                    dest.SetCommissionPerKg(src.CommissionPerKg);
+                    //dest.SetCommissionPerKg(src.CommissionPerKg);
                 });
 
 
