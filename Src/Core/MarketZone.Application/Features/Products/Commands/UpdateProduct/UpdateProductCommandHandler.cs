@@ -20,6 +20,9 @@ namespace MarketZone.Application.Features.Products.Commands.UpdateProduct
             }
 
             mapper.Map(request, product);
+
+            // Update commission if provided
+            product.SetCommissionPerKg(request.CommissionPerKg);
             await unitOfWork.SaveChangesAsync();
 
             return BaseResult.Ok();
