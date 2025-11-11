@@ -13,6 +13,11 @@ namespace MarketZone.Application.Features.Products.Commands.CreateProduct
                 .MaximumLength(100)
                 .WithName(p => translator[nameof(p.Name)]);
 
+            RuleFor(p => p.CommissionPerKg)
+                .GreaterThanOrEqualTo(0m)
+                .When(p => p.CommissionPerKg.HasValue)
+                .WithName(p => translator[nameof(p.CommissionPerKg)]);
+
             //RuleFor(x => x.BarCode)
             //    .NotEmpty()
             //    .MaximumLength(50)

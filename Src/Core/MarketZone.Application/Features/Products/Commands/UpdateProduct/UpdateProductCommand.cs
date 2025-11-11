@@ -17,5 +17,6 @@ namespace MarketZone.Application.Features.Products.Commands.UpdateProduct
         public bool? NeedsRoasting { get; set; }
         public decimal? RoastingCost { get; set; }
         public string BarCode { get; set; }
+        public decimal? CommissionPerKg { get; set; }
     }
 }

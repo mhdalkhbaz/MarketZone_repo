@@ -33,9 +33,12 @@ namespace MarketZone.Application.Features.Products
                 });
 
 
-            CreateMap<UpdateProductCommand, Product>()
-                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null))
-                ;
+            //CreateMap<UpdateProductCommand, Product>()
+            //    .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null))
+            //    .AfterMap((src, dest) =>
+            //    {
+            //        dest.SetCommissionPerKg(src.CommissionPerKg);
+            //    });
         }
     }
 }
