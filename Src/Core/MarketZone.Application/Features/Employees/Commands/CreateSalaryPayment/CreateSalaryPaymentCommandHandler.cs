@@ -28,15 +28,6 @@ namespace MarketZone.Application.Features.Employees.Commands.CreateSalaryPayment
                 return new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.EmployeeMessages.Employee_NotFound_with_id(request.EmployeeId)), nameof(request.EmployeeId));
             }
 
-            // التحقق من وجود الصندوق
-            if (request.CashRegisterId.HasValue)
-            {
-                var cashRegister = await cashRegisterRepository.GetByIdAsync(request.CashRegisterId.Value);
-                if (cashRegister == null)
-                {
-                    return new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.CashRegisterMessages.CashRegister_NotFound_with_id(request.CashRegisterId.Value)), nameof(request.CashRegisterId));
-                }
-            }
 
             // التحقق من صحة الشهر والسنة
             if (request.Month < 1 || request.Month > 12)
@@ -56,6 +47,40 @@ namespace MarketZone.Application.Features.Employees.Commands.CreateSalaryPayment
                 request.Month,
                 employee.Salary,null);
 
+            // التحقق من أن RemainingAmount كافي للدفع
+            if (employeeSalary.RemainingAmount < request.Amount)
+            {
+                return new Error(ErrorCode.FieldDataInvalid, 
+                    $"Insufficient remaining amount. Remaining: {employeeSalary.RemainingAmount}, Requested: {request.Amount}", 
+                    nameof(request.Amount));
+            }
+
+            // التحقق من رصيد الصندوق قبل الدفع
+            if (request.CashRegisterId.HasValue)
+            {
+                var cashRegister = await cashRegisterRepository.GetByIdAsync(request.CashRegisterId.Value);
+                if (cashRegister == null)
+                {
+                    return new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.CashRegisterMessages.CashRegister_NotFound_with_id(request.CashRegisterId.Value)), nameof(request.CashRegisterId));
+                }
+
+                // التحقق من أن الرصيد كافي حسب العملة
+                if (request.Currency == Domain.Cash.Enums.Currency.SY)
+                {
+                    if (cashRegister.CurrentBalance < request.Amount)
+                        return new Error(ErrorCode.FieldDataInvalid, 
+                            $"Insufficient balance in cash register. Current balance: {cashRegister.CurrentBalance}, Required: {request.Amount}", 
+                            nameof(request.Amount));
+                }
+                else if (request.Currency == Domain.Cash.Enums.Currency.Dollar)
+                {
+                    if (cashRegister.CurrentBalanceDollar < request.Amount)
+                        return new Error(ErrorCode.FieldDataInvalid, 
+                            $"Insufficient dollar balance in cash register. Current balance: {cashRegister.CurrentBalanceDollar}, Required: {request.Amount}", 
+                            nameof(request.Amount));
+                }
+            }
+
             // إنشاء SalaryPayment
             var salaryPayment = new SalaryPayment(
                 request.EmployeeId,
@@ -70,7 +95,7 @@ namespace MarketZone.Application.Features.Employees.Commands.CreateSalaryPayment
 
             await salaryPaymentRepository.AddAsync(salaryPayment);
 
-            // تحديث EmployeeSalary
+            // تحديث EmployeeSalary - يزيد PaidAmount وينقص RemainingAmount تلقائياً
             employeeSalary.AddPayment(request.Amount);
             employeeSalaryRepository.Update(employeeSalary);
 

@@ -48,29 +48,47 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
                 .Select(e => e.Currency)
                 .FirstOrDefaultAsync(cancellationToken);
 
-            var unpaidInvoices = await dbContext.RoastingInvoices
+            // جلب الفواتير مع Receipts و Payments
+            var invoices = await dbContext.RoastingInvoices
                 .Where(ri => ri.EmployeeId == employeeId && ri.Status == RoastingInvoiceStatus.Posted)
-                .GroupJoin(
-                    dbContext.Payments.Where(p => p.PaymentType == PaymentType.RoastingPayment && p.Status == MarketZone.Domain.Cash.Entities.PaymentStatus.Posted),
-                    ri => ri.Id,
-                    p => p.InvoiceId,
-                    (ri, payments) => new { Invoice = ri, Payments = payments }
-                )
-                .SelectMany(
-                    x => x.Payments.DefaultIfEmpty(),
-                    (x, payment) => new { x.Invoice, Payment = payment }
-                )
-                .GroupBy(x => x.Invoice.Id)
-                .Select(g => new RoastingInvoiceUnpaidDto
+                .Include(ri => ri.Receipts)
+                .ToListAsync(cancellationToken);
+
+            var invoiceIds = invoices.Select(ri => ri.Id).ToList();
+
+            // جلب جميع المدفوعات للفواتير
+            var payments = await dbContext.Payments
+                .Where(p => p.PaymentType == PaymentType.RoastingPayment 
+                    && p.Status == MarketZone.Domain.Cash.Entities.PaymentStatus.Posted
+                    && invoiceIds.Contains(p.InvoiceId.Value))
+                .GroupBy(p => p.InvoiceId.Value)
+                .Select(g => new { InvoiceId = g.Key, PaidAmount = g.Sum(p => p.AmountInPaymentCurrency ?? p.Amount) })
+                .ToDictionaryAsync(x => x.InvoiceId, x => x.PaidAmount, cancellationToken);
+
+            var unpaidInvoices = invoices
+                .Select(ri =>
                 {
-                    Id = g.Key,
-                    InvoiceNumber = g.First().Invoice.InvoiceNumber,
-                    UnpaidAmount = g.First().Invoice.TotalAmount - g.Where(x => x.Payment != null).Sum(x => x.Payment.AmountInPaymentCurrency ?? x.Payment.Amount),
-                    Currency = employeeCurrency ?? Currency.SY
+                    // حساب TotalAmount من مجموع TotalRoastingCost من جميع Receipts
+                    var totalAmount = ri.Receipts != null && ri.Receipts.Any()
+                        ? ri.Receipts.Sum(r => r.TotalRoastingCost)
+                        : ri.TotalAmount;
+
+                    // حساب المبلغ المدفوع
+                    var paidAmount = payments.TryGetValue(ri.Id, out var paid) ? paid : 0;
+
+                    var unpaidAmount = totalAmount - paidAmount;
+
+                    return new RoastingInvoiceUnpaidDto
+                    {
+                        Id = ri.Id,
+                        InvoiceNumber = ri.InvoiceNumber,
+                        UnpaidAmount = unpaidAmount,
+                        Currency = employeeCurrency ?? Currency.SY
+                    };
                 })
                 .Where(x => x.UnpaidAmount > 0) // فواتير لم يتم دفعها بالكامل (جزئياً أو غير مسددة)
                 .OrderByDescending(x => x.Id)
-                .ToListAsync(cancellationToken);
+                .ToList();
 
             return unpaidInvoices;
         }

@@ -25,7 +25,7 @@ namespace MarketZone.Application.Features.Employees.Queries.GetEmployeesWithRema
 
             var result = new List<EmployeeDto>();
 
-            foreach (var employee in employees.Where(e => e.IsActive))
+            foreach (var employee in employees.Where(e => e.IsActive&& e.JobTitle.ToString() != "roasting"))
             {
                 var employeeDto = new EmployeeDto(employee);
 

@@ -34,6 +34,37 @@ namespace MarketZone.Application.Features.Cash.Payments.Commands.PostPayment
             if (!payment.CashRegisterId.HasValue)
 				return new Error(ErrorCode.FieldDataInvalid, "CashRegisterId is required to post a payment", nameof(payment.CashRegisterId));
 
+			// التحقق من رصيد الصندوق قبل الدفع
+			var cashRegister = await cashRegisterRepository.GetByIdAsync(payment.CashRegisterId.Value);
+			if (cashRegister == null)
+				return new Error(ErrorCode.NotFound, "Cash register not found", nameof(payment.CashRegisterId));
+
+			// استخدام PaymentCurrency (العملة التي تم الدفع بها فعلياً)
+			var transactionCurrency = payment.PaymentCurrency;
+			
+			// SalesPayment = Income (إيرادات) - يضيف على الصندوق
+			// باقي الأنواع = Expense (مصروفات) - يخرج من الصندوق
+			var isIncome = payment.PaymentType == PaymentType.SalesPayment;
+			
+			// التحقق من أن الرصيد كافي فقط للمصروفات (Expense)
+			if (!isIncome)
+			{
+				if (transactionCurrency == Currency.SY)
+				{
+					if (cashRegister.CurrentBalance < payment.Amount)
+						return new Error(ErrorCode.FieldDataInvalid, 
+							$"Insufficient balance in cash register. Current balance: {cashRegister.CurrentBalance}, Required: {payment.Amount}", 
+							nameof(payment.Amount));
+				}
+				else if (transactionCurrency == Currency.Dollar)
+				{
+					if (cashRegister.CurrentBalanceDollar < payment.Amount)
+						return new Error(ErrorCode.FieldDataInvalid, 
+							$"Insufficient dollar balance in cash register. Current balance: {cashRegister.CurrentBalanceDollar}, Required: {payment.Amount}", 
+							nameof(payment.Amount));
+				}
+			}
+
 			string transactionDescription;
 			Domain.Cash.Enums.ReferenceType referenceType;
 
@@ -50,12 +81,13 @@ namespace MarketZone.Application.Features.Cash.Payments.Commands.PostPayment
 				referenceType = Domain.Cash.Enums.ReferenceType.Expense;
 			}
 
-			// Create cash transaction (cash goes OUT → Expense transaction)
-			// استخدام PaymentCurrency (العملة التي تم الدفع بها فعلياً)
-			var transactionCurrency = payment.PaymentCurrency;
+			// Create cash transaction
+			// SalesPayment = Income (إيرادات) - يضيف على الصندوق
+			// باقي الأنواع = Expense (مصروفات) - يخرج من الصندوق
+			var transactionType = isIncome ? Domain.Cash.Enums.TransactionType.Income : Domain.Cash.Enums.TransactionType.Expense;
 			var cashTransaction = new CashTransaction(
 				payment.CashRegisterId.Value,
-				Domain.Cash.Enums.TransactionType.Expense,
+				transactionType,
 				payment.Amount,
 				transactionCurrency,
 				payment.PaymentDate,
@@ -65,10 +97,18 @@ namespace MarketZone.Application.Features.Cash.Payments.Commands.PostPayment
 
 			await cashTransactionRepository.AddAsync(cashTransaction);
 
-			// Adjust cash register (decrease) حسب العملة
-			var cashRegister = await cashRegisterRepository.GetByIdAsync(payment.CashRegisterId.Value);
-			if (cashRegister != null)
+			// Adjust cash register حسب نوع الدفعة والعملة
+			if (isIncome)
 			{
+				// إيرادات: إضافة على الصندوق
+				if (transactionCurrency == Currency.SY)
+					cashRegister.Adjust(payment.Amount, null);
+				else
+					cashRegister.Adjust(0, payment.Amount);
+			}
+			else
+			{
+				// مصروفات: إنقاص من الصندوق
 				if (transactionCurrency == Currency.SY)
 					cashRegister.Adjust(-payment.Amount, null);
 				else

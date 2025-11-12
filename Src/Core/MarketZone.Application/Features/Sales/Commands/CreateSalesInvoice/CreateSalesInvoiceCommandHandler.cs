@@ -18,19 +18,22 @@ namespace MarketZone.Application.Features.Sales.Commands.CreateSalesInvoice
 		private readonly IMapper _mapper;
         private readonly IDistributionTripRepository _tripRepository;
         private readonly IInvoiceNumberGenerator _numberGenerator;
+		private readonly ICustomerRepository _customerRepository;
 
 		public CreateSalesInvoiceCommandHandler(
 			ISalesInvoiceRepository repository,
 			IUnitOfWork unitOfWork,
 			IMapper mapper,
             IDistributionTripRepository tripRepository,
-            IInvoiceNumberGenerator numberGenerator)
+            IInvoiceNumberGenerator numberGenerator,
+			ICustomerRepository customerRepository)
 		{
 			_repository = repository;
 			_unitOfWork = unitOfWork;
 			_mapper = mapper;
 			_tripRepository = tripRepository;
 			_numberGenerator = numberGenerator;
+			_customerRepository = customerRepository;
 		}
 
 		public async Task<BaseResult<long>> Handle(CreateSalesInvoiceCommand request, CancellationToken cancellationToken)
@@ -42,6 +45,16 @@ namespace MarketZone.Application.Features.Sales.Commands.CreateSalesInvoice
                 {
                     request.InvoiceNumber = await _numberGenerator.GenerateAsync(MarketZone.Domain.Cash.Enums.InvoiceType.SalesInvoice, cancellationToken);
                 }
+
+				// أخذ العملة من الزبون إذا لم يتم تحديدها في الـ request
+				if (!request.Currency.HasValue)
+				{
+					var customer = await _customerRepository.GetByIdAsync(request.CustomerId);
+					if (customer != null && customer.Currency.HasValue)
+					{
+						request.Currency = customer.Currency.Value;
+					}
+				}
 
 				// Validate pricing: prevent zero/negative prices
 				if (request.Details?.Any() == true)
