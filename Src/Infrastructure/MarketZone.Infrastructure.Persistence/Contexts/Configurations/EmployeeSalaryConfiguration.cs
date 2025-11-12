@@ -20,7 +20,7 @@ namespace MarketZone.Infrastructure.Persistence.Contexts.Configurations
             builder.Property(p => p.RemainingAmount).HasColumnType("decimal(18,2)").IsRequired();
 
             // Foreign key relationship
-            builder.HasOne<Employee>()
+            builder.HasOne(x => x.Employee)
                 .WithMany()
                 .HasForeignKey(x => x.EmployeeId)
                 .OnDelete(DeleteBehavior.Restrict);

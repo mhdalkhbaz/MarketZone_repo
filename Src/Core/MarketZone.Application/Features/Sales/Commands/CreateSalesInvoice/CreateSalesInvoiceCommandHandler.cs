@@ -18,28 +18,19 @@ namespace MarketZone.Application.Features.Sales.Commands.CreateSalesInvoice
 		private readonly IMapper _mapper;
         private readonly IDistributionTripRepository _tripRepository;
         private readonly IInvoiceNumberGenerator _numberGenerator;
-        private readonly IProductRepository _productRepository;
-        private readonly IEmployeeRepository _employeeRepository;
-        private readonly IEmployeeSalaryRepository _employeeSalaryRepository;
 
 		public CreateSalesInvoiceCommandHandler(
 			ISalesInvoiceRepository repository,
 			IUnitOfWork unitOfWork,
 			IMapper mapper,
             IDistributionTripRepository tripRepository,
-            IInvoiceNumberGenerator numberGenerator,
-            IProductRepository productRepository,
-            IEmployeeRepository employeeRepository,
-            IEmployeeSalaryRepository employeeSalaryRepository)
+            IInvoiceNumberGenerator numberGenerator)
 		{
 			_repository = repository;
 			_unitOfWork = unitOfWork;
 			_mapper = mapper;
 			_tripRepository = tripRepository;
 			_numberGenerator = numberGenerator;
-            _productRepository = productRepository;
-            _employeeRepository = employeeRepository;
-            _employeeSalaryRepository = employeeSalaryRepository;
 		}
 
 		public async Task<BaseResult<long>> Handle(CreateSalesInvoiceCommand request, CancellationToken cancellationToken)
@@ -111,53 +102,6 @@ namespace MarketZone.Application.Features.Sales.Commands.CreateSalesInvoice
 							}
 						}
 
-						// التحقق من أن جميع الكميات انتهت بعد البيع
-						var allQuantitiesFinished = !trip.Details.Any(d => (d.Qty - d.SoldQty - d.ReturnedQty) > 0);
-						if (allQuantitiesFinished)
-						{
-							// إذا انتهت جميع الكميات، تحديث حالة الرحلة إلى مكتملة
-							trip.SetStatus(MarketZone.Domain.Logistics.Enums.DistributionTripStatus.Completed);
-
-                            // حساب نسبة الموظف من عمولة المنتجات المباعة
-                            var employee = await _employeeRepository.GetByIdAsync(trip.EmployeeId);
-                            if (employee != null && employee.SalaryType == MarketZone.Domain.Employees.Enums.SalaryType.FixedWithPercentage && employee.SalaryPercentage.HasValue && employee.SalaryPercentage.Value > 0)
-                            {
-                                decimal totalPercentageAmount = 0;
-                                var employeePercentage = employee.SalaryPercentage.Value / 100m;
-
-                                foreach (var tripDetail in trip.Details)
-                                {
-                                    var netSoldQty = tripDetail.SoldQty - tripDetail.ReturnedQty;
-                                    if (netSoldQty <= 0)
-                                        continue;
-
-                                    var product = await _productRepository.GetByIdAsync(tripDetail.ProductId);
-                                    if (product == null || product.CommissionPerKg == null || product.CommissionPerKg <= 0)
-                                        continue;
-
-									totalPercentageAmount += (netSoldQty * product.CommissionPerKg.Value) * employeePercentage;
-                                }
-
-                              
-                                    var currentYear = trip.TripDate.Year;
-                                    var currentMonth = trip.TripDate.Month;
-
-                                    var employeeSalary = await _employeeSalaryRepository.GetOrCreateAsync(
-                                        employee.Id,
-                                        currentYear,
-                                        currentMonth,
-                                        employee.Salary,
-										totalPercentageAmount);
-
-                                    if (employeeSalary.BaseSalary != employee.Salary)
-                                    {
-                                        employeeSalary.UpdateBaseSalary(employee.Salary);
-                                    }
-
-                                    employeeSalary.AddPercentageAmount(totalPercentageAmount);
-                                    _employeeSalaryRepository.Update(employeeSalary);
-                            }
-						}
 					}
 				}
 

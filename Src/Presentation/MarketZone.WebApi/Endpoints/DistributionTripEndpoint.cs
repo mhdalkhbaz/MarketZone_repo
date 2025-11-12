@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using MarketZone.Application.Features.Logistics.Commands.DistributionTrips.CreateDistributionTrip;
 using MarketZone.Application.Features.Logistics.Commands.DistributionTrips.UpdateDistributionTrip;
 using MarketZone.Application.Features.Logistics.Commands.DistributionTrips.PostDistributionTrip;
-using MarketZone.Application.Features.Logistics.Commands.DistributionTrips.CompleteTrip;
 using MarketZone.Application.Features.Logistics.Commands.DistributionTrips.DeleteDistributionTrip;
 using MarketZone.Application.Features.Logistics.Queries.GetPagedListDistributionTrip;
 using MarketZone.Application.Features.Logistics.Queries.GetDistributionTripById;

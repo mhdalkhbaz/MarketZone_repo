@@ -5,6 +5,7 @@ using MarketZone.Application.Interfaces;
 using MarketZone.Application.Interfaces.Repositories;
 using MarketZone.Application.Wrappers;
 using MarketZone.Domain.Logistics.Enums;
+using MarketZone.Domain.Inventory.Entities;
 
 namespace MarketZone.Application.Features.Logistics.Commands.DistributionTrips.ReceiveGoods
 {
@@ -12,13 +13,19 @@ namespace MarketZone.Application.Features.Logistics.Commands.DistributionTrips.R
 	{
 		private readonly IDistributionTripRepository _repository;
 		private readonly IUnitOfWork _unitOfWork;
+		private readonly IProductBalanceRepository _productBalanceRepository;
+		private readonly IInventoryHistoryRepository _inventoryHistoryRepository;
 
 		public ReceiveGoodsCommandHandler(
 			IDistributionTripRepository repository, 
-			IUnitOfWork unitOfWork)
+			IUnitOfWork unitOfWork,
+			IProductBalanceRepository productBalanceRepository,
+			IInventoryHistoryRepository inventoryHistoryRepository)
 		{
 			_repository = repository;
 			_unitOfWork = unitOfWork;
+			_productBalanceRepository = productBalanceRepository;
+			_inventoryHistoryRepository = inventoryHistoryRepository;
 		}
 
 		public async Task<BaseResult> Handle(ReceiveGoodsCommand request, CancellationToken cancellationToken)
@@ -37,7 +44,7 @@ namespace MarketZone.Application.Features.Logistics.Commands.DistributionTrips.R
 				if (request.Details == null || !request.Details.Any())
 					return new Error(ErrorCode.FieldDataInvalid, "At least one detail is required", nameof(request.Details));
 
-				// تحديث الكميات المرجعة
+				// تحديث الكميات المرجعة وإرجاعها إلى المخزون
 				foreach (var item in request.Details)
 				{
 					var detail = trip.Details.FirstOrDefault(d => d.Id == item.DetailId);
@@ -48,7 +55,31 @@ namespace MarketZone.Application.Features.Logistics.Commands.DistributionTrips.R
 					if (item.ReturnedQty > detail.Qty)
 						return new Error(ErrorCode.FieldDataInvalid, $"Returned quantity ({item.ReturnedQty}) cannot exceed loaded quantity ({detail.Qty}) for detail {item.DetailId}", nameof(request.Details));
 
+					// تحديث الكمية المرجعة في تفاصيل الرحلة
 					detail.UpdateReturnedQty(item.ReturnedQty);
+
+					// إرجاع الكميات المرجعة إلى المخزون (استلام الرحلة)
+					if (item.ReturnedQty > 0)
+					{
+						var balance = await _productBalanceRepository.GetByProductIdAsync(detail.ProductId, cancellationToken);
+						if (balance == null)
+							return new Error(ErrorCode.FieldDataInvalid, $"Product balance not found for product {detail.ProductId}", nameof(request.Details));
+
+						// إضافة الكمية المرجعة إلى Qty و AvailableQty
+						balance.Adjust(item.ReturnedQty, item.ReturnedQty);
+						_productBalanceRepository.Update(balance);
+
+						// إنشاء سجل في InventoryHistory لتتبع استلام المرتجعات
+						var inventoryHistory = new InventoryHistory(
+							detail.ProductId,
+							"TripReturn",
+							trip.Id,
+							item.ReturnedQty,
+							trip.TripDate,
+							$"Returned from trip {trip.Id}"
+						);
+						await _inventoryHistoryRepository.AddAsync(inventoryHistory);
+					}
 				}
 
 				// تغيير حالة الرحلة إلى GoodsReceived
