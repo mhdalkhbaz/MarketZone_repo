@@ -22,7 +22,7 @@ namespace MarketZone.Application.Features.Cash
 
 			CreateMap<CashTransaction, CashTransactionDto>();
 			CreateMap<CreateCashTransactionCommand, CashTransaction>()
-				.ConstructUsing(s => new CashTransaction(s.CashRegisterId, s.TransactionType, s.Amount, s.TransactionDate, s.ReferenceType, s.ReferenceId, s.Description));
+				.ConstructUsing(s => new CashTransaction(s.CashRegisterId, s.TransactionType, s.Amount, s.Currency, s.TransactionDate, s.ReferenceType, s.ReferenceId, s.Description));
 
 			CreateMap<Payment, PaymentDto>();
 			// Note: CreatePaymentCommand to Payment mapping is handled manually in CreatePaymentCommandHandler

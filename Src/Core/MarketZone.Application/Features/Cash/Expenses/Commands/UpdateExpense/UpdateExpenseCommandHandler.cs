@@ -18,6 +18,7 @@ namespace MarketZone.Application.Features.Cash.Expenses.Commands.UpdateExpense
             // Store old values for cash register adjustment
             var oldAmount = entity.Amount;
             var oldTransactionType = entity.TransactionType;
+            var oldCurrency = entity.Currency;
             var oldCashRegisterId = entity.CashRegisterId;
 
             // Update entity
@@ -25,6 +26,7 @@ namespace MarketZone.Application.Features.Cash.Expenses.Commands.UpdateExpense
                 request.CashRegisterId,
                 request.TransactionType,
                 request.Amount,
+                request.Currency,
                 request.TransactionDate,
                 request.ReferenceType,
                 request.ReferenceId,
@@ -37,19 +39,54 @@ namespace MarketZone.Application.Features.Cash.Expenses.Commands.UpdateExpense
                 var oldCashRegister = await cashRegisterRepository.GetByIdAsync(oldCashRegisterId);
                 if (oldCashRegister != null)
                 {
-                    var oldDelta = oldTransactionType == Domain.Cash.Enums.TransactionType.Income ? -oldAmount : oldAmount;
-                    oldCashRegister.Adjust(oldDelta);
+                    // عكس العملية القديمة
+                    if (oldTransactionType == Domain.Cash.Enums.TransactionType.Income)
+                    {
+                        // كان دخل، ننقصه
+                        if (oldCurrency == Domain.Cash.Enums.Currency.SY)
+                            oldCashRegister.Adjust(-oldAmount, null);
+                        else
+                            oldCashRegister.Adjust(0, -oldAmount);
+                    }
+                    else // Expense
+                    {
+                        // كان مصروف، نرجعه
+                        if (oldCurrency == Domain.Cash.Enums.Currency.SY)
+                            oldCashRegister.Adjust(oldAmount, null);
+                        else
+                            oldCashRegister.Adjust(0, oldAmount);
+                    }
                 }
             }
 
             // Adjust new cash register (apply new transaction)
-            if (request.CashRegisterId.HasValue)
+            var newCashRegisterId = request.CashRegisterId ?? entity.CashRegisterId;
+            var newTransactionType = request.TransactionType ?? entity.TransactionType;
+            var newAmount = request.Amount ?? entity.Amount;
+            var newCurrency = request.Currency ?? entity.Currency;
+
+            if (newCashRegisterId > 0)
             {
-                var newCashRegister = await cashRegisterRepository.GetByIdAsync(request.CashRegisterId.Value);
+                var newCashRegister = await cashRegisterRepository.GetByIdAsync(newCashRegisterId);
                 if (newCashRegister != null)
                 {
-                    var newDelta = request.TransactionType == Domain.Cash.Enums.TransactionType.Income ? request.Amount.Value : -request.Amount.Value;
-                    newCashRegister.Adjust(newDelta);
+                    // تطبيق العملية الجديدة
+                    if (newTransactionType == Domain.Cash.Enums.TransactionType.Income)
+                    {
+                        // دخل، نضيفه
+                        if (newCurrency == Domain.Cash.Enums.Currency.SY)
+                            newCashRegister.Adjust(newAmount, null);
+                        else
+                            newCashRegister.Adjust(0, newAmount);
+                    }
+                    else // Expense
+                    {
+                        // مصروف، ننقصه
+                        if (newCurrency == Domain.Cash.Enums.Currency.SY)
+                            newCashRegister.Adjust(-newAmount, null);
+                        else
+                            newCashRegister.Adjust(0, -newAmount);
+                    }
                 }
             }
 

@@ -107,6 +107,14 @@ namespace MarketZone.Application.Features.Roasting.Commands.PostRoastingInvoice
                     // Add ready product to inventory and set its balance average cost to SalePricePerKg
                     await AddRoastedProductToInventoryWithValue(readyDetail.ReadyProductId, readyDetail.ActualQuantityAfterRoasting, totalValue, readyDetail.SalePricePerKg, cancellationToken);
 
+                    // أخذ CommissionPerKg من الـ request ووضعه في المنتج الجاهز
+                    var readyProduct = await _productRepository.GetByIdAsync(readyDetail.ReadyProductId);
+                    if (readyProduct != null && readyDetail.CommissionPerKg > 0)
+                    {
+                        readyProduct.SetCommissionPerKg(readyDetail.CommissionPerKg);
+                        _productRepository.Update(readyProduct);
+                    }
+
                     // Create receipt record
                     var receipt = new RoastingInvoiceDetailReceipt(
                         roastingInvoice.Id,

@@ -12,7 +12,7 @@ namespace MarketZone.Application.Features.Cash.Expenses
         {
             CreateMap<CashTransaction, CashTransactionDto>();
             CreateMap<CreateExpenseCommand, CashTransaction>()
-                .ConstructUsing(s => new CashTransaction(s.CashRegisterId, s.TransactionType, s.Amount, s.TransactionDate, s.ReferenceType, s.ReferenceId, s.Description));
+                .ConstructUsing(s => new CashTransaction(s.CashRegisterId, s.TransactionType, s.Amount, s.Currency, s.TransactionDate, s.ReferenceType, s.ReferenceId, s.Description));
             CreateMap<UpdateExpenseCommand, CashTransaction>()
                 .ForMember(d => d.Id, opt => opt.Ignore())
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));

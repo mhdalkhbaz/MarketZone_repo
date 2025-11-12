@@ -10,6 +10,7 @@ namespace MarketZone.Application.Features.Cash.Expenses.Commands.CreateExpense
         public long CashRegisterId { get; set; }
         public TransactionType TransactionType { get; set; }
         public decimal Amount { get; set; }
+        public Currency Currency { get; set; }
         public DateTime? TransactionDate { get; set; }
         public ReferenceType? ReferenceType { get; set; }
         public long? ReferenceId { get; set; }

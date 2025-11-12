@@ -81,6 +81,7 @@ namespace MarketZone.Application.Features.Employees.Commands.CreateSalaryPayment
                     request.CashRegisterId.Value,
                     Domain.Cash.Enums.TransactionType.Expense,
                     request.Amount,
+                    request.Currency,
                     request.PaymentDate,
                     Domain.Cash.Enums.ReferenceType.Salaries,
                     salaryPayment.Id,
@@ -88,10 +89,16 @@ namespace MarketZone.Application.Features.Employees.Commands.CreateSalaryPayment
 
                 await cashTransactionRepository.AddAsync(cashTransaction);
 
-                // تحديث رصيد الصندوق
+                // تحديث رصيد الصندوق حسب العملة
                 var cashRegister = await cashRegisterRepository.GetByIdAsync(request.CashRegisterId.Value);
-                cashRegister?.Adjust(-request.Amount);
-                cashRegisterRepository.Update(cashRegister);
+                if (cashRegister != null)
+                {
+                    if (request.Currency == Domain.Cash.Enums.Currency.SY)
+                        cashRegister.Adjust(-request.Amount, null);
+                    else
+                        cashRegister.Adjust(0, -request.Amount);
+                    cashRegisterRepository.Update(cashRegister);
+                }
             }
 
             await unitOfWork.SaveChangesAsync();

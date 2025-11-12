@@ -20,8 +20,23 @@ namespace MarketZone.Application.Features.Cash.Expenses.Commands.DeleteExpense
                 var cashRegister = await cashRegisterRepository.GetByIdAsync(entity.CashRegisterId);
                 if (cashRegister != null)
                 {
-                    var delta = entity.TransactionType == Domain.Cash.Enums.TransactionType.Income ? -entity.Amount : entity.Amount;
-                    cashRegister.Adjust(delta);
+                    // عكس العملية حسب نوعها وعملتها
+                    if (entity.TransactionType == Domain.Cash.Enums.TransactionType.Income)
+                    {
+                        // كان دخل، ننقصه
+                        if (entity.Currency == Domain.Cash.Enums.Currency.SY)
+                            cashRegister.Adjust(-entity.Amount, null);
+                        else
+                            cashRegister.Adjust(0, -entity.Amount);
+                    }
+                    else // Expense
+                    {
+                        // كان مصروف، نرجعه
+                        if (entity.Currency == Domain.Cash.Enums.Currency.SY)
+                            cashRegister.Adjust(entity.Amount, null);
+                        else
+                            cashRegister.Adjust(0, entity.Amount);
+                    }
                 }
             }
 

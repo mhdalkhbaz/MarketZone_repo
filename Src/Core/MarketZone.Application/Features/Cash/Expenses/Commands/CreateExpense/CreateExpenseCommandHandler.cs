@@ -19,8 +19,24 @@ namespace MarketZone.Application.Features.Cash.Expenses.Commands.CreateExpense
             var cashRegister = await cashRegisterRepository.GetByIdAsync(request.CashRegisterId);
             if (cashRegister != null)
             {
-                var delta = request.TransactionType == TransactionType.Income ? request.Amount : -request.Amount;
-                cashRegister.Adjust(delta);
+                // Income = 0: يضيف على الصندوق
+                // Expense = 1: يخرج من الصندوق
+                if (request.TransactionType == TransactionType.Income)
+                {
+                    // إضافة على الصندوق حسب العملة
+                    if (request.Currency == Domain.Cash.Enums.Currency.SY)
+                        cashRegister.Adjust(request.Amount, null);
+                    else
+                        cashRegister.Adjust(0, request.Amount);
+                }
+                else // Expense
+                {
+                    // خروج من الصندوق حسب العملة
+                    if (request.Currency == Domain.Cash.Enums.Currency.SY)
+                        cashRegister.Adjust(-request.Amount, null);
+                    else
+                        cashRegister.Adjust(0, -request.Amount);
+                }
             }
 
             await unitOfWork.SaveChangesAsync();

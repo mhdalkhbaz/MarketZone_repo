@@ -51,10 +51,13 @@ namespace MarketZone.Application.Features.Cash.Payments.Commands.PostPayment
 			}
 
 			// Create cash transaction (cash goes OUT → Expense transaction)
+			// استخدام PaymentCurrency (العملة التي تم الدفع بها فعلياً)
+			var transactionCurrency = payment.PaymentCurrency;
 			var cashTransaction = new CashTransaction(
 				payment.CashRegisterId.Value,
 				Domain.Cash.Enums.TransactionType.Expense,
 				payment.Amount,
+				transactionCurrency,
 				payment.PaymentDate,
 				referenceType,
 				payment.Id,
@@ -62,9 +65,15 @@ namespace MarketZone.Application.Features.Cash.Payments.Commands.PostPayment
 
 			await cashTransactionRepository.AddAsync(cashTransaction);
 
-			// Adjust cash register (decrease)
+			// Adjust cash register (decrease) حسب العملة
 			var cashRegister = await cashRegisterRepository.GetByIdAsync(payment.CashRegisterId.Value);
-			cashRegister?.Adjust(-payment.Amount);
+			if (cashRegister != null)
+			{
+				if (transactionCurrency == Currency.SY)
+					cashRegister.Adjust(-payment.Amount, null);
+				else
+					cashRegister.Adjust(0, -payment.Amount);
+			}
 
 			// Update invoice payment status (only for invoice payments)
 			if ((payment.PaymentType == Domain.Cash.Enums.PaymentType.SalesPayment || 

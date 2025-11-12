@@ -13,6 +13,7 @@ namespace MarketZone.Application.Features.Employees.Commands.CreateSalaryPayment
         public decimal Amount { get; set; }
         public DateTime PaymentDate { get; set; }
         public long? CashRegisterId { get; set; }
+        public Domain.Cash.Enums.Currency Currency { get; set; }
         public string Notes { get; set; }
         public SalaryType SalaryType { get; set; }
         public long? DistributionTripId { get; set; }
