@@ -54,7 +54,7 @@ namespace MarketZone.Application.Features.Employees.Commands.CreateSalaryPayment
                 request.EmployeeId,
                 request.Year,
                 request.Month,
-                employee.Salary);
+                employee.Salary,null);
 
             // إنشاء SalaryPayment
             var salaryPayment = new SalaryPayment(

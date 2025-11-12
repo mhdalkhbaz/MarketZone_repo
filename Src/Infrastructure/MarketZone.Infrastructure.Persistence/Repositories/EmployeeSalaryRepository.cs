@@ -17,7 +17,7 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
                 .FirstOrDefaultAsync(es => es.EmployeeId == employeeId && es.Year == year && es.Month == month);
         }
 
-        public async Task<EmployeeSalary> GetOrCreateAsync(long employeeId, int year, int month, decimal baseSalary)
+        public async Task<EmployeeSalary> GetOrCreateAsync(long employeeId, int year, int month, decimal baseSalary, decimal? percentageAmount)
         {
             var existing = await GetByEmployeeAndMonthAsync(employeeId, year, month);
             
@@ -27,7 +27,7 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
             }
 
             // Create new EmployeeSalary record
-            var newSalary = new EmployeeSalary(employeeId, year, month, baseSalary);
+            var newSalary = new EmployeeSalary(employeeId, year, month, baseSalary,percentageAmount);
             await dbContext.EmployeeSalaries.AddAsync(newSalary);
             await dbContext.SaveChangesAsync();
 

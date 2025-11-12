@@ -13,5 +13,6 @@ namespace MarketZone.Application.Interfaces.Repositories
         Task<PaginationResponseDto<RoastingInvoice>> GetPagedListAsync(int pageNumber, int pageSize);
         Task<List<RoastingInvoiceUnpaidDto>> GetUnpaidInvoicesByEmployeeAsync(long employeeId, System.Threading.CancellationToken cancellationToken = default);
         Task<bool> EmployeeExistsAsync(long employeeId);
+        Task<bool> HasRoastingInvoicesAsync(long employeeId, System.Threading.CancellationToken cancellationToken = default);
     }
 }

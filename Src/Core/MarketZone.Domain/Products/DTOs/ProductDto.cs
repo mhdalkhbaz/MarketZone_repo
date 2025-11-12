@@ -1,6 +1,4 @@
 using System;
-using MarketZone.Domain.Products.Entities;
-
 namespace MarketZone.Domain.Products.DTOs
 {
     public class ProductDto
@@ -11,24 +9,6 @@ namespace MarketZone.Domain.Products.DTOs
 
         }
 #pragma warning restore 
-        public ProductDto(Product product)
-        {
-            Id = product.Id;
-            CategoryId = product.CategoryId;
-            Name = product.Name;
-            Description = product.Description;
-            UnitOfMeasure = product.UnitOfMeasure;
-            PurchasePrice = product.PurchasePrice;
-            SalePrice = product.SalePrice;
-            MinStockLevel = product.MinStockLevel;
-            IsActive = product.IsActive;
-            NeedsRoasting = product.NeedsRoasting;
-            RoastingCost = product.RoastingCost;
-            CommissionPerKg = product.CommissionPerKg;
-            RawProductId = product.RawProductId;
-            BarCode = product.BarCode;
-            CreatedDateTime = product.Created;
-        }
         public long Id { get; set; }
         public long CategoryId { get; set; }
         public string Name { get; set; }

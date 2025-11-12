@@ -30,7 +30,7 @@ namespace MarketZone.Infrastructure.Persistence.Services
 				var roastingCost = quantityKg * roastPricePerKg;
 				var totalValue = rawValue + roastingCost;
 				
-				roastedBalance = new ProductBalance(roastedProductId, quantityKg, quantityKg, totalValue);
+				roastedBalance = new ProductBalance(roastedProductId, quantityKg, quantityKg, totalValue, 0m);
 				await dbContext.Set<ProductBalance>().AddAsync(roastedBalance, cancellationToken);
 			}
 			else

@@ -4,6 +4,7 @@ using MarketZone.Application.Wrappers;
 using MarketZone.Domain.Roasting.Enums;
 using MarketZone.Domain.Roasting.Entities;
 using MarketZone.Domain.Inventory.Entities;
+using MarketZone.Domain.Cash.Enums;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,6 +22,7 @@ namespace MarketZone.Application.Features.Roasting.Commands.PostRoastingInvoice
             private readonly IUnitOfWork _unitOfWork;
             private readonly IProductRepository _productRepository;
             private readonly IEmployeeRepository _employeeRepository;
+            private readonly IExchangeRateRepository _exchangeRateRepository;
 
             public PostRoastingInvoiceCommandHandler(
                 IRoastingInvoiceRepository repository,
@@ -29,7 +31,8 @@ namespace MarketZone.Application.Features.Roasting.Commands.PostRoastingInvoice
                 IInventoryHistoryRepository inventoryHistoryRepository,
                 IUnitOfWork unitOfWork,
                 IProductRepository productRepository,
-                IEmployeeRepository employeeRepository)
+                IEmployeeRepository employeeRepository,
+                IExchangeRateRepository exchangeRateRepository)
             {
                 _repository = repository;
                 // تم حذف _unroastedRepository
@@ -38,6 +41,7 @@ namespace MarketZone.Application.Features.Roasting.Commands.PostRoastingInvoice
                 _unitOfWork = unitOfWork;
                 _productRepository = productRepository;
                 _employeeRepository = employeeRepository;
+                _exchangeRateRepository = exchangeRateRepository;
             }
 
         public async Task<BaseResult<long>> Handle(PostRoastingInvoiceCommand request, CancellationToken cancellationToken)
@@ -78,20 +82,27 @@ namespace MarketZone.Application.Features.Roasting.Commands.PostRoastingInvoice
                     }
 
                     // Check if we have enough quantity
-                    //if (rawProductBalance.AvailableQty < readyDetail.ActualQuantityAfterRoasting)
-                    //{
-                    //    throw new InvalidOperationException($"Insufficient quantity for product {readyDetail.RawProductId}. Available: {rawProductBalance.AvailableQty}, Requested: {readyDetail.ActualQuantityAfterRoasting}");
-                    //}
+                    // ملاحظة: Qty و AvailableQty تم تقليلها عند إنشاء فاتورة التحميص
+                    // لذلك عند الترحيل نحتاج فقط لتقليل TotalValue
+                    if (rawProductBalance.Qty < detail.QuantityKg)
+                    {
+                        throw new InvalidOperationException($"Insufficient quantity for product {readyDetail.RawProductId}. Qty: {rawProductBalance.Qty}, Requested: {detail.QuantityKg}");
+                    }
 
-                    // Consume raw product quantity
-                    rawProductBalance.Adjust(-detail.QuantityKg,0);
-                    _productBalanceRepository.Update(rawProductBalance);
-
-                    // Calculate values
-                    var rawAvgCost = rawProductBalance.Qty > 0 ? (rawProductBalance.TotalValue / rawProductBalance.Qty) : 0;
-                    var rawConsumedValue = rawAvgCost * readyDetail.ActualQuantityAfterRoasting;
+                    // Calculate values BEFORE consuming (to get correct average cost)
+                    // Use AverageCost directly from ProductBalance (already in USD)
+                    var rawAvgCost = rawProductBalance.AverageCost;
+                    // Calculate consumed value from the raw product quantity consumed (detail.QuantityKg)
+                    // Note: detail.QuantityKg is the quantity of raw product consumed, 
+                    // while readyDetail.ActualQuantityAfterRoasting is the actual quantity of ready product produced
+                    var rawConsumedValue = rawAvgCost * detail.QuantityKg;
+                    // Commission is calculated on the ready product quantity (after roasting)
                     var commissionValue = readyDetail.CommissionPerKg * readyDetail.ActualQuantityAfterRoasting;
                     var totalValue = rawConsumedValue + commissionValue;
+
+                    // عند الترحيل: نقص فقط من TotalValue (لأن Qty و AvailableQty تم تقليلها عند الإنشاء)
+                    rawProductBalance.AdjustValue(-rawConsumedValue);
+                    _productBalanceRepository.Update(rawProductBalance);
 
                     // Add ready product to inventory and set its balance average cost to SalePricePerKg
                     await AddRoastedProductToInventoryWithValue(readyDetail.ReadyProductId, readyDetail.ActualQuantityAfterRoasting, totalValue, readyDetail.SalePricePerKg, cancellationToken);
@@ -136,11 +147,10 @@ namespace MarketZone.Application.Features.Roasting.Commands.PostRoastingInvoice
             if (balance == null)
             {
                 // Create new ProductBalance for roasted product
-                balance = new ProductBalance(productId, actualQuantity, actualQuantity, valueToAdd);
-                // Set average cost from sale price per kg if provided
+                balance = new ProductBalance(productId, actualQuantity, actualQuantity, valueToAdd, salePricePerKg > 0 ? salePricePerKg : 0m);
                 if (salePricePerKg > 0)
                 {
-                    balance.SetAverageCost(salePricePerKg);
+                    balance.SetSalePrice(salePricePerKg);
                 }
                 await _productBalanceRepository.AddAsync(balance);
             }
@@ -148,10 +158,9 @@ namespace MarketZone.Application.Features.Roasting.Commands.PostRoastingInvoice
             {
                 // Adjust existing ProductBalance
                 balance.AdjustWithValue(actualQuantity, actualQuantity, valueToAdd);
-                // Override average cost from sale price per kg if provided
                 if (salePricePerKg > 0)
                 {
-                    balance.SetAverageCost(salePricePerKg);
+                    balance.SetSalePrice(salePricePerKg);
                 }
                 _productBalanceRepository.Update(balance);
             }
@@ -177,14 +186,33 @@ namespace MarketZone.Application.Features.Roasting.Commands.PostRoastingInvoice
             }
 
             // Calculate total roasting cost from all receipts
+            // RoastingCostPerKg يأتي من الفرونت إند بعملة الموظف:
+            // - إذا كان الموظف بالدولار: RoastingCostPerKg بالدولار
+            // - إذا كان الموظف بالليرة السورية: RoastingCostPerKg بالليرة السورية
             decimal totalRoastingCost = 0;
             foreach (var receipt in roastingInvoice.Receipts)
             {
                 totalRoastingCost += receipt.TotalRoastingCost;
             }
 
-            // Update employee's Syrian money balance
+            // الحصول على الرصيد الحالي للموظف
             var currentSyrianMoney = employee.SyrianMoney ?? 0;
+            var currentDollarMoney = employee.DollarMoney ?? 0;
+
+            // التحقق من عملة الموظف
+            if (employee.Currency == Currency.Dollar)
+            {
+                // إذا كان الموظف يتقاضى بالدولار: RoastingCostPerKg يأتي بالدولار
+                // نضيف المبلغ مباشرة للـ DollarMoney بدون تحويل
+                currentDollarMoney += totalRoastingCost;
+            }
+            else
+            {
+                // زيادة رصيد الموظف بالدولار بعد التحويل
+                currentSyrianMoney += totalRoastingCost;
+            }
+
+            // تحديث رصيد الموظف
             employee.Update(
                 employee.FirstName,
                 employee.LastName,
@@ -196,8 +224,8 @@ namespace MarketZone.Application.Features.Roasting.Commands.PostRoastingInvoice
                 employee.Salary,
                 employee.HireDate,
                 employee.IsActive,
-                currentSyrianMoney + totalRoastingCost,
-                employee.DollarMoney
+                currentSyrianMoney,
+                currentDollarMoney
             );
 
             _employeeRepository.Update(employee);

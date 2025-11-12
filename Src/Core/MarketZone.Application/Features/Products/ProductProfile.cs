@@ -19,12 +19,9 @@ namespace MarketZone.Application.Features.Products
                     s.Name,
                     s.Description,
                     s.UnitOfMeasure,
-                    s.PurchasePrice,
-                    s.SalePrice,
                     s.MinStockLevel,
                     s.IsActive,
                     s.NeedsRoasting,
-                    s.RoastingCost,
                     s.BarCode))
                 .AfterMap((src, dest) =>
                 {

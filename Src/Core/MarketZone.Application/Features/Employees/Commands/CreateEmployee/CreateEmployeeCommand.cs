@@ -22,9 +22,8 @@ namespace MarketZone.Application.Features.Employees.Commands.CreateEmployee
 		public decimal? DollarMoney { get; set; }
 		public SalaryType SalaryType { get; set; } = SalaryType.Fixed;
 		public decimal? SalaryPercentage { get; set; }
-        public Currency? Currency { get; private set; }
-
-    }
+		public Currency? Currency { get; set; }
+	}
 }
 
 

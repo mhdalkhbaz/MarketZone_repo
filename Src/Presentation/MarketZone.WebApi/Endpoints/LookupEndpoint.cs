@@ -55,11 +55,11 @@ namespace MarketZone.WebApi.Endpoints
         async Task<BaseResult<List<ProductSelectListDto>>> GetProductSelectListForDistribution(IMediator mediator, [AsParameters] GetProductSelectListQuery model)
             => await mediator.Send<GetProductSelectListQuery, BaseResult<List<ProductSelectListDto>>>(model);
 
-        async Task<BaseResult<List<SelectListWithCurrencyDto>>> GetCustomerSelectList(ApplicationDbContext db, IMapper mapper)
-            => BaseResult<List<SelectListWithCurrencyDto>>.Ok(await db.Customers.AsNoTracking().OrderBy(p => p.Id).ProjectTo<SelectListWithCurrencyDto>(mapper.ConfigurationProvider).ToListAsync());
+        async Task<BaseResult<List<SelectListDto>>> GetCustomerSelectList(ApplicationDbContext db, IMapper mapper)
+            => BaseResult<List<SelectListDto>>.Ok(await db.Customers.AsNoTracking().OrderBy(p => p.Id).ProjectTo<SelectListDto>(mapper.ConfigurationProvider).ToListAsync());
 
-        async Task<BaseResult<List<SelectListWithCurrencyDto>>> GetSupplierSelectList(ApplicationDbContext db, IMapper mapper)
-            => BaseResult<List<SelectListWithCurrencyDto>>.Ok(await db.Suppliers.AsNoTracking().OrderBy(p => p.Id).ProjectTo<SelectListWithCurrencyDto>(mapper.ConfigurationProvider).ToListAsync());
+        async Task<BaseResult<List<SelectListDto>>> GetSupplierSelectList(ApplicationDbContext db, IMapper mapper)
+            => BaseResult<List<SelectListDto>>.Ok(await db.Suppliers.AsNoTracking().OrderBy(p => p.Id).ProjectTo<SelectListDto>(mapper.ConfigurationProvider).ToListAsync());
 
         async Task<BaseResult<List<SelectListDto>>> GetEmployeeSelectList(ApplicationDbContext db, IMapper mapper)
             => BaseResult<List<SelectListDto>>.Ok(await db.Employees.AsNoTracking().OrderBy(p => p.FirstName + p.LastName).ProjectTo<SelectListDto>(mapper.ConfigurationProvider).ToListAsync());
@@ -71,7 +71,7 @@ namespace MarketZone.WebApi.Endpoints
                         join b in db.ProductBalances.AsNoTracking() on p.Id equals b.ProductId
                         where b.AvailableQty > 0 && !b.Product.NeedsRoasting
                         orderby p.Id
-                        select new UnroastedProductDto(p.Id.ToString(), p.Name, b.AvailableQty, b.AverageCost);
+                        select new UnroastedProductDto(p.Id.ToString(), p.Name, b.AvailableQty, b.SalePrice);
             var list = await query.ToListAsync();
             return BaseResult<List<UnroastedProductDto>>.Ok(list);
         }
@@ -239,19 +239,15 @@ namespace MarketZone.WebApi.Endpoints
         }
 
         // Returns employees with job title "roasting" (محماصين)
-        async Task<BaseResult<List<SelectListWithCurrencyDto>>> GetRoastingEmployeesSelectList(ApplicationDbContext db)
+        async Task<BaseResult<List<SelectListDto>>> GetRoastingEmployeesSelectList(ApplicationDbContext db)
         {
             var employees = await db.Employees.AsNoTracking()
                 .Where(e => e.JobTitle == "roasting" && e.IsActive)
                 .OrderBy(e => e.FirstName + " " + e.LastName)
-                .Select(e => new SelectListWithCurrencyDto(
-                    e.FirstName + " " + e.LastName,
-                    e.Id.ToString(),
-                    e.Currency ?? Currency.SY
-                ))
+                .Select(e => new SelectListDto(e.FirstName + " " + e.LastName, e.Id.ToString()))
                 .ToListAsync();
 
-            return BaseResult<List<SelectListWithCurrencyDto>>.Ok(employees);
+            return BaseResult<List<SelectListDto>>.Ok(employees);
         }
 
         // Returns roasting employees who have balance (SyrianMoney or DollarMoney > 0)
@@ -267,45 +263,43 @@ namespace MarketZone.WebApi.Endpoints
             return BaseResult<List<SelectListDto>>.Ok(employees);
         }
 
-		// Returns customers who have invoices with incomplete payment status (customers with debts)
-		async Task<BaseResult<List<SelectListWithCurrencyDto>>> GetCustomersWithDebts(ApplicationDbContext db)
-		{
-			var customersWithDebts = await db.SalesInvoices
-				.Where(si => si.Status == SalesInvoiceStatus.Posted)
-				.GroupJoin(
-					db.Payments.Where(p => p.PaymentType == PaymentType.SalesPayment && p.Status == MarketZone.Domain.Cash.Entities.PaymentStatus.Posted),
-					si => si.Id,
-					p => p.InvoiceId,
-					(si, payments) => new { Invoice = si, Payments = payments }
-				)
-				.SelectMany(
-					x => x.Payments.DefaultIfEmpty(),
-					(x, payment) => new { x.Invoice, Payment = payment }
-				)
-				.GroupBy(x => x.Invoice.Id)
-				.Select(g => new
-				{
-					InvoiceId = g.Key,
-					CustomerId = g.First().Invoice.CustomerId,
-					CustomerName = g.First().Invoice.Customer.Name,
-					CustomerCurrency = g.First().Invoice.Customer.Currency ?? Currency.SY,
-					TotalAmount = g.First().Invoice.TotalAmount - g.First().Invoice.Discount,
-					PaidAmount = g.Where(x => x.Payment != null).Sum(x => x.Payment.AmountInPaymentCurrency ?? x.Payment.Amount)
-				})
-				.Where(x => x.PaidAmount < x.TotalAmount) // فواتير لم يتم دفعها بالكامل (جزئياً أو غير مسددة)
-				.GroupBy(x => x.CustomerId)
-				.Select(g => new
-				{
-					CustomerId = g.Key,
-					CustomerName = g.First().CustomerName,
-					CustomerCurrency = g.First().CustomerCurrency
-				})
-				.OrderBy(x => x.CustomerName)
-				.Select(x => new SelectListWithCurrencyDto(x.CustomerName, x.CustomerId.ToString(), x.CustomerCurrency))
-				.ToListAsync();
+        // Returns customers who have invoices with incomplete payment status (customers with debts)
+        async Task<BaseResult<List<SelectListDto>>> GetCustomersWithDebts(ApplicationDbContext db)
+        {
+            var customersWithDebts = await db.SalesInvoices
+                .Where(si => si.Status == SalesInvoiceStatus.Posted)
+                .GroupJoin(
+                    db.Payments.Where(p => p.PaymentType == PaymentType.SalesPayment && p.Status == MarketZone.Domain.Cash.Entities.PaymentStatus.Posted),
+                    si => si.Id,
+                    p => p.InvoiceId,
+                    (si, payments) => new { Invoice = si, Payments = payments }
+                )
+                .SelectMany(
+                    x => x.Payments.DefaultIfEmpty(),
+                    (x, payment) => new { x.Invoice, Payment = payment }
+                )
+                .GroupBy(x => x.Invoice.Id)
+                .Select(g => new
+                {
+                    InvoiceId = g.Key,
+                    CustomerId = g.First().Invoice.CustomerId,
+                    CustomerName = g.First().Invoice.Customer.Name,
+                    TotalAmount = g.First().Invoice.TotalAmount - g.First().Invoice.Discount,
+                    PaidAmount = g.Where(x => x.Payment != null).Sum(x => x.Payment.AmountInPaymentCurrency ?? x.Payment.Amount)
+                })
+                .Where(x => x.PaidAmount < x.TotalAmount) // فواتير لم يتم دفعها بالكامل (جزئياً أو غير مسددة)
+                .GroupBy(x => x.CustomerId)
+                .Select(g => new
+                {
+                    CustomerId = g.Key,
+                    CustomerName = g.First().CustomerName
+                })
+                .OrderBy(x => x.CustomerName)
+                .Select(x => new SelectListDto(x.CustomerName, x.CustomerId.ToString()))
+                .ToListAsync();
 
-			return BaseResult<List<SelectListWithCurrencyDto>>.Ok(customersWithDebts);
-		}
+            return BaseResult<List<SelectListDto>>.Ok(customersWithDebts);
+        }
 
         // Returns suppliers who have invoices with incomplete payment status (suppliers with debts)
         async Task<BaseResult<List<SelectListDto>>> GetSuppliersWithDebts(ApplicationDbContext db)

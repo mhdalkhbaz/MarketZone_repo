@@ -10,13 +10,14 @@ namespace MarketZone.Domain.Inventory.Entities
 		{
 		}
 #pragma warning restore
-		public ProductBalance(long productId, decimal qty = 0, decimal availableQty = 0, decimal totalValue = 0)
+		public ProductBalance(long productId, decimal qty = 0, decimal availableQty = 0, decimal totalValue = 0, decimal salePrice = 0)
 		{
 			ProductId = productId;
 			Qty = qty;
 			AvailableQty = availableQty;
 			TotalValue = totalValue;
 			AverageCost = Qty > 0 ? decimal.Round(TotalValue / Qty, 6) : 0;
+			SalePrice = salePrice;
 		}
 
 		public long ProductId { get; private set; }
@@ -25,6 +26,7 @@ namespace MarketZone.Domain.Inventory.Entities
 		public decimal AvailableQty { get; private set; }
 		public decimal TotalValue { get; private set; }
 		public decimal AverageCost { get; private set; }
+		public decimal SalePrice { get; private set; }
 
 		public void Adjust(decimal qtyDelta, decimal availableDelta)
 		{
@@ -40,10 +42,21 @@ namespace MarketZone.Domain.Inventory.Entities
 			AverageCost = Qty > 0 ? decimal.Round(TotalValue / Qty, 6) : 0;
 		}
 
+		public void AdjustValue(decimal valueDelta)
+		{
+			TotalValue += valueDelta;
+			AverageCost = Qty > 0 ? decimal.Round(TotalValue / Qty, 6) : 0;
+		}
+
 		public void SetAverageCost(decimal averageCost)
 		{
 			AverageCost = averageCost;
 			TotalValue = Qty > 0 ? decimal.Round(AverageCost * Qty, 6) : 0;
+		}
+
+		public void SetSalePrice(decimal salePrice)
+		{
+			SalePrice = salePrice < 0 ? 0 : salePrice;
 		}
 	}
 }

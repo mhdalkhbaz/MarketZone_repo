@@ -1,4 +1,5 @@
 using System;
+using MarketZone.Domain.Cash.Enums;
 using MarketZone.Domain.Employees.Entities;
 using MarketZone.Domain.Employees.Enums;
 
@@ -28,6 +29,7 @@ namespace MarketZone.Domain.Employees.DTOs
 			DollarMoney = employee.DollarMoney;
 			SalaryType = employee.SalaryType;
 			SalaryPercentage = employee.SalaryPercentage;
+			Currency = employee.Currency;
 			CreatedDateTime = employee.Created;
 		}
 
@@ -46,6 +48,7 @@ namespace MarketZone.Domain.Employees.DTOs
 		public decimal? DollarMoney { get; set; }
 		public SalaryType SalaryType { get; set; }
 		public decimal? SalaryPercentage { get; set; }
+		public Currency? Currency { get; set; }
 		public decimal RemainingSalary { get; set; }  // الرصيد المتبقي من الراتب
 		public DateTime CreatedDateTime { get; set; }
 	}

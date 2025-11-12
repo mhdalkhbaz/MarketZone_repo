@@ -46,13 +46,14 @@ namespace MarketZone.Application.Features.Roasting.Commands.UpdateRoastingInvoic
                 throw new InvalidOperationException("Cannot update a posted roasting invoice.");
             }
 
-            // Release all previously reserved quantities
+            // Release all previously reserved quantities (إرجاع Qty و AvailableQty)
             foreach (var detail in roastingInvoice.Details)
             {
                 var rawProductBalance = await _productBalanceRepository.GetByProductIdAsync(detail.RawProductId, cancellationToken);
                 if (rawProductBalance != null)
                 {
-                    rawProductBalance.Adjust(0, detail.QuantityKg); // Release the reserved quantity
+                    // إرجاع Qty و AvailableQty التي تم تقليلها عند الإنشاء
+                    rawProductBalance.Adjust(detail.QuantityKg, detail.QuantityKg);
                     _productBalanceRepository.Update(rawProductBalance);
                 }
             }
@@ -83,19 +84,27 @@ namespace MarketZone.Application.Features.Roasting.Commands.UpdateRoastingInvoic
                         existingDetail = roastingInvoice.Details.FirstOrDefault(d => d.Id == detailItem.Id);
                     }
 
-                    // Check and reserve available quantity for new detail state
+                    // Check and reserve quantity for new detail state
                     var rawProductBalance = await _productBalanceRepository.GetByProductIdAsync(detailItem.RawProductId, cancellationToken);
                     if (rawProductBalance == null)
                     {
                         throw new InvalidOperationException($"Raw product balance not found for product {detailItem.RawProductId}");
                     }
 
+                    // التحقق من الكمية المتاحة
                     if (rawProductBalance.AvailableQty < detailItem.QuantityKg)
                     {
                         throw new InvalidOperationException($"Insufficient available quantity for product {detailItem.RawProductId}. Available: {rawProductBalance.AvailableQty}, Requested: {detailItem.QuantityKg}");
                     }
 
-                    rawProductBalance.Adjust(0, -detailItem.QuantityKg);
+                    // التحقق من الكمية الإجمالية
+                    if (rawProductBalance.Qty < detailItem.QuantityKg)
+                    {
+                        throw new InvalidOperationException($"Insufficient quantity for product {detailItem.RawProductId}. Qty: {rawProductBalance.Qty}, Requested: {detailItem.QuantityKg}");
+                    }
+
+                    // عند تحديث فاتورة التحميص: نقص من Qty و AvailableQty معاً
+                    rawProductBalance.Adjust(-detailItem.QuantityKg, -detailItem.QuantityKg);
                     _productBalanceRepository.Update(rawProductBalance);
 
                     if (existingDetail != null)

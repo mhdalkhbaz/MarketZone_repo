@@ -70,7 +70,8 @@ namespace MarketZone.Application.Features.Products.Queries.GetProductSelectList
                     result.Add(new ProductSelectListDto(
                         detail.ProductId.ToString(),
                         detail.Product?.Name  ,
-                        remainingQty
+						remainingQty,
+						detail.ExpectedPrice
                     ));
                 }
             }
@@ -88,7 +89,8 @@ namespace MarketZone.Application.Features.Products.Queries.GetProductSelectList
             result.AddRange(productBalances.Select(x => new ProductSelectListDto(
                 x.Product.Id.ToString(),
                 x.Product.Name,
-                x.AvailableQty
+				x.AvailableQty,
+				x.SalePrice
             )));
             return result.OrderBy(p => p.Value).ToList();
         }

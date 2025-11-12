@@ -23,6 +23,7 @@ namespace MarketZone.Infrastructure.Persistence.Contexts.Configurations
 			builder.Property(p => p.DollarMoney).HasColumnType("decimal(18,2)");
 			builder.Property(p => p.SalaryType).HasConversion<int>().HasDefaultValue(Domain.Employees.Enums.SalaryType.Fixed);
 			builder.Property(p => p.SalaryPercentage).HasColumnType("decimal(18,2)");
+			builder.Property(p => p.Currency).HasConversion<int>();
 		}
 	}
 }

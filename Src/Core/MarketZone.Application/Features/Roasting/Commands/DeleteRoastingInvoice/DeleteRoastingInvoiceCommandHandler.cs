@@ -39,13 +39,14 @@ namespace MarketZone.Application.Features.Roasting.Commands.DeleteRoastingInvoic
                 throw new InvalidOperationException("Cannot delete a posted roasting invoice.");
             }
 
-            // Release all reserved quantities
+            // Release all reserved quantities (إرجاع Qty و AvailableQty)
             foreach (var detail in roastingInvoice.Details)
             {
                 var rawProductBalance = await _productBalanceRepository.GetByProductIdAsync(detail.RawProductId, cancellationToken);
                 if (rawProductBalance != null)
                 {
-                    rawProductBalance.Adjust(0, detail.QuantityKg); // Release the reserved quantity
+                    // إرجاع Qty و AvailableQty التي تم تقليلها عند الإنشاء
+                    rawProductBalance.Adjust(detail.QuantityKg, detail.QuantityKg);
                     _productBalanceRepository.Update(rawProductBalance);
                 }
             }

@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using MarketZone.WebApi.Infrastructure.Filters;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -30,7 +31,9 @@ namespace MarketZone.WebApi.Infrastructure.Extensions
                 {
                     var groupName = instance.GroupName ?? NormalizeGroupName(instance.GetType().Name);
                     var prefix = $"/api/{groupName}";
-                    instance.Map(app.MapGroup(prefix).WithTags(groupName));
+                    var group = app.MapGroup(prefix).WithTags(groupName);
+                    group.AddEndpointFilter(new BaseResultEndpointFilter());
+                    instance.Map(group);
                 }
             }
 

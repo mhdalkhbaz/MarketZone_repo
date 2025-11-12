@@ -40,18 +40,11 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
                             UnitOfMeasure = p.UnitOfMeasure,
 							// Purchase price comes from AverageCost in ProductBalance
 							PurchasePrice = balance != null ? balance.AverageCost : 0m,
-							// Sale price comes from the last sales invoice detail unit price (fallback to product.SalePrice if no sales found)
-							SalePrice = (
-								(from d in _dbContext.SalesInvoiceDetails
-								 where d.ProductId == p.Id
-								 orderby d.Created descending
-								 select (decimal?)d.UnitPrice)
-								.FirstOrDefault()
-							) ?? p.SalePrice,
+							SalePrice = balance != null ? balance.SalePrice : 0m,
                             MinStockLevel = p.MinStockLevel,
                             IsActive = p.IsActive,
                             NeedsRoasting = p.NeedsRoasting,
-                            RoastingCost = p.RoastingCost,
+                            RoastingCost = 0m,
                             CommissionPerKg = p.CommissionPerKg,
                             RawProductId = p.RawProductId,
                             BarCode = p.BarCode,

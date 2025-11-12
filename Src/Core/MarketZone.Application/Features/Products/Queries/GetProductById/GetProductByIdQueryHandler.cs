@@ -27,6 +27,7 @@ namespace MarketZone.Application.Features.Products.Queries.GetProductById
                 productDto.Qty = productBalance?.Qty  ?? 0;
                 productDto.AvailableQty = productBalance?.AvailableQty ?? 0 ;
                 productDto.AverageCost = productBalance?.AverageCost ?? 0;
+                productDto.SalePrice = productBalance?.SalePrice ?? 0;
           
 
             return productDto;

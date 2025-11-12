@@ -19,6 +19,8 @@ namespace MarketZone.Application.Features.Sales.Commands.CreateSalesInvoice
         private readonly IDistributionTripRepository _tripRepository;
         private readonly IInvoiceNumberGenerator _numberGenerator;
         private readonly IProductRepository _productRepository;
+        private readonly IEmployeeRepository _employeeRepository;
+        private readonly IEmployeeSalaryRepository _employeeSalaryRepository;
 
 		public CreateSalesInvoiceCommandHandler(
 			ISalesInvoiceRepository repository,
@@ -26,7 +28,9 @@ namespace MarketZone.Application.Features.Sales.Commands.CreateSalesInvoice
 			IMapper mapper,
             IDistributionTripRepository tripRepository,
             IInvoiceNumberGenerator numberGenerator,
-            IProductRepository productRepository)
+            IProductRepository productRepository,
+            IEmployeeRepository employeeRepository,
+            IEmployeeSalaryRepository employeeSalaryRepository)
 		{
 			_repository = repository;
 			_unitOfWork = unitOfWork;
@@ -34,6 +38,8 @@ namespace MarketZone.Application.Features.Sales.Commands.CreateSalesInvoice
 			_tripRepository = tripRepository;
 			_numberGenerator = numberGenerator;
             _productRepository = productRepository;
+            _employeeRepository = employeeRepository;
+            _employeeSalaryRepository = employeeSalaryRepository;
 		}
 
 		public async Task<BaseResult<long>> Handle(CreateSalesInvoiceCommand request, CancellationToken cancellationToken)
@@ -46,26 +52,13 @@ namespace MarketZone.Application.Features.Sales.Commands.CreateSalesInvoice
                     request.InvoiceNumber = await _numberGenerator.GenerateAsync(MarketZone.Domain.Cash.Enums.InvoiceType.SalesInvoice, cancellationToken);
                 }
 
-				// Validate and normalize details pricing: prevent zero/negative prices, use default product SalePrice when needed
+				// Validate pricing: prevent zero/negative prices
 				if (request.Details?.Any() == true)
 				{
-					// Fetch products for lines that need a default price
-					var detailsNeedingPrice = request.Details.Where(d => d.UnitPrice <= 0).ToList();
-					if (detailsNeedingPrice.Count > 0)
-					{
-						var productIds = detailsNeedingPrice.Select(d => d.ProductId).Distinct().ToList();
-						var productsById = await _productRepository.GetByIdsAsync(productIds, cancellationToken);
-						foreach (var d in detailsNeedingPrice)
-						{
-							if (!productsById.TryGetValue(d.ProductId, out var product) || !product.SalePrice.HasValue || product.SalePrice!.Value <= 0)
-							{
-								return new Error(ErrorCode.FieldDataInvalid, $"Unit price must be greater than zero and no default SalePrice found for product {d.ProductId}", nameof(d.UnitPrice));
-							}
-							d.UnitPrice = product.SalePrice!.Value;
-						}
-					}
+					if (request.Details.Any(d => d.UnitPrice <= 0))
+						return new Error(ErrorCode.FieldDataInvalid, "Unit price must be greater than zero for all products", nameof(request.Details));
 
-					// Recalculate subtotals based on normalized prices
+					// Recalculate subtotals based on validated prices
 					foreach (var d in request.Details)
 					{
 						d.SubTotal = d.Quantity * d.UnitPrice;
@@ -124,6 +117,46 @@ namespace MarketZone.Application.Features.Sales.Commands.CreateSalesInvoice
 						{
 							// إذا انتهت جميع الكميات، تحديث حالة الرحلة إلى مكتملة
 							trip.SetStatus(MarketZone.Domain.Logistics.Enums.DistributionTripStatus.Completed);
+
+                            // حساب نسبة الموظف من عمولة المنتجات المباعة
+                            var employee = await _employeeRepository.GetByIdAsync(trip.EmployeeId);
+                            if (employee != null && employee.SalaryType == MarketZone.Domain.Employees.Enums.SalaryType.FixedWithPercentage && employee.SalaryPercentage.HasValue && employee.SalaryPercentage.Value > 0)
+                            {
+                                decimal totalPercentageAmount = 0;
+                                var employeePercentage = employee.SalaryPercentage.Value / 100m;
+
+                                foreach (var tripDetail in trip.Details)
+                                {
+                                    var netSoldQty = tripDetail.SoldQty - tripDetail.ReturnedQty;
+                                    if (netSoldQty <= 0)
+                                        continue;
+
+                                    var product = await _productRepository.GetByIdAsync(tripDetail.ProductId);
+                                    if (product == null || product.CommissionPerKg == null || product.CommissionPerKg <= 0)
+                                        continue;
+
+									totalPercentageAmount += (netSoldQty * product.CommissionPerKg.Value) * employeePercentage;
+                                }
+
+                              
+                                    var currentYear = trip.TripDate.Year;
+                                    var currentMonth = trip.TripDate.Month;
+
+                                    var employeeSalary = await _employeeSalaryRepository.GetOrCreateAsync(
+                                        employee.Id,
+                                        currentYear,
+                                        currentMonth,
+                                        employee.Salary,
+										totalPercentageAmount);
+
+                                    if (employeeSalary.BaseSalary != employee.Salary)
+                                    {
+                                        employeeSalary.UpdateBaseSalary(employee.Salary);
+                                    }
+
+                                    employeeSalary.AddPercentageAmount(totalPercentageAmount);
+                                    _employeeSalaryRepository.Update(employeeSalary);
+                            }
 						}
 					}
 				}
@@ -137,7 +170,7 @@ namespace MarketZone.Application.Features.Sales.Commands.CreateSalesInvoice
 				{
 					foreach (var d in request.Details)
 					{
-						var detail = _mapper.Map<MarketZone.Domain.Sales.Entities.SalesInvoiceDetail>(d);
+						var detail = _mapper.Map<SalesInvoiceDetail>(d);
 						invoice.AddDetail(detail);
 					}
 				}

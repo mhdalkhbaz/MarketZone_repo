@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using MarketZone.Application.DTOs;
 using MarketZone.Application.Interfaces.Repositories;
@@ -77,6 +78,14 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
         public async Task<bool> EmployeeExistsAsync(long employeeId)
         {
             return await dbContext.Employees.AnyAsync(e => e.Id == employeeId);
+        }
+
+        public async Task<bool> HasRoastingInvoicesAsync(long employeeId, System.Threading.CancellationToken cancellationToken = default)
+        {
+            // التحقق من وجود فواتير تحميص مرتبطة بالموظف
+            // نتحقق من الفواتير المرحلة (Posted) فقط، لأن الفواتير المسودة (Draft) يمكن تعديلها أو حذفها
+            return await dbContext.RoastingInvoices
+                .AnyAsync(ri => ri.EmployeeId == employeeId && ri.Status == RoastingInvoiceStatus.Posted, cancellationToken);
         }
     }
 }

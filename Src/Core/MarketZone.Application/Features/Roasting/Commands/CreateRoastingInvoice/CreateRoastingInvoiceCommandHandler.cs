@@ -49,12 +49,20 @@ namespace MarketZone.Application.Features.Roasting.Commands.CreateRoastingInvoic
                     throw new InvalidOperationException($"Raw product balance not found for product {detailItem.RawProductId}");
                 }
 
+                // التحقق من الكمية المتاحة
                 if (rawProductBalance.AvailableQty < detailItem.QuantityKg)
                 {
                     throw new InvalidOperationException($"Insufficient available quantity for product {detailItem.RawProductId}. Available: {rawProductBalance.AvailableQty}, Requested: {detailItem.QuantityKg}");
                 }
 
-                rawProductBalance.Adjust(0, -detailItem.QuantityKg);
+                // التحقق من الكمية الإجمالية
+                if (rawProductBalance.Qty < detailItem.QuantityKg)
+                {
+                    throw new InvalidOperationException($"Insufficient quantity for product {detailItem.RawProductId}. Qty: {rawProductBalance.Qty}, Requested: {detailItem.QuantityKg}");
+                }
+
+                // عند إنشاء فاتورة التحميص: نقص من Qty و AvailableQty معاً
+                rawProductBalance.Adjust(-detailItem.QuantityKg, -detailItem.QuantityKg);
                 _productBalanceRepository.Update(rawProductBalance);
 
                 var detail = new RoastingInvoiceDetail(

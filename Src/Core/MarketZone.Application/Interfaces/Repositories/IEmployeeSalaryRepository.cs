@@ -9,7 +9,7 @@ namespace MarketZone.Application.Interfaces.Repositories
     public interface IEmployeeSalaryRepository : IGenericRepository<EmployeeSalary>
     {
         Task<EmployeeSalary> GetByEmployeeAndMonthAsync(long employeeId, int year, int month);
-        Task<EmployeeSalary> GetOrCreateAsync(long employeeId, int year, int month, decimal baseSalary);
+        Task<EmployeeSalary> GetOrCreateAsync(long employeeId, int year, int month, decimal baseSalary, decimal? percentageAmount);
         Task<PaginationResponseDto<EmployeeSalaryDto>> GetPagedListAsync(int pageNumber, int pageSize, long? employeeId, int? year, int? month);
     }
 }
