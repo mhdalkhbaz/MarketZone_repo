@@ -8,9 +8,11 @@ using MarketZone.Domain.Employees.DTOs;
 using MarketZone.Application.Interfaces.Repositories;
 using MarketZone.Domain.Employees.Entities;
 using MarketZone.Domain.Employees.Enums;
+using MarketZone.Domain.Cash.Enums;
 using MarketZone.Infrastructure.Persistence.Contexts;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using System.Threading;
 
 namespace MarketZone.Infrastructure.Persistence.Repositories
 {
@@ -39,6 +41,17 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 				.Select(x => new SelectListDto(x.FirstName + " " + x.LastName, x.Id.ToString()))
 				.AsNoTracking()
 				.ToListAsync();
+		}
+
+		public async Task<Dictionary<long, Currency?>> GetEmployeeCurrenciesAsync(List<long> employeeIds, CancellationToken cancellationToken = default)
+		{
+			if (employeeIds == null || !employeeIds.Any())
+				return new Dictionary<long, Currency?>();
+
+			return await dbContext.Employees
+				.Where(e => employeeIds.Contains(e.Id))
+				.Select(e => new { e.Id, e.Currency })
+				.ToDictionaryAsync(e => e.Id, e => e.Currency, cancellationToken);
 		}
 	}
 }

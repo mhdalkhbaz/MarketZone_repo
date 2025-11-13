@@ -9,7 +9,11 @@ using MarketZone.Domain.Cash.Enums;
 
 namespace MarketZone.Application.Features.Cash.Payments.Commands.CreatePayment
 {
-	public class CreatePaymentCommandHandler(IPaymentRepository repository, IUnitOfWork unitOfWork) : IRequestHandler<CreatePaymentCommand, BaseResult<long>>
+	public class CreatePaymentCommandHandler(
+		IPaymentRepository repository, 
+		IUnitOfWork unitOfWork,
+		IRoastingInvoiceRepository roastingInvoiceRepository,
+		IEmployeeRepository employeeRepository) : IRequestHandler<CreatePaymentCommand, BaseResult<long>>
 	{
 		public async Task<BaseResult<long>> Handle(CreatePaymentCommand request, CancellationToken cancellationToken)
 		{
@@ -27,14 +31,39 @@ namespace MarketZone.Application.Features.Cash.Payments.Commands.CreatePayment
 				if (!request.InvoiceId.HasValue)
 					return new Error(ErrorCode.FieldDataInvalid, "InvoiceId is required for this payment type", nameof(request.InvoiceId));
 
+				var currency = request.Currency;
+				var paymentCurrency = request.PaymentCurrency;
+
+				// For RoastingPayment, automatically set Currency to employee's currency
+				if (request.PaymentType == PaymentType.RoastingPayment && request.InvoiceId.HasValue)
+				{
+					var roastingInvoice = await roastingInvoiceRepository.GetByIdAsync(request.InvoiceId.Value);
+					if (roastingInvoice != null && roastingInvoice.EmployeeId.HasValue)
+					{
+						var employee = await employeeRepository.GetByIdAsync(roastingInvoice.EmployeeId.Value);
+						if (employee != null && employee.Currency.HasValue)
+						{
+							// Set Currency to employee's currency (invoice currency)
+							currency = employee.Currency.Value;
+							// If PaymentCurrency is not specified or is the same as Currency, keep it as is
+							// Otherwise, use the provided PaymentCurrency
+							if (paymentCurrency == Currency.SY && currency != Currency.SY)
+							{
+								// If PaymentCurrency was not explicitly set (default SY), use Currency
+								paymentCurrency = currency;
+							}
+						}
+					}
+				}
+
 				entity = new Payment(
 					request.PaymentType,
 					request.InvoiceId.Value,
                     request.InvoiceType.Value,
                     request.Amount,
 					request.PaymentDate ?? DateTime.UtcNow,
-					request.Currency,
-					request.PaymentCurrency,
+					currency,
+					paymentCurrency,
 					request.ExchangeRate,
 					request.Notes,
 					request.ReceivedBy,

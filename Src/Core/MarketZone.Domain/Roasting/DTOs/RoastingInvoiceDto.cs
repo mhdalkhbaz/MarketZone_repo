@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using MarketZone.Domain.Roasting.Enums;
 using MarketZone.Domain.Cash.DTOs;
+using MarketZone.Domain.Cash.Enums;
 
 namespace MarketZone.Domain.Roasting.DTOs
 {
@@ -13,6 +14,7 @@ namespace MarketZone.Domain.Roasting.DTOs
         public decimal TotalAmount { get; set; }
         public string Notes { get; set; }
         public long? EmployeeId { get; set; }
+        public Currency? Currency { get; set; }
         public RoastingInvoiceStatus Status { get; set; }
         public RoastingPaymentStatus PaymentStatus { get; set; }
         public DateTime Created { get; set; }
