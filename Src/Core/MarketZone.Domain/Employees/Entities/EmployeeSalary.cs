@@ -18,6 +18,8 @@ namespace MarketZone.Domain.Employees.Entities
             BaseSalary = baseSalary;
             PercentageAmount = percentageAmount ?? 0;
             PaidAmount = 0;
+            Deduction = 0;
+            Note = string.Empty;
             CalculateTotalSalary();
         }
 
@@ -28,6 +30,8 @@ namespace MarketZone.Domain.Employees.Entities
         public decimal BaseSalary { get; private set; }  // الراتب الثابت
         public decimal PercentageAmount { get; private set; }  // المبلغ من النسبة
         public decimal PaidAmount { get; private set; }  // المبلغ المدفوع
+        public decimal Deduction { get; private set; }  // الخصم
+        public string Note { get; private set; }  // الملاحظة (سبب الخصم)
         public decimal TotalSalary { get; private set; }  // إجمالي الراتب (ثابت + نسبة)
         public decimal RemainingAmount { get; private set; }  // المبلغ المتبقي
 
@@ -65,12 +69,25 @@ namespace MarketZone.Domain.Employees.Entities
         }
 
         /// <summary>
+        /// تعيين الخصم والملاحظة
+        /// </summary>
+        public void SetDeduction(decimal deduction, string note = null)
+        {
+            if (deduction < 0)
+                throw new System.ArgumentException("Deduction cannot be negative", nameof(deduction));
+
+            Deduction = deduction;
+            Note = note ?? string.Empty;
+            CalculateTotalSalary();
+        }
+
+        /// <summary>
         /// حساب إجمالي الراتب والمبلغ المتبقي
         /// </summary>
         private void CalculateTotalSalary()
         {
             TotalSalary = BaseSalary + PercentageAmount;
-            RemainingAmount = TotalSalary - PaidAmount;
+            RemainingAmount = TotalSalary - PaidAmount - Deduction;
         }
     }
 }

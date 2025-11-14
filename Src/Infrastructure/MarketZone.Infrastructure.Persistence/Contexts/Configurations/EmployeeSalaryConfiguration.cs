@@ -16,6 +16,8 @@ namespace MarketZone.Infrastructure.Persistence.Contexts.Configurations
             builder.Property(p => p.BaseSalary).HasColumnType("decimal(18,2)").IsRequired();
             builder.Property(p => p.PercentageAmount).HasColumnType("decimal(18,2)").HasDefaultValue(0);
             builder.Property(p => p.PaidAmount).HasColumnType("decimal(18,2)").HasDefaultValue(0);
+            builder.Property(p => p.Deduction).HasColumnType("decimal(18,2)").HasDefaultValue(0);
+            builder.Property(p => p.Note).HasMaxLength(1000);
             builder.Property(p => p.TotalSalary).HasColumnType("decimal(18,2)").IsRequired();
             builder.Property(p => p.RemainingAmount).HasColumnType("decimal(18,2)").IsRequired();
 

@@ -47,12 +47,39 @@ namespace MarketZone.Application.Features.Employees.Commands.CreateSalaryPayment
                 request.Month,
                 employee.Salary,null);
 
-            // التحقق من أن RemainingAmount كافي للدفع
-            if (employeeSalary.RemainingAmount < request.Amount)
+            // التحقق من الخصم
+            var deduction = request.Deduction ?? 0;
+            if (deduction < 0)
             {
                 return new Error(ErrorCode.FieldDataInvalid, 
-                    $"Insufficient remaining amount. Remaining: {employeeSalary.RemainingAmount}, Requested: {request.Amount}", 
+                    "Deduction cannot be negative", 
+                    nameof(request.Deduction));
+            }
+
+            // حساب الخصم الإجمالي (الخصم الموجود + الخصم الجديد)
+            var totalDeduction = employeeSalary.Deduction + deduction;
+
+            // التحقق من أن المبلغ المدفوع + الخصم لا يتجاوز TotalSalary
+            // TotalSalary = PaidAmount + Amount (المدفوع الجديد) + TotalDeduction
+            var totalAfterPayment = employeeSalary.PaidAmount + request.Amount + totalDeduction;
+            if (totalAfterPayment > employeeSalary.TotalSalary)
+            {
+                return new Error(ErrorCode.FieldDataInvalid, 
+                    $"Total payment and deduction exceed total salary. Total Salary: {employeeSalary.TotalSalary}, Already Paid: {employeeSalary.PaidAmount}, Existing Deduction: {employeeSalary.Deduction}, New Payment: {request.Amount}, New Deduction: {deduction}, Total After: {totalAfterPayment}", 
                     nameof(request.Amount));
+            }
+
+            // تطبيق الخصم إذا كان موجوداً (يضيف على الخصم الموجود)
+            if (deduction > 0)
+            {
+                var newTotalDeduction = employeeSalary.Deduction + deduction;
+                var combinedNote = string.IsNullOrEmpty(employeeSalary.Note) 
+                    ? request.DeductionNote 
+                    : string.IsNullOrEmpty(request.DeductionNote) 
+                        ? employeeSalary.Note 
+                        : $"{employeeSalary.Note}; {request.DeductionNote}";
+                employeeSalary.SetDeduction(newTotalDeduction, combinedNote);
+                employeeSalaryRepository.Update(employeeSalary);
             }
 
             // التحقق من رصيد الصندوق قبل الدفع

@@ -69,6 +69,8 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
                 BaseSalary = es.BaseSalary,
                 PercentageAmount = es.PercentageAmount,
                 PaidAmount = es.PaidAmount,
+                Deduction = es.Deduction,
+                Note = es.Note,
                 TotalSalary = es.TotalSalary,
                 RemainingAmount = es.RemainingAmount,
                 CreatedDateTime = es.Created,
