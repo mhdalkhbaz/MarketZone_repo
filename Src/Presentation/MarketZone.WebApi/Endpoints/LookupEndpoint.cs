@@ -96,7 +96,7 @@ namespace MarketZone.WebApi.Endpoints
                 r.Id.ToString(), 
                 r.Name, 
                 r.AvailableQty,
-                r.AverageCost
+                r.SalePrice
 
 
             )).ToList();
