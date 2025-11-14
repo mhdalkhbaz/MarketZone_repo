@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using MarketZone.Application.Features.Products.Queries.GetProductSelectList;
 using MarketZone.Application.Interfaces;
@@ -80,10 +81,10 @@ namespace MarketZone.WebApi.Endpoints
             => BaseResult<List<SelectListDto>>.Ok(await db.Employees.AsNoTracking().OrderBy(p => p.FirstName + p.LastName).ProjectTo<SelectListDto>(mapper.ConfigurationProvider).ToListAsync());
 
         // Only products with AvailableQty > 0
-        async Task<BaseResult<List<UnroastedProductDto>>> GetInStockProductSelectList(ApplicationDbContext db, IExchangeRateRepository exchangeRateRepository)
+        async Task<BaseResult<List<UnroastedProductDto>>> GetInStockProductSelectList(ApplicationDbContext db, IExchangeRateRepository exchangeRateRepository, CancellationToken cancellationToken)
         {
             // Get latest exchange rate to convert from USD to SYP
-            var exchangeRate = await exchangeRateRepository.GetLatestActiveRateAsync();
+            var exchangeRate = await exchangeRateRepository.GetLatestActiveRateAsync(cancellationToken);
             var rate = exchangeRate?.Rate ?? 1m; // Default to 1 if no rate found
 
             var query = from p in db.Products.AsNoTracking()
