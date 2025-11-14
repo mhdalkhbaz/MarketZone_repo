@@ -6,7 +6,6 @@ namespace MarketZone.Application.DTOs
         public string Label { get; set; }  // Product Name
         public decimal AvailableQty { get; set; }  // Available Quantity
         public decimal AverageCost { get; set; }  // Sale price per unit (stored in AverageCost field)
-        public decimal SalePrice { get; set; }  // Sale price per unit (stored in AverageCost field)
 
         public UnroastedProductDto(string value, string label, decimal availableQty)
         {

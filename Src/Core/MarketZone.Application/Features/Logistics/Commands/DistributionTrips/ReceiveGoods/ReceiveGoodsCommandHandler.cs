@@ -40,9 +40,9 @@ namespace MarketZone.Application.Features.Logistics.Commands.DistributionTrips.R
 				if (trip.Status != DistributionTripStatus.Posted)
 					return new Error(ErrorCode.FieldDataInvalid, "Cannot receive goods for trip that is not in Posted status", nameof(request.TripId));
 
-				// التحقق من وجود التفاصيل
-				if (request.Details == null || !request.Details.Any())
-					return new Error(ErrorCode.FieldDataInvalid, "At least one detail is required", nameof(request.Details));
+				//// التحقق من وجود التفاصيل
+				//if (request.Details == null || !request.Details.Any())
+				//	return new Error(ErrorCode.FieldDataInvalid, "At least one detail is required", nameof(request.Details));
 
 				// تحديث الكميات المرجعة وإرجاعها إلى المخزون
 				foreach (var item in request.Details)
