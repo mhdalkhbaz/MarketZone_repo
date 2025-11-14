@@ -83,24 +83,23 @@ namespace MarketZone.WebApi.Endpoints
         // Only products with AvailableQty > 0
         async Task<BaseResult<List<UnroastedProductDto>>> GetInStockProductSelectList(ApplicationDbContext db, IExchangeRateRepository exchangeRateRepository,CancellationToken cancellationToken)
         {
-            // Get latest exchange rate to convert from USD to SYP
-            var exchangeRate = await exchangeRateRepository.GetLatestActiveRateAsync(cancellationToken);
-            var rate = exchangeRate?.Rate ?? 1m; // Default to 1 if no rate found
-
+            
             var query = from p in db.Products.AsNoTracking()
                         join b in db.ProductBalances.AsNoTracking() on p.Id equals b.ProductId
                         where b.AvailableQty > 0 && !b.Product.NeedsRoasting
                         orderby p.Id
-                        select new { p.Id, p.Name, b.AvailableQty, b.AverageCost };
+                        select new { p.Id, p.Name, b.AvailableQty, b.AverageCost,b.SalePrice };
             
             var results = await query.ToListAsync();
             
-            // Convert AverageCost from USD to SYP
             var list = results.Select(r => new UnroastedProductDto(
                 r.Id.ToString(), 
                 r.Name, 
-                r.AvailableQty, 
-                decimal.Round(r.AverageCost * rate, 2) // Convert from USD to SYP
+                r.AvailableQty,
+                r.AverageCost,
+                r.SalePrice
+
+
             )).ToList();
             
             return BaseResult<List<UnroastedProductDto>>.Ok(list);
