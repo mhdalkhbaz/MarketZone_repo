@@ -1,24 +1,25 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using MarketZone.Application.DTOs;
+using MarketZone.Application.Features.Products.Queries.GetProductSelectList;
+using MarketZone.Application.Interfaces;
+using MarketZone.Application.Interfaces.Repositories;
 using MarketZone.Application.Wrappers;
+using MarketZone.Domain.Cash.DTOs;
+using MarketZone.Domain.Cash.Enums;
 using MarketZone.Domain.Logistics.Enums;
+using MarketZone.Domain.Purchases.Enums;
+using MarketZone.Domain.Sales.Enums;
 using MarketZone.Infrastructure.Persistence.Contexts;
 using MarketZone.WebApi.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using MarketZone.Application.Features.Products.Queries.GetProductSelectList;
-using MarketZone.Application.Interfaces;
-using MarketZone.Application.Interfaces.Repositories;
-using Microsoft.AspNetCore.Http;
-using MarketZone.Domain.Cash.DTOs;
-using MarketZone.Domain.Sales.Enums;
-using MarketZone.Domain.Purchases.Enums;
-using MarketZone.Domain.Cash.Enums;
 
 namespace MarketZone.WebApi.Endpoints
 {
@@ -80,10 +81,10 @@ namespace MarketZone.WebApi.Endpoints
             => BaseResult<List<SelectListDto>>.Ok(await db.Employees.AsNoTracking().OrderBy(p => p.FirstName + p.LastName).ProjectTo<SelectListDto>(mapper.ConfigurationProvider).ToListAsync());
 
         // Only products with AvailableQty > 0
-        async Task<BaseResult<List<UnroastedProductDto>>> GetInStockProductSelectList(ApplicationDbContext db, IExchangeRateRepository exchangeRateRepository)
+        async Task<BaseResult<List<UnroastedProductDto>>> GetInStockProductSelectList(ApplicationDbContext db, IExchangeRateRepository exchangeRateRepository,CancellationToken cancellationToken)
         {
             // Get latest exchange rate to convert from USD to SYP
-            var exchangeRate = await exchangeRateRepository.GetLatestActiveRateAsync();
+            var exchangeRate = await exchangeRateRepository.GetLatestActiveRateAsync(cancellationToken);
             var rate = exchangeRate?.Rate ?? 1m; // Default to 1 if no rate found
 
             var query = from p in db.Products.AsNoTracking()

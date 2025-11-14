@@ -84,10 +84,10 @@ namespace MarketZone.Application.Features.Roasting.Commands.PostRoastingInvoice
                     // Check if we have enough quantity
                     // ملاحظة: Qty و AvailableQty تم تقليلها عند إنشاء فاتورة التحميص
                     // لذلك عند الترحيل نحتاج فقط لتقليل TotalValue
-                    if (rawProductBalance.Qty < detail.QuantityKg)
-                    {
-                        throw new InvalidOperationException($"Insufficient quantity for product {readyDetail.RawProductId}. Qty: {rawProductBalance.Qty}, Requested: {detail.QuantityKg}");
-                    }
+                    //if (rawProductBalance.Qty < detail.QuantityKg)
+                    //{
+                    //    throw new InvalidOperationException($"Insufficient quantity for product {readyDetail.RawProductId}. Qty: {rawProductBalance.Qty}, Requested: {detail.QuantityKg}");
+                    //}
 
                     // Calculate values BEFORE consuming (to get correct average cost)
                     // Use AverageCost directly from ProductBalance (already in USD)
@@ -101,8 +101,8 @@ namespace MarketZone.Application.Features.Roasting.Commands.PostRoastingInvoice
                     var totalValue = rawConsumedValue + commissionValue;
 
                     // عند الترحيل: نقص فقط من TotalValue (لأن Qty و AvailableQty تم تقليلها عند الإنشاء)
-                    rawProductBalance.AdjustValue(-rawConsumedValue);
-                    _productBalanceRepository.Update(rawProductBalance);
+                    //rawProductBalance.AdjustValue(-rawConsumedValue);
+                    //_productBalanceRepository.Update(rawProductBalance);
 
                     // Add ready product to inventory and set its balance average cost to SalePricePerKg
                     await AddRoastedProductToInventoryWithValue(readyDetail.ReadyProductId, readyDetail.ActualQuantityAfterRoasting, totalValue, readyDetail.SalePricePerKg, cancellationToken);
