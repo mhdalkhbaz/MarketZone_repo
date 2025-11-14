@@ -88,7 +88,7 @@ namespace MarketZone.WebApi.Endpoints
                         join b in db.ProductBalances.AsNoTracking() on p.Id equals b.ProductId
                         where b.AvailableQty > 0 && !b.Product.NeedsRoasting
                         orderby p.Id
-                        select new { p.Id, p.Name, b.AvailableQty, b.AverageCost,b.SalePrice };
+                        select new { p.Id, p.Name, b.AvailableQty, b.SalePrice };
             
             var results = await query.ToListAsync();
             
@@ -96,8 +96,7 @@ namespace MarketZone.WebApi.Endpoints
                 r.Id.ToString(), 
                 r.Name, 
                 r.AvailableQty,
-                r.AverageCost,
-                r.SalePrice
+                r.AverageCost
 
 
             )).ToList();

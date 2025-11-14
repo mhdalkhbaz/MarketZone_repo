@@ -15,13 +15,12 @@ namespace MarketZone.Application.DTOs
             AvailableQty = availableQty;
         }
 
-        public UnroastedProductDto(string value, string label, decimal availableQty, decimal averageCost, decimal salePrice)
+        public UnroastedProductDto(string value, string label, decimal availableQty, decimal averageCost)
         {
             Value = value;
             Label = label;
             AvailableQty = availableQty;
             AverageCost = averageCost;
-            SalePrice = salePrice;
         }
     }
 }
