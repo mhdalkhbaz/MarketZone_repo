@@ -67,6 +67,58 @@ namespace MarketZone.Application.Features.Sales.Commands.PostSalesInvoice
                 if (trip == null)
                     return new Error(ErrorCode.NotFound, "Distribution trip not found", nameof(invoice.DistributionTripId));
 
+                // حساب نسبة الموظف من عمولة المنتجات المباعة في هذه الفاتورة (عند كل Post فاتورة)
+                var employee = await _employeeRepository.GetByIdAsync(trip.EmployeeId);
+                if (employee != null && employee.SalaryType == SalaryType.FixedWithPercentage && employee.SalaryPercentage.HasValue && employee.SalaryPercentage.Value > 0)
+                {
+                    decimal totalPercentageAmount = 0;
+                    var employeePercentage = employee.SalaryPercentage.Value / 100m;
+
+                    // حساب العمولة من تفاصيل الفاتورة الحالية (الكمية المباعة في هذه الفاتورة فقط)
+                    if (invoice.Details != null && invoice.Details.Any())
+                    {
+                        foreach (var invoiceDetail in invoice.Details)
+                        {
+                            var product = await _productRepository.GetByIdAsync(invoiceDetail.ProductId);
+                            if (product == null || product.CommissionPerKg == null || product.CommissionPerKg <= 0)
+                                continue;
+
+                            // حساب العمولة على الكمية المباعة في هذه الفاتورة
+                            var commissionForThisInvoice = invoiceDetail.Quantity * product.CommissionPerKg.Value;
+                            totalPercentageAmount += commissionForThisInvoice * employeePercentage;
+                        }
+                    }
+
+                    if (totalPercentageAmount > 0)
+                    {
+                        // الحصول على سعر الصرف الحالي
+                        var exchangeRate = await _exchangeRateRepository.GetLatestActiveRateAsync(cancellationToken);
+                        if (exchangeRate == null)
+                            return new Error(ErrorCode.FieldDataInvalid, "No active exchange rate found", nameof(request.Id));
+
+                        // ضرب totalPercentageAmount بسعر الصرف الحالي
+                        var totalPercentageAmountInSyrian = totalPercentageAmount * exchangeRate.Rate;
+
+                        var currentYear = trip.TripDate.Year;
+                        var currentMonth = trip.TripDate.Month;
+
+                        var employeeSalary = await _employeeSalaryRepository.GetOrCreateAsync(
+                            employee.Id,
+                            currentYear,
+                            currentMonth,
+                            employee.Salary,
+                            null);
+
+                        if (employeeSalary.BaseSalary != employee.Salary)
+                        {
+                            employeeSalary.UpdateBaseSalary(employee.Salary);
+                        }
+
+                        employeeSalary.AddPercentageAmount(totalPercentageAmountInSyrian);
+                        _employeeSalaryRepository.Update(employeeSalary);
+                    }
+                }
+
                 // التحقق من أن جميع الكميات انتهت بعد البيع
                 var allQuantitiesFinished = !trip.Details.Any(d => (d.Qty - d.SoldQty - d.ReturnedQty) > 0);
                 if (allQuantitiesFinished)
@@ -100,56 +152,6 @@ namespace MarketZone.Application.Features.Sales.Commands.PostSalesInvoice
 
                     //    _productBalanceRepository.Update(balance);
                     //}
-
-                    // حساب نسبة الموظف من عمولة المنتجات المباعة
-                    var employee = await _employeeRepository.GetByIdAsync(trip.EmployeeId);
-                    if (employee != null && employee.SalaryType == SalaryType.FixedWithPercentage && employee.SalaryPercentage.HasValue && employee.SalaryPercentage.Value > 0)
-                    {
-                        decimal totalPercentageAmount = 0;
-                        var employeePercentage = employee.SalaryPercentage.Value / 100m;
-
-                        foreach (var tripDetail in trip.Details)
-                        {
-                            var netSoldQty = tripDetail.Qty - tripDetail.SoldQty;
-                            if (netSoldQty <= 0)
-                                continue;
-
-                            var product = await _productRepository.GetByIdAsync(tripDetail.ProductId);
-                            if (product == null || product.CommissionPerKg == null || product.CommissionPerKg <= 0)
-                                continue;
-
-                            totalPercentageAmount += (netSoldQty * product.CommissionPerKg.Value) * employeePercentage;
-                        }
-
-                        if (totalPercentageAmount > 0)
-                        {
-                            // الحصول على سعر الصرف الحالي
-                            var exchangeRate = await _exchangeRateRepository.GetLatestActiveRateAsync(cancellationToken);
-                            if (exchangeRate == null)
-                                return new Error(ErrorCode.FieldDataInvalid, "No active exchange rate found", nameof(request.Id));
-
-                            // ضرب totalPercentageAmount بسعر الصرف الحالي
-                            var totalPercentageAmountInSyrian = totalPercentageAmount * exchangeRate.Rate;
-
-                            var currentYear = trip.TripDate.Year;
-                            var currentMonth = trip.TripDate.Month;
-
-                            var employeeSalary = await _employeeSalaryRepository.GetOrCreateAsync(
-                                employee.Id,
-                                currentYear,
-                                currentMonth,
-                                employee.Salary,
-                                null);
-
-                            if (employeeSalary.BaseSalary != employee.Salary)
-                            {
-                                employeeSalary.UpdateBaseSalary(employee.Salary);
-                            }
-
-                            employeeSalary.AddPercentageAmount(totalPercentageAmountInSyrian);
-                            _employeeSalaryRepository.Update(employeeSalary);
-                        }
-                    }
                 }
             }
 

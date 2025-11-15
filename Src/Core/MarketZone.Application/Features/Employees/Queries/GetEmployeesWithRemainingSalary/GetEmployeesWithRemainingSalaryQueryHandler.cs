@@ -46,7 +46,11 @@ namespace MarketZone.Application.Features.Employees.Queries.GetEmployeesWithRema
                     employeeDto.RemainingSalary = employee.Salary;
                 }
 
-                result.Add(employeeDto);
+                // إضافة الموظف فقط إذا كان RemainingSalary > 0
+                if (employeeDto.RemainingSalary > 0)
+                {
+                    result.Add(employeeDto);
+                }
             }
 
             return BaseResult<List<EmployeeDto>>.Ok(result);
