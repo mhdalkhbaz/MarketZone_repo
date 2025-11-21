@@ -28,7 +28,7 @@ namespace MarketZone.Application.Features.Employees.Commands.DeleteEmployee
 			if (hasRoastingInvoices)
 			{
 				return new Error(ErrorCode.FieldDataInvalid, 
-					translator.GetString("Cannot delete employee who has posted roasting invoices"), 
+					translator.GetString("Cannot_Delete_Employee_With_Posted_Roasting_Invoices"), 
 					nameof(request.Id));
 			}
 

@@ -7,6 +7,7 @@ using MarketZone.Domain.Purchases.Enums;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using MarketZone.Application.DTOs;
 
 namespace MarketZone.Application.Features.Purchases.Commands.UpdatePurchaseInvoice
 {
@@ -99,7 +100,8 @@ namespace MarketZone.Application.Features.Purchases.Commands.UpdatePurchaseInvoi
             catch (System.Exception ex)
             {
                 await _unitOfWork.RollbackAsync();
-                return new Error(ErrorCode.Exception, $"Error updating purchase invoice: {ex.Message}", nameof(request.Id));
+                var message = _translator.GetString(new TranslatorMessageDto("Error_Updating_Purchase_Invoice", new[] { ex.Message }));
+                return new Error(ErrorCode.Exception, message, nameof(request.Id));
             }
         }
     }

@@ -9,10 +9,11 @@ using MarketZone.Domain.Purchases.Enums;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using MarketZone.Application.DTOs;
 
 namespace MarketZone.Application.Features.Purchases.Commands.CreatePurchaseInvoice
 {
-    public class CreatePurchaseInvoiceCommandHandler(IPurchaseInvoiceRepository purchaseInvoiceRepository, IProductRepository productRepository, ISupplierRepository supplierRepository, IUnitOfWork unitOfWork, IMapper mapper, IInvoiceNumberGenerator numberGenerator) : IRequestHandler<CreatePurchaseInvoiceCommand, BaseResult<long>>
+    public class CreatePurchaseInvoiceCommandHandler(IPurchaseInvoiceRepository purchaseInvoiceRepository, IProductRepository productRepository, ISupplierRepository supplierRepository, IUnitOfWork unitOfWork, IMapper mapper, IInvoiceNumberGenerator numberGenerator, ITranslator translator) : IRequestHandler<CreatePurchaseInvoiceCommand, BaseResult<long>>
     {
         public async Task<BaseResult<long>> Handle(CreatePurchaseInvoiceCommand request, CancellationToken cancellationToken)
         {
@@ -22,9 +23,15 @@ namespace MarketZone.Application.Features.Purchases.Commands.CreatePurchaseInvoi
             foreach (var detail in request.Details)
             {
                 if (!products.TryGetValue(detail.ProductId, out var product))
-                    return new Error(ErrorCode.NotFound, $"Product with ID {detail.ProductId} not found", nameof(detail.ProductId));
+                {
+                    var message = translator.GetString(new TranslatorMessageDto("Product_With_ID_Not_Found", new[] { detail.ProductId.ToString() }));
+                    return new Error(ErrorCode.NotFound, message, nameof(detail.ProductId));
+                }
                 if (product.RawProductId.HasValue)
-                    return new Error(ErrorCode.FieldDataInvalid, $"Roasted products cannot be purchased directly. Product: {product.Name}", nameof(detail.ProductId));
+                {
+                    var message = translator.GetString(new TranslatorMessageDto("Roasted_Products_Cannot_Be_Purchased_Directly", new[] { product.Name }));
+                    return new Error(ErrorCode.FieldDataInvalid, message, nameof(detail.ProductId));
+                }
             }
 
             // Default invoice currency from supplier if not provided

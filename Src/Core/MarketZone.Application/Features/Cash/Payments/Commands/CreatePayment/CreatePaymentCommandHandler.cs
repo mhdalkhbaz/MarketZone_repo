@@ -6,6 +6,7 @@ using MarketZone.Application.Interfaces.Repositories;
 using MarketZone.Application.Wrappers;
 using MarketZone.Domain.Cash.Entities;
 using MarketZone.Domain.Cash.Enums;
+using MarketZone.Application.DTOs;
 
 namespace MarketZone.Application.Features.Cash.Payments.Commands.CreatePayment
 {
@@ -13,23 +14,24 @@ namespace MarketZone.Application.Features.Cash.Payments.Commands.CreatePayment
 		IPaymentRepository repository, 
 		IUnitOfWork unitOfWork,
 		IRoastingInvoiceRepository roastingInvoiceRepository,
-		IEmployeeRepository employeeRepository) : IRequestHandler<CreatePaymentCommand, BaseResult<long>>
+		IEmployeeRepository employeeRepository,
+		ITranslator translator) : IRequestHandler<CreatePaymentCommand, BaseResult<long>>
 	{
 		public async Task<BaseResult<long>> Handle(CreatePaymentCommand request, CancellationToken cancellationToken)
 		{
 			Payment entity;
 
-			// Validate amount
-			if (request.Amount <= 0)
-			{
-				return new Error(ErrorCode.FieldDataInvalid, "Amount must be greater than 0", nameof(request.Amount));
-			}
-			
-			// Check if payment type requires an invoice
-			if (RequiresInvoice(request.PaymentType))
-			{
-				if (!request.InvoiceId.HasValue)
-					return new Error(ErrorCode.FieldDataInvalid, "InvoiceId is required for this payment type", nameof(request.InvoiceId));
+		// Validate amount
+		if (request.Amount <= 0)
+		{
+			return new Error(ErrorCode.FieldDataInvalid, translator.GetString("Amount_Must_Be_Greater_Than_0"), nameof(request.Amount));
+		}
+		
+		// Check if payment type requires an invoice
+		if (RequiresInvoice(request.PaymentType))
+		{
+			if (!request.InvoiceId.HasValue)
+				return new Error(ErrorCode.FieldDataInvalid, translator.GetString("InvoiceId_Required_For_Payment_Type"), nameof(request.InvoiceId));
 
 				var currency = request.Currency;
 				var paymentCurrency = request.PaymentCurrency;

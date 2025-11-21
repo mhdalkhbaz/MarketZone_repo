@@ -30,7 +30,7 @@ namespace MarketZone.Application.Features.Employees.Commands.UpdateEmployee
 			if (hasRoastingInvoices)
 			{
 				return new Error(ErrorCode.FieldDataInvalid, 
-					translator.GetString("Cannot update employee who has posted roasting invoices"), 
+					translator.GetString("Cannot_Update_Employee_With_Posted_Roasting_Invoices"), 
 					nameof(request.Id));
 			}
 

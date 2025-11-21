@@ -3,16 +3,17 @@ using System.Threading.Tasks;
 using MarketZone.Application.Interfaces;
 using MarketZone.Application.Interfaces.Repositories;
 using MarketZone.Application.Wrappers;
+using MarketZone.Application.Helpers;
 
 namespace MarketZone.Application.Features.Cash.Expenses.Commands.DeleteExpense
 {
-    public class DeleteExpenseCommandHandler(ICashTransactionRepository repository, ICashRegisterRepository cashRegisterRepository, IUnitOfWork unitOfWork) : IRequestHandler<DeleteExpenseCommand, BaseResult>
-    {
-        public async Task<BaseResult> Handle(DeleteExpenseCommand request, CancellationToken cancellationToken)
-        {
-            var entity = await repository.GetByIdAsync(request.Id, cancellationToken);
-            if (entity == null)
-                return new Error(ErrorCode.NotFound, "Expense not found", nameof(request.Id));
+	public class DeleteExpenseCommandHandler(ICashTransactionRepository repository, ICashRegisterRepository cashRegisterRepository, IUnitOfWork unitOfWork, ITranslator translator) : IRequestHandler<DeleteExpenseCommand, BaseResult>
+	{
+		public async Task<BaseResult> Handle(DeleteExpenseCommand request, CancellationToken cancellationToken)
+		{
+			var entity = await repository.GetByIdAsync(request.Id, cancellationToken);
+			if (entity == null)
+				return new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.ExpenseMessages.Expense_NotFound_with_id(request.Id)), nameof(request.Id));
 
             // Adjust cash register (reverse transaction)
             if (entity.CashRegisterId > 0)

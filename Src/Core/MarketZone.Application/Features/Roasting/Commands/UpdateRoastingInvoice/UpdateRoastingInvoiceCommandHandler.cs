@@ -10,41 +10,46 @@ using MarketZone.Application.Wrappers;
 using MarketZone.Domain.Roasting.Entities;
 using MarketZone.Domain.Roasting.Enums;
 using MarketZone.Domain.Inventory.Entities;
+using MarketZone.Application.DTOs;
 
 namespace MarketZone.Application.Features.Roasting.Commands.UpdateRoastingInvoice
 {
             public class UpdateRoastingInvoiceCommandHandler : IRequestHandler<UpdateRoastingInvoiceCommand, BaseResult<long>>
         {
-            private readonly IRoastingInvoiceRepository _repository;
-            private readonly IProductBalanceRepository _productBalanceRepository;
-            private readonly IMapper _mapper;
-            private readonly IUnitOfWork _unitOfWork;
+	private readonly IRoastingInvoiceRepository _repository;
+	private readonly IProductBalanceRepository _productBalanceRepository;
+	private readonly IMapper _mapper;
+	private readonly IUnitOfWork _unitOfWork;
+	private readonly ITranslator _translator;
 
-            public UpdateRoastingInvoiceCommandHandler(
-                IRoastingInvoiceRepository repository,
-                IProductBalanceRepository productBalanceRepository,
-                IMapper mapper,
-                IUnitOfWork unitOfWork)
-            {
-                _repository = repository;
-                _productBalanceRepository = productBalanceRepository;
-                _mapper = mapper;
-                _unitOfWork = unitOfWork;
-            }
+	public UpdateRoastingInvoiceCommandHandler(
+		IRoastingInvoiceRepository repository,
+		IProductBalanceRepository productBalanceRepository,
+		IMapper mapper,
+		IUnitOfWork unitOfWork,
+		ITranslator translator)
+	{
+		_repository = repository;
+		_productBalanceRepository = productBalanceRepository;
+		_mapper = mapper;
+		_unitOfWork = unitOfWork;
+		_translator = translator;
+	}
 
         public async Task<BaseResult<long>> Handle(UpdateRoastingInvoiceCommand request, CancellationToken cancellationToken)
         {
-            var roastingInvoice = await _repository.GetWithDetailsByIdAsync(request.Id);
-            if (roastingInvoice == null)
-            {
-                throw new InvalidOperationException($"Roasting invoice with ID {request.Id} not found.");
-            }
+		var roastingInvoice = await _repository.GetWithDetailsByIdAsync(request.Id);
+		if (roastingInvoice == null)
+		{
+			var message = _translator.GetString(new TranslatorMessageDto("RoastingInvoice_NotFound_With_ID", new[] { request.Id.ToString() }));
+			return new Error(ErrorCode.NotFound, message, nameof(request.Id));
+		}
 
-            // Prevent updates if invoice is posted
-            if (roastingInvoice.Status == RoastingInvoiceStatus.Posted)
-            {
-                throw new InvalidOperationException("Cannot update a posted roasting invoice.");
-            }
+		// Prevent updates if invoice is posted
+		if (roastingInvoice.Status == RoastingInvoiceStatus.Posted)
+		{
+			return new Error(ErrorCode.AccessDenied, _translator.GetString("Cannot_Update_Posted_Roasting_Invoice"), nameof(request.Id));
+		}
 
             // Release all previously reserved quantities (إرجاع Qty و AvailableQty)
             foreach (var detail in roastingInvoice.Details)

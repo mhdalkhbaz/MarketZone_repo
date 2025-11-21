@@ -9,6 +9,7 @@ using System.Linq;
 using MarketZone.Domain.Logistics.Enums;
 using MarketZone.Domain.Employees.Enums;
 using MarketZone.Domain.Inventory.Entities;
+using MarketZone.Application.DTOs;
 
 namespace MarketZone.Application.Features.Sales.Commands.PostSalesInvoice
 {
@@ -63,9 +64,9 @@ namespace MarketZone.Application.Features.Sales.Commands.PostSalesInvoice
             // إذا كانت فاتورة موزع، التحقق من رحلة التوزيع وإكمالها إذا لزم الأمر
             if (invoice.Type == SalesInvoiceType.Distributor && invoice.DistributionTripId.HasValue)
             {
-                var trip = await _tripRepository.GetWithDetailsByIdAsync(invoice.DistributionTripId.Value, cancellationToken);
-                if (trip == null)
-                    return new Error(ErrorCode.NotFound, "رحلة التوزيع غير موجودة", nameof(invoice.DistributionTripId));
+			var trip = await _tripRepository.GetWithDetailsByIdAsync(invoice.DistributionTripId.Value, cancellationToken);
+			if (trip == null)
+				return new Error(ErrorCode.NotFound, _translator.GetString("DistributionTrip_NotFound"), nameof(invoice.DistributionTripId));
 
                 // حساب نسبة الموظف من عمولة المنتجات المباعة في هذه الفاتورة (عند كل Post فاتورة)
                 var employee = await _employeeRepository.GetByIdAsync(trip.EmployeeId);
@@ -92,9 +93,9 @@ namespace MarketZone.Application.Features.Sales.Commands.PostSalesInvoice
                     if (totalPercentageAmount > 0)
                     {
                         // الحصول على سعر الصرف الحالي
-                        var exchangeRate = await _exchangeRateRepository.GetLatestActiveRateAsync(cancellationToken);
-                        if (exchangeRate == null)
-                            return new Error(ErrorCode.FieldDataInvalid, "لا يوجد سعر صرف نشط", nameof(request.Id));
+					var exchangeRate = await _exchangeRateRepository.GetLatestActiveRateAsync(cancellationToken);
+					if (exchangeRate == null)
+						return new Error(ErrorCode.FieldDataInvalid, _translator.GetString("No_Active_Exchange_Rate_Found"), nameof(request.Id));
 
                         // ضرب totalPercentageAmount بسعر الصرف الحالي
                         var totalPercentageAmountInSyrian = totalPercentageAmount * exchangeRate.Rate;

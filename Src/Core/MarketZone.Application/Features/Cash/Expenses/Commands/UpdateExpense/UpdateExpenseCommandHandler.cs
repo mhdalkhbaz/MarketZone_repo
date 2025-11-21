@@ -4,16 +4,17 @@ using MarketZone.Application.Interfaces;
 using MarketZone.Application.Interfaces.Repositories;
 using MarketZone.Application.Wrappers;
 using MarketZone.Domain.Cash.Entities;
+using MarketZone.Application.Helpers;
 
 namespace MarketZone.Application.Features.Cash.Expenses.Commands.UpdateExpense
 {
-    public class UpdateExpenseCommandHandler(ICashTransactionRepository repository, ICashRegisterRepository cashRegisterRepository, IUnitOfWork unitOfWork) : IRequestHandler<UpdateExpenseCommand, BaseResult>
-    {
-        public async Task<BaseResult> Handle(UpdateExpenseCommand request, CancellationToken cancellationToken)
-        {
-            var entity = await repository.GetByIdAsync(request.Id, cancellationToken);
-            if (entity == null)
-                return new Error(ErrorCode.NotFound, "Expense not found", nameof(request.Id));
+	public class UpdateExpenseCommandHandler(ICashTransactionRepository repository, ICashRegisterRepository cashRegisterRepository, IUnitOfWork unitOfWork, ITranslator translator) : IRequestHandler<UpdateExpenseCommand, BaseResult>
+	{
+		public async Task<BaseResult> Handle(UpdateExpenseCommand request, CancellationToken cancellationToken)
+		{
+			var entity = await repository.GetByIdAsync(request.Id, cancellationToken);
+			if (entity == null)
+				return new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.ExpenseMessages.Expense_NotFound_with_id(request.Id)), nameof(request.Id));
 
             // Store old values for cash register adjustment
             var oldAmount = entity.Amount;

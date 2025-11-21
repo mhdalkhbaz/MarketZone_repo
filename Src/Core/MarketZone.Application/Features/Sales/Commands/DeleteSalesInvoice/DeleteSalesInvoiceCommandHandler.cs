@@ -6,6 +6,7 @@ using MarketZone.Application.Interfaces;
 using MarketZone.Application.Interfaces.Repositories;
 using MarketZone.Application.Wrappers;
 using MarketZone.Domain.Sales.Enums;
+using MarketZone.Application.DTOs;
 
 namespace MarketZone.Application.Features.Sales.Commands.DeleteSalesInvoice
 {
@@ -63,12 +64,13 @@ namespace MarketZone.Application.Features.Sales.Commands.DeleteSalesInvoice
 				await _unitOfWork.SaveChangesAsync();
 				return BaseResult.Ok();
 			}
-			catch (System.Exception ex)
-			{
-				// في حالة الخطأ، التراجع عن جميع التغييرات
-				await _unitOfWork.RollbackAsync();
-				return new Error(ErrorCode.Exception, $"خطأ في حذف فاتورة المبيعات: {ex.Message}", nameof(request.Id));
-			}
+		catch (System.Exception ex)
+		{
+			// في حالة الخطأ، التراجع عن جميع التغييرات
+			await _unitOfWork.RollbackAsync();
+			var message = _translator.GetString(new TranslatorMessageDto("Error_Deleting_Sales_Invoice", new[] { ex.Message }));
+			return new Error(ErrorCode.Exception, message, nameof(request.Id));
+		}
 		}
 	}
 }

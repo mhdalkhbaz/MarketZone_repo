@@ -19,7 +19,7 @@ namespace MarketZone.Application.Features.Logistics.Commands.Regions.DeleteRegio
 
 			if (region is null)
 			{
-				return new Error(ErrorCode.NotFound, translator.GetString("Region not found"), nameof(request.Id));
+				return new Error(ErrorCode.NotFound, translator.GetString("Region_Not_Found"), nameof(request.Id));
 			}
 
 			// Check if there are any DistributionTrips associated with this Region
@@ -27,9 +27,9 @@ namespace MarketZone.Application.Features.Logistics.Commands.Regions.DeleteRegio
 
 			if (hasDistributionTrips)
 			{
-				return new Error(ErrorCode.FieldDataInvalid,
-					translator.GetString("Cannot delete region that has associated distribution trips"),
-					nameof(request.Id));
+			return new Error(ErrorCode.FieldDataInvalid,
+				translator.GetString("Cannot_Delete_Region_With_Associated_Distribution_Trips"),
+				nameof(request.Id));
 			}
 
 			regionRepository.Delete(region);

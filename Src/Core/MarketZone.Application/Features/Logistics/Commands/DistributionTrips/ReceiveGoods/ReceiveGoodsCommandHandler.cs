@@ -6,39 +6,43 @@ using MarketZone.Application.Interfaces.Repositories;
 using MarketZone.Application.Wrappers;
 using MarketZone.Domain.Logistics.Enums;
 using MarketZone.Domain.Inventory.Entities;
+using MarketZone.Application.DTOs;
 
 namespace MarketZone.Application.Features.Logistics.Commands.DistributionTrips.ReceiveGoods
 {
 	public class ReceiveGoodsCommandHandler : IRequestHandler<ReceiveGoodsCommand, BaseResult>
 	{
-		private readonly IDistributionTripRepository _repository;
-		private readonly IUnitOfWork _unitOfWork;
-		private readonly IProductBalanceRepository _productBalanceRepository;
-		private readonly IInventoryHistoryRepository _inventoryHistoryRepository;
+	private readonly IDistributionTripRepository _repository;
+	private readonly IUnitOfWork _unitOfWork;
+	private readonly IProductBalanceRepository _productBalanceRepository;
+	private readonly IInventoryHistoryRepository _inventoryHistoryRepository;
+	private readonly ITranslator _translator;
 
-		public ReceiveGoodsCommandHandler(
-			IDistributionTripRepository repository, 
-			IUnitOfWork unitOfWork,
-			IProductBalanceRepository productBalanceRepository,
-			IInventoryHistoryRepository inventoryHistoryRepository)
-		{
-			_repository = repository;
-			_unitOfWork = unitOfWork;
-			_productBalanceRepository = productBalanceRepository;
-			_inventoryHistoryRepository = inventoryHistoryRepository;
-		}
+	public ReceiveGoodsCommandHandler(
+		IDistributionTripRepository repository, 
+		IUnitOfWork unitOfWork,
+		IProductBalanceRepository productBalanceRepository,
+		IInventoryHistoryRepository inventoryHistoryRepository,
+		ITranslator translator)
+	{
+		_repository = repository;
+		_unitOfWork = unitOfWork;
+		_productBalanceRepository = productBalanceRepository;
+		_inventoryHistoryRepository = inventoryHistoryRepository;
+		_translator = translator;
+	}
 
 		public async Task<BaseResult> Handle(ReceiveGoodsCommand request, CancellationToken cancellationToken)
 		{
 			try
 			{
-				var trip = await _repository.GetWithDetailsByIdAsync(request.TripId, cancellationToken);
-				if (trip is null)
-					return new Error(ErrorCode.NotFound, "Distribution trip not found", nameof(request.TripId));
+		var trip = await _repository.GetWithDetailsByIdAsync(request.TripId, cancellationToken);
+		if (trip is null)
+			return new Error(ErrorCode.NotFound, _translator.GetString("DistributionTrip_NotFound"), nameof(request.TripId));
 
-				// التحقق من أن الرحلة في حالة Posted
-				if (trip.Status != DistributionTripStatus.Posted)
-					return new Error(ErrorCode.FieldDataInvalid, "Cannot receive goods for trip that is not in Posted status", nameof(request.TripId));
+		// التحقق من أن الرحلة في حالة Posted
+		if (trip.Status != DistributionTripStatus.Posted)
+			return new Error(ErrorCode.FieldDataInvalid, _translator.GetString("Cannot_Receive_Goods_For_Non_Posted_Trip"), nameof(request.TripId));
 
 				//// التحقق من وجود التفاصيل
 				//if (request.Details == null || !request.Details.Any())
@@ -47,13 +51,20 @@ namespace MarketZone.Application.Features.Logistics.Commands.DistributionTrips.R
 				// تحديث الكميات المرجعة وإرجاعها إلى المخزون
 				foreach (var item in request.Details)
 				{
-					var detail = trip.Details.FirstOrDefault(d => d.Id == item.DetailId);
-					if (detail == null)
-						return new Error(ErrorCode.NotFound, $"Trip detail not found: {item.DetailId}", nameof(request.Details));
+			var detail = trip.Details.FirstOrDefault(d => d.Id == item.DetailId);
+			if (detail == null)
+			{
+				var message = _translator.GetString(new TranslatorMessageDto("Trip_Detail_Not_Found", new[] { item.DetailId.ToString() }));
+				return new Error(ErrorCode.NotFound, message, nameof(request.Details));
+			}
 
-					// التحقق من أن الكمية المرجعة لا تتجاوز الكمية المحملة
-					if (item.ReturnedQty > detail.Qty)
-						return new Error(ErrorCode.FieldDataInvalid, $"Returned quantity ({item.ReturnedQty}) cannot exceed loaded quantity ({detail.Qty}) for detail {item.DetailId}", nameof(request.Details));
+			// التحقق من أن الكمية المرجعة لا تتجاوز الكمية المحملة
+			if (item.ReturnedQty > detail.Qty)
+			{
+				var message = _translator.GetString(new TranslatorMessageDto("Returned_Quantity_Exceeds_Loaded_Quantity", 
+					new[] { item.ReturnedQty.ToString(), detail.Qty.ToString(), item.DetailId.ToString() }));
+				return new Error(ErrorCode.FieldDataInvalid, message, nameof(request.Details));
+			}
 
 					// تحديث الكمية المرجعة في تفاصيل الرحلة
 					detail.UpdateReturnedQty(item.ReturnedQty);
@@ -61,9 +72,12 @@ namespace MarketZone.Application.Features.Logistics.Commands.DistributionTrips.R
 					// إرجاع الكميات المرجعة إلى المخزون (استلام الرحلة)
 					if (item.ReturnedQty > 0)
 					{
-						var balance = await _productBalanceRepository.GetByProductIdAsync(detail.ProductId, cancellationToken);
-						if (balance == null)
-							return new Error(ErrorCode.FieldDataInvalid, $"Product balance not found for product {detail.ProductId}", nameof(request.Details));
+				var balance = await _productBalanceRepository.GetByProductIdAsync(detail.ProductId, cancellationToken);
+				if (balance == null)
+				{
+					var message = _translator.GetString(new TranslatorMessageDto("Product_Balance_Not_Found_For_Product", new[] { detail.ProductId.ToString() }));
+					return new Error(ErrorCode.FieldDataInvalid, message, nameof(request.Details));
+				}
 
 						// إضافة الكمية المرجعة إلى Qty و AvailableQty
 						balance.Adjust(item.ReturnedQty, item.ReturnedQty);
@@ -88,12 +102,13 @@ namespace MarketZone.Application.Features.Logistics.Commands.DistributionTrips.R
 				await _unitOfWork.SaveChangesAsync();
 				return BaseResult.Ok();
 			}
-			catch (System.Exception ex)
-			{
-				// في حالة الخطأ، التراجع عن جميع التغييرات
-				await _unitOfWork.RollbackAsync();
-				return new Error(ErrorCode.Exception, $"Error receiving goods: {ex.Message}", nameof(request.TripId));
-			}
+	catch (System.Exception ex)
+	{
+		// في حالة الخطأ، التراجع عن جميع التغييرات
+		await _unitOfWork.RollbackAsync();
+		var message = _translator.GetString(new TranslatorMessageDto("Error_Receiving_Goods", new[] { ex.Message }));
+		return new Error(ErrorCode.Exception, message, nameof(request.TripId));
+	}
 		}
 
 	}

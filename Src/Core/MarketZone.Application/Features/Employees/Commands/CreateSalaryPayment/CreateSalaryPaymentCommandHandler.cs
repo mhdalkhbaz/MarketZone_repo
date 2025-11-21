@@ -7,6 +7,7 @@ using MarketZone.Application.Interfaces.Repositories;
 using MarketZone.Application.Wrappers;
 using MarketZone.Domain.Employees.Entities;
 using MarketZone.Domain.Cash.Entities;
+using MarketZone.Application.DTOs;
 
 namespace MarketZone.Application.Features.Employees.Commands.CreateSalaryPayment
 {
@@ -29,16 +30,16 @@ namespace MarketZone.Application.Features.Employees.Commands.CreateSalaryPayment
             }
 
 
-            // التحقق من صحة الشهر والسنة
-            if (request.Month < 1 || request.Month > 12)
-            {
-                return new Error(ErrorCode.FieldDataInvalid, "Month must be between 1 and 12", nameof(request.Month));
-            }
+		// التحقق من صحة الشهر والسنة
+		if (request.Month < 1 || request.Month > 12)
+		{
+			return new Error(ErrorCode.FieldDataInvalid, translator.GetString("Month_Must_Be_Between_1_And_12"), nameof(request.Month));
+		}
 
-            if (request.Year < 2000 || request.Year > 3000)
-            {
-                return new Error(ErrorCode.FieldDataInvalid, "Year must be between 2000 and 3000", nameof(request.Year));
-            }
+		if (request.Year < 2000 || request.Year > 3000)
+		{
+			return new Error(ErrorCode.FieldDataInvalid, translator.GetString("Year_Must_Be_Between_2000_And_3000"), nameof(request.Year));
+		}
 
             // إنشاء أو الحصول على EmployeeSalary
             var employeeSalary = await employeeSalaryRepository.GetOrCreateAsync(
@@ -47,14 +48,14 @@ namespace MarketZone.Application.Features.Employees.Commands.CreateSalaryPayment
                 request.Month,
                 employee.Salary,null);
 
-            // التحقق من الخصم
-            var deduction = request.Deduction ?? 0;
-            if (deduction < 0)
-            {
-                return new Error(ErrorCode.FieldDataInvalid, 
-                    "Deduction cannot be negative", 
-                    nameof(request.Deduction));
-            }
+		// التحقق من الخصم
+		var deduction = request.Deduction ?? 0;
+		if (deduction < 0)
+		{
+			return new Error(ErrorCode.FieldDataInvalid, 
+				translator.GetString("Deduction_Cannot_Be_Negative"), 
+				nameof(request.Deduction));
+		}
 
             // حساب الخصم الإجمالي (الخصم الموجود + الخصم الجديد)
             var totalDeduction = employeeSalary.Deduction + deduction;
@@ -62,12 +63,19 @@ namespace MarketZone.Application.Features.Employees.Commands.CreateSalaryPayment
             // التحقق من أن المبلغ المدفوع + الخصم لا يتجاوز TotalSalary
             // TotalSalary = PaidAmount + Amount (المدفوع الجديد) + TotalDeduction
             var totalAfterPayment = employeeSalary.PaidAmount + request.Amount + totalDeduction;
-            if (totalAfterPayment > employeeSalary.TotalSalary)
-            {
-                return new Error(ErrorCode.FieldDataInvalid, 
-                    $"Total payment and deduction exceed total salary. Total Salary: {employeeSalary.TotalSalary}, Already Paid: {employeeSalary.PaidAmount}, Existing Deduction: {employeeSalary.Deduction}, New Payment: {request.Amount}, New Deduction: {deduction}, Total After: {totalAfterPayment}", 
-                    nameof(request.Amount));
-            }
+		if (totalAfterPayment > employeeSalary.TotalSalary)
+		{
+			var message = translator.GetString(new TranslatorMessageDto("Total_Payment_And_Deduction_Exceed_Total_Salary", 
+				new[] { 
+					employeeSalary.TotalSalary.ToString(), 
+					employeeSalary.PaidAmount.ToString(), 
+					employeeSalary.Deduction.ToString(), 
+					request.Amount.ToString(), 
+					deduction.ToString(), 
+					totalAfterPayment.ToString() 
+				}));
+			return new Error(ErrorCode.FieldDataInvalid, message, nameof(request.Amount));
+		}
 
             // تطبيق الخصم إذا كان موجوداً (يضيف على الخصم الموجود)
             if (deduction > 0)
@@ -94,18 +102,22 @@ namespace MarketZone.Application.Features.Employees.Commands.CreateSalaryPayment
                 // التحقق من أن الرصيد كافي حسب العملة
                 if (request.Currency == Domain.Cash.Enums.Currency.SY)
                 {
-                    if (cashRegister.CurrentBalance < request.Amount)
-                        return new Error(ErrorCode.FieldDataInvalid, 
-                            $"Insufficient balance in cash register. Current balance: {cashRegister.CurrentBalance}, Required: {request.Amount}", 
-                            nameof(request.Amount));
-                }
-                else if (request.Currency == Domain.Cash.Enums.Currency.Dollar)
-                {
-                    if (cashRegister.CurrentBalanceDollar < request.Amount)
-                        return new Error(ErrorCode.FieldDataInvalid, 
-                            $"Insufficient dollar balance in cash register. Current balance: {cashRegister.CurrentBalanceDollar}, Required: {request.Amount}", 
-                            nameof(request.Amount));
-                }
+			if (cashRegister.CurrentBalance < request.Amount)
+			{
+				var message = translator.GetString(new TranslatorMessageDto("Insufficient_Balance_In_Cash_Register", 
+					new[] { cashRegister.CurrentBalance.ToString(), request.Amount.ToString() }));
+				return new Error(ErrorCode.FieldDataInvalid, message, nameof(request.Amount));
+			}
+			}
+			else if (request.Currency == Domain.Cash.Enums.Currency.Dollar)
+			{
+				if (cashRegister.CurrentBalanceDollar < request.Amount)
+				{
+					var message = translator.GetString(new TranslatorMessageDto("Insufficient_Dollar_Balance_In_Cash_Register", 
+						new[] { cashRegister.CurrentBalanceDollar.ToString(), request.Amount.ToString() }));
+					return new Error(ErrorCode.FieldDataInvalid, message, nameof(request.Amount));
+				}
+			}
             }
 
             // إنشاء SalaryPayment

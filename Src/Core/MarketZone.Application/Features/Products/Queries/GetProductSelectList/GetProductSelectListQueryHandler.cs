@@ -7,24 +7,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using MarketZone.Application.Helpers;
 
 namespace MarketZone.Application.Features.Products.Queries.GetProductSelectList
 {
     public class GetProductSelectListQueryHandler : IRequestHandler<GetProductSelectListQuery, BaseResult<List<ProductSelectListDto>>>
     {
-        private readonly IDistributionTripRepository _tripRepository;
-        private readonly IProductRepository _productRepository;
-        private readonly IProductBalanceRepository _productBalanceRepository;
+	private readonly IDistributionTripRepository _tripRepository;
+	private readonly IProductRepository _productRepository;
+	private readonly IProductBalanceRepository _productBalanceRepository;
+	private readonly ITranslator _translator;
 
-        public GetProductSelectListQueryHandler(
-            IDistributionTripRepository tripRepository,
-            IProductRepository productRepository,
-            IProductBalanceRepository productBalanceRepository)
-        {
-            _tripRepository = tripRepository;
-            _productRepository = productRepository;
-            _productBalanceRepository = productBalanceRepository;
-        }
+	public GetProductSelectListQueryHandler(
+		IDistributionTripRepository tripRepository,
+		IProductRepository productRepository,
+		IProductBalanceRepository productBalanceRepository,
+		ITranslator translator)
+	{
+		_tripRepository = tripRepository;
+		_productRepository = productRepository;
+		_productBalanceRepository = productBalanceRepository;
+		_translator = translator;
+	}
 
         public async Task<BaseResult<List<ProductSelectListDto>>> Handle(GetProductSelectListQuery request, CancellationToken cancellationToken)
         {
@@ -45,10 +49,11 @@ namespace MarketZone.Application.Features.Products.Queries.GetProductSelectList
 
                 return BaseResult<List<ProductSelectListDto>>.Ok(result);
             }
-            catch (System.Exception ex)
-            {
-                return new Error(ErrorCode.Exception, $"Error getting product select list: {ex.Message}", nameof(request));
-            }
+	catch (System.Exception ex)
+	{
+		var message = _translator.GetString(new TranslatorMessageDto("Error_Getting_Product_Select_List", new[] { ex.Message }));
+		return new Error(ErrorCode.Exception, message, nameof(request));
+	}
         }
 
         private async Task<List<ProductSelectListDto>> GetRemainingProductsForTrip(long tripId, CancellationToken cancellationToken)

@@ -9,36 +9,40 @@ using MarketZone.Application.Wrappers;
 using MarketZone.Domain.Sales.Entities;
 using MarketZone.Domain.Sales.Enums;
 using MarketZone.Application.Interfaces.Services;
+using MarketZone.Application.DTOs;
 
 namespace MarketZone.Application.Features.Sales.Commands.CreateSalesInvoice
 {
 	public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoiceCommand, BaseResult<long>>
 	{
-		private readonly ISalesInvoiceRepository _repository;
-		private readonly IUnitOfWork _unitOfWork;
-		private readonly IMapper _mapper;
-        private readonly IDistributionTripRepository _tripRepository;
-        private readonly IInvoiceNumberGenerator _numberGenerator;
-		private readonly ICustomerRepository _customerRepository;
-		private readonly IProductBalanceRepository _productBalanceRepository;
+	private readonly ISalesInvoiceRepository _repository;
+	private readonly IUnitOfWork _unitOfWork;
+	private readonly IMapper _mapper;
+    private readonly IDistributionTripRepository _tripRepository;
+    private readonly IInvoiceNumberGenerator _numberGenerator;
+	private readonly ICustomerRepository _customerRepository;
+	private readonly IProductBalanceRepository _productBalanceRepository;
+	private readonly ITranslator _translator;
 
-		public CreateSalesInvoiceCommandHandler(
-			ISalesInvoiceRepository repository,
-			IUnitOfWork unitOfWork,
-			IMapper mapper,
-            IDistributionTripRepository tripRepository,
-            IInvoiceNumberGenerator numberGenerator,
-			ICustomerRepository customerRepository,
-			IProductBalanceRepository productBalanceRepository)
-		{
-			_repository = repository;
-			_unitOfWork = unitOfWork;
-			_mapper = mapper;
-			_tripRepository = tripRepository;
-			_numberGenerator = numberGenerator;
-			_customerRepository = customerRepository;
-			_productBalanceRepository = productBalanceRepository;
-		}
+	public CreateSalesInvoiceCommandHandler(
+		ISalesInvoiceRepository repository,
+		IUnitOfWork unitOfWork,
+		IMapper mapper,
+        IDistributionTripRepository tripRepository,
+        IInvoiceNumberGenerator numberGenerator,
+		ICustomerRepository customerRepository,
+		IProductBalanceRepository productBalanceRepository,
+		ITranslator translator)
+	{
+		_repository = repository;
+		_unitOfWork = unitOfWork;
+		_mapper = mapper;
+		_tripRepository = tripRepository;
+		_numberGenerator = numberGenerator;
+		_customerRepository = customerRepository;
+		_productBalanceRepository = productBalanceRepository;
+		_translator = translator;
+	}
 
 		public async Task<BaseResult<long>> Handle(CreateSalesInvoiceCommand request, CancellationToken cancellationToken)
 		{
@@ -83,23 +87,23 @@ namespace MarketZone.Application.Features.Sales.Commands.CreateSalesInvoice
 				// إذا كانت فاتورة موزع، التحقق من رحلة التوزيع
 				if (request.DistributionTripId.HasValue)
 				{
-				var trip = await _tripRepository.GetWithDetailsByIdAsync(request.DistributionTripId.Value, cancellationToken);
-				if (trip == null)
-					return new Error(ErrorCode.NotFound, "رحلة التوزيع غير موجودة", nameof(request.DistributionTripId));
+			var trip = await _tripRepository.GetWithDetailsByIdAsync(request.DistributionTripId.Value, cancellationToken);
+			if (trip == null)
+				return new Error(ErrorCode.NotFound, _translator.GetString("DistributionTrip_NotFound"), nameof(request.DistributionTripId));
 
-				// التحقق من أن رحلة التوزيع لم تكتمل بعد (Status <= 4)
-				if ((short)trip.Status > 4)
-					return new Error(ErrorCode.FieldDataInvalid, "لا يمكن إنشاء فاتورة موزع لرحلة مكتملة أو ملغاة", nameof(request.DistributionTripId));
+			// التحقق من أن رحلة التوزيع لم تكتمل بعد (Status <= 4)
+			if ((short)trip.Status > 4)
+				return new Error(ErrorCode.FieldDataInvalid, _translator.GetString("Cannot_Create_Distributor_Invoice_For_Completed_Trip"), nameof(request.DistributionTripId));
 
-				// التحقق من أن رحلة التوزيع في حالة GoodsReceived أو أقل
-				if (trip.Status != MarketZone.Domain.Logistics.Enums.DistributionTripStatus.GoodsReceived && 
-					trip.Status != MarketZone.Domain.Logistics.Enums.DistributionTripStatus.InProgress)
-					return new Error(ErrorCode.FieldDataInvalid, "لا يمكن إنشاء فاتورة موزع لرحلة ليست في حالة استلام البضائع أو قيد التنفيذ", nameof(request.DistributionTripId));
+			// التحقق من أن رحلة التوزيع في حالة GoodsReceived أو أقل
+			if (trip.Status != MarketZone.Domain.Logistics.Enums.DistributionTripStatus.GoodsReceived && 
+				trip.Status != MarketZone.Domain.Logistics.Enums.DistributionTripStatus.InProgress)
+				return new Error(ErrorCode.FieldDataInvalid, _translator.GetString("Cannot_Create_Distributor_Invoice_For_Invalid_Status"), nameof(request.DistributionTripId));
 
-				// التحقق من أن الكمية لم تنتهي (خلصت الكمية)
-				var hasRemainingQuantity = trip.Details.Any(d => (d.Qty - d.SoldQty - d.ReturnedQty) > 0);
-				if (!hasRemainingQuantity)
-					return new Error(ErrorCode.FieldDataInvalid, "لا يمكن إنشاء فاتورة موزع - جميع الكميات تم بيعها أو إرجاعها", nameof(request.DistributionTripId));
+			// التحقق من أن الكمية لم تنتهي (خلصت الكمية)
+			var hasRemainingQuantity = trip.Details.Any(d => (d.Qty - d.SoldQty - d.ReturnedQty) > 0);
+			if (!hasRemainingQuantity)
+				return new Error(ErrorCode.FieldDataInvalid, _translator.GetString("Cannot_Create_Distributor_Invoice_All_Quantities_Sold"), nameof(request.DistributionTripId));
 
 					invoice.SetDistributionTrip(trip);
 					trip.AddSalesInvoice(invoice);
@@ -112,9 +116,13 @@ namespace MarketZone.Application.Features.Sales.Commands.CreateSalesInvoice
 							var tripDetail = trip.Details.FirstOrDefault(d => d.ProductId == detail.ProductId);
 							if (tripDetail != null)
 							{
-							// التحقق من أن الكمية المباعة لا تتجاوز الكمية المحملة
-							if (tripDetail.SoldQty + detail.Quantity > tripDetail.Qty)
-								return new Error(ErrorCode.FieldDataInvalid, $"الكمية المباعة ({tripDetail.SoldQty + detail.Quantity}) لا يمكن أن تتجاوز الكمية المحملة ({tripDetail.Qty}) للمنتج {detail.ProductId}", nameof(request.Details));
+						// التحقق من أن الكمية المباعة لا تتجاوز الكمية المحملة
+						if (tripDetail.SoldQty + detail.Quantity > tripDetail.Qty)
+						{
+							var message = _translator.GetString(new TranslatorMessageDto("Sold_Quantity_Exceeds_Loaded_Quantity", 
+								new[] { (tripDetail.SoldQty + detail.Quantity).ToString(), tripDetail.Qty.ToString(), detail.ProductId.ToString() }));
+							return new Error(ErrorCode.FieldDataInvalid, message, nameof(request.Details));
+						}
 
 								tripDetail.AddSoldQty(detail.Quantity);
 							}
@@ -158,43 +166,43 @@ namespace MarketZone.Application.Features.Sales.Commands.CreateSalesInvoice
 
 				return invoice.Id;
 			}
-			catch (System.Exception ex)
-			{
-				// في حالة الخطأ، التراجع عن جميع التغييرات
-				await _unitOfWork.RollbackAsync();
-				return new Error(ErrorCode.Exception, $"خطأ في إنشاء فاتورة المبيعات: {ex.Message}", nameof(request));
-			}
+		catch (System.Exception ex)
+		{
+			// في حالة الخطأ، التراجع عن جميع التغييرات
+			await _unitOfWork.RollbackAsync();
+			var message = _translator.GetString(new TranslatorMessageDto("Error_Creating_Sales_Invoice", new[] { ex.Message }));
+			return new Error(ErrorCode.Exception, message, nameof(request));
+		}
 		}
 
 		private async Task<BaseResult> ValidateDetails(CreateSalesInvoiceCommand request, CancellationToken cancellationToken)
 		{
-		// Validate pricing: prevent zero/negative prices
-		if (request.Details.Any(d => d.UnitPrice <= 0))
-		{
-			return new Error(ErrorCode.FieldDataInvalid, 
-				"يجب أن يكون سعر الوحدة أكبر من الصفر لجميع المنتجات", 
-				nameof(request.Details));
-		}
+	// Validate pricing: prevent zero/negative prices
+	if (request.Details.Any(d => d.UnitPrice <= 0))
+	{
+		return new Error(ErrorCode.FieldDataInvalid, 
+			_translator.GetString("Unit_Price_Must_Be_Greater_Than_Zero"), 
+			nameof(request.Details));
+	}
 
 			// Validate available quantity for normal sales (not distributor invoices)
 			if (request.Type != SalesInvoiceType.Distributor)
 			{
 				foreach (var detail in request.Details)
 				{
-				var productBalance = await _productBalanceRepository.GetByProductIdAsync(detail.ProductId, cancellationToken);
-				if (productBalance == null)
-				{
-					return new Error(ErrorCode.NotFound, 
-						$"رصيد المنتج غير موجود للمنتج {detail.ProductId}", 
-						nameof(request.Details));
-				}
+			var productBalance = await _productBalanceRepository.GetByProductIdAsync(detail.ProductId, cancellationToken);
+			if (productBalance == null)
+			{
+				var message = _translator.GetString(new TranslatorMessageDto("Product_Balance_Not_Found", new[] { detail.ProductId.ToString() }));
+				return new Error(ErrorCode.NotFound, message, nameof(request.Details));
+			}
 
-				if (productBalance.AvailableQty < detail.Quantity)
-				{
-					return new Error(ErrorCode.FieldDataInvalid, 
-						$"الكمية المتاحة غير كافية للمنتج {detail.ProductId}. المتاح: {productBalance.AvailableQty}, المطلوب: {detail.Quantity}", 
-						nameof(request.Details));
-				}
+			if (productBalance.AvailableQty < detail.Quantity)
+			{
+				var message = _translator.GetString(new TranslatorMessageDto("Insufficient_Available_Quantity", 
+					new[] { detail.ProductId.ToString(), productBalance.AvailableQty.ToString(), detail.Quantity.ToString() }));
+				return new Error(ErrorCode.FieldDataInvalid, message, nameof(request.Details));
+			}
 				}
 			}
 

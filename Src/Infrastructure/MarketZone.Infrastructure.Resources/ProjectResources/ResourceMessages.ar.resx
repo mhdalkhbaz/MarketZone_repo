@@ -118,240 +118,240 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Account_NotFound_with_UserName" xml:space="preserve">
-    <value>User account with username {0} not found</value>
+    <value>حساب المستخدم باسم المستخدم {0} غير موجود</value>
   </data>
   <data name="Invalid_password" xml:space="preserve">
-    <value>The password is incorrect</value>
+    <value>كلمة المرور غير صحيحة</value>
   </data>
   <data name="Product_NotFound_with_id" xml:space="preserve">
-    <value>Product with ID {0} not found</value>
+    <value>المنتج بالمعرف {0} غير موجود</value>
   </data>
   <data name="Username_is_already_taken" xml:space="preserve">
-    <value>Username {0} is registered in the system</value>
+    <value>اسم المستخدم {0} مسجل بالفعل في النظام</value>
   </data>
   <data name="Cannot_change_currency_when_customer_has_operations" xml:space="preserve">
-    <value>Cannot change customer's currency because it is linked to other operations</value>
+    <value>لا يمكن تغيير عملة العميل لأنه مرتبط بعمليات أخرى</value>
   </data>
   <data name="Supplier_CurrencyChange_NotAllowed_due_to_linked_operations" xml:space="preserve">
-    <value>Cannot change supplier's currency because it is linked to other operations</value>
-  </data>
-  <data name="Resource_NotFound" xml:space="preserve">
-    <value>Resource not found</value>
-  </data>
-  <data name="Internal_Server_Error" xml:space="preserve">
-    <value>An internal server error occurred</value>
+    <value>لا يمكن تغيير عملة المورد لأنه مرتبط بعمليات أخرى</value>
   </data>
   <data name="SalesInvoice_NotFound_with_id" xml:space="preserve">
-    <value>Sales invoice with ID {0} not found</value>
+    <value>فاتورة المبيعات بالمعرف {0} غير موجودة</value>
   </data>
   <data name="PurchaseInvoice_NotFound_with_id" xml:space="preserve">
-    <value>Purchase invoice with ID {0} not found</value>
+    <value>فاتورة المشتريات بالمعرف {0} غير موجودة</value>
   </data>
   <data name="PostedInvoice" xml:space="preserve">
-    <value>Invoice is already posted</value>
+    <value>الفاتورة معتمدة بالفعل</value>
   </data>
   <data name="SalesInvoice_Update_NotAllowed_After_Post" xml:space="preserve">
-    <value>Cannot update sales invoice after it is posted</value>
+    <value>لا يمكن تحديث فاتورة المبيعات بعد الاعتماد</value>
   </data>
   <data name="SalesInvoice_Delete_NotAllowed_After_Post" xml:space="preserve">
-    <value>Cannot delete sales invoice after it is posted</value>
+    <value>لا يمكن حذف فاتورة المبيعات بعد الاعتماد</value>
   </data>
   <data name="PurchaseInvoice_Update_NotAllowed_After_Post" xml:space="preserve">
-    <value>Cannot update purchase invoice after it is posted</value>
+    <value>لا يمكن تحديث فاتورة المشتريات بعد الاعتماد</value>
   </data>
   <data name="PurchaseInvoice_Delete_NotAllowed_After_Post" xml:space="preserve">
-    <value>Cannot delete purchase invoice after it is posted</value>
+    <value>لا يمكن حذف فاتورة المشتريات بعد الاعتماد</value>
   </data>
   <data name="Region not found" xml:space="preserve">
-    <value>Region not found</value>
+    <value>المنطقة غير موجودة</value>
   </data>
   <data name="Cannot delete region that has associated distribution trips" xml:space="preserve">
-    <value>Cannot delete region that has associated distribution trips</value>
+    <value>لا يمكن حذف المنطقة التي لها رحلات توزيع مرتبطة</value>
   </data>
   <data name="PurchaseInvoice_Currency_Required" xml:space="preserve">
-    <value>Currency is required for purchase invoice</value>
+    <value>العملة مطلوبة لفاتورة المشتريات</value>
   </data>
   <data name="Active_Exchange_Rate_Required" xml:space="preserve">
-    <value>Active exchange rate is required</value>
+    <value>سعر الصرف النشط مطلوب</value>
   </data>
   <data name="Cannot update employee who has posted roasting invoices" xml:space="preserve">
-    <value>Cannot update employee who has posted roasting invoices</value>
+    <value>لا يمكن تحديث الموظف الذي لديه فواتير تحميص معتمدة</value>
   </data>
   <data name="Cannot delete employee who has posted roasting invoices" xml:space="preserve">
-    <value>Cannot delete employee who has posted roasting invoices</value>
+    <value>لا يمكن حذف الموظف الذي لديه فواتير تحميص معتمدة</value>
+  </data>
+  <data name="Resource_NotFound" xml:space="preserve">
+    <value>المورد المطلوب غير موجود</value>
+  </data>
+  <data name="Internal_Server_Error" xml:space="preserve">
+    <value>حدث خطأ داخلي في الخادم</value>
   </data>
   <data name="Category_NotFound_with_id" xml:space="preserve">
-    <value>Category with ID {0} not found</value>
+    <value>الفئة بالمعرف {0} غير موجودة</value>
   </data>
   <data name="Customer_NotFound_with_id" xml:space="preserve">
-    <value>Customer with ID {0} not found</value>
+    <value>العميل بالمعرف {0} غير موجود</value>
   </data>
   <data name="Supplier_NotFound_with_id" xml:space="preserve">
-    <value>Supplier with ID {0} not found</value>
+    <value>المورد بالمعرف {0} غير موجود</value>
   </data>
   <data name="Employee_NotFound_with_id" xml:space="preserve">
-    <value>Employee with ID {0} not found</value>
+    <value>الموظف بالمعرف {0} غير موجود</value>
   </data>
   <data name="Expense_NotFound_with_id" xml:space="preserve">
-    <value>Expense with ID {0} not found</value>
+    <value>المصروف بالمعرف {0} غير موجود</value>
   </data>
   <data name="Car_NotFound_with_id" xml:space="preserve">
-    <value>Car with ID {0} not found</value>
+    <value>السيارة بالمعرف {0} غير موجودة</value>
   </data>
   <data name="Region_NotFound_with_id" xml:space="preserve">
-    <value>Region with ID {0} not found</value>
+    <value>المنطقة بالمعرف {0} غير موجودة</value>
   </data>
   <data name="CashRegister_NotFound_with_id" xml:space="preserve">
-    <value>Cash register with ID {0} not found</value>
+    <value>الصندوق بالمعرف {0} غير موجود</value>
   </data>
   <data name="DistributionTrip_NotFound" xml:space="preserve">
-    <value>Distribution trip not found</value>
+    <value>رحلة التوزيع غير موجودة</value>
   </data>
   <data name="Cannot_Create_Distributor_Invoice_For_Completed_Trip" xml:space="preserve">
-    <value>Cannot create distributor invoice for completed or cancelled trip</value>
+    <value>لا يمكن إنشاء فاتورة موزع لرحلة مكتملة أو ملغاة</value>
   </data>
   <data name="Cannot_Create_Distributor_Invoice_For_Invalid_Status" xml:space="preserve">
-    <value>Cannot create distributor invoice for trip that is not in GoodsReceived or InProgress status</value>
+    <value>لا يمكن إنشاء فاتورة موزع لرحلة ليست في حالة استلام البضائع أو قيد التنفيذ</value>
   </data>
   <data name="Cannot_Create_Distributor_Invoice_All_Quantities_Sold" xml:space="preserve">
-    <value>Cannot create distributor invoice - all quantities have been sold or returned</value>
+    <value>لا يمكن إنشاء فاتورة موزع - جميع الكميات تم بيعها أو إرجاعها</value>
   </data>
   <data name="Sold_Quantity_Exceeds_Loaded_Quantity" xml:space="preserve">
-    <value>Sold quantity ({0}) cannot exceed loaded quantity ({1}) for product {2}</value>
+    <value>الكمية المباعة ({0}) لا يمكن أن تتجاوز الكمية المحملة ({1}) للمنتج {2}</value>
   </data>
   <data name="Unit_Price_Must_Be_Greater_Than_Zero" xml:space="preserve">
-    <value>Unit price must be greater than zero for all products</value>
+    <value>يجب أن يكون سعر الوحدة أكبر من الصفر لجميع المنتجات</value>
   </data>
   <data name="Product_Balance_Not_Found" xml:space="preserve">
-    <value>Product balance not found for product {0}</value>
+    <value>رصيد المنتج غير موجود للمنتج {0}</value>
   </data>
   <data name="Insufficient_Available_Quantity" xml:space="preserve">
-    <value>Insufficient available quantity for product {0}. Available: {1}, Requested: {2}</value>
+    <value>الكمية المتاحة غير كافية للمنتج {0}. المتاح: {1}, المطلوب: {2}</value>
   </data>
   <data name="Error_Creating_Sales_Invoice" xml:space="preserve">
-    <value>Error creating sales invoice: {0}</value>
+    <value>خطأ في إنشاء فاتورة المبيعات: {0}</value>
   </data>
   <data name="Error_Deleting_Sales_Invoice" xml:space="preserve">
-    <value>Error deleting sales invoice: {0}</value>
+    <value>خطأ في حذف فاتورة المبيعات: {0}</value>
   </data>
   <data name="At_Least_One_Detail_Required" xml:space="preserve">
-    <value>At least one detail is required</value>
+    <value>يجب إضافة تفاصيل واحدة على الأقل</value>
   </data>
   <data name="Employee_Not_Found" xml:space="preserve">
-    <value>Employee not found</value>
+    <value>الموظف غير موجود</value>
   </data>
   <data name="Car_Not_Found" xml:space="preserve">
-    <value>Car not found</value>
+    <value>السيارة غير موجودة</value>
   </data>
   <data name="Products_Not_Found" xml:space="preserve">
-    <value>Products not found: {0}</value>
+    <value>المنتجات غير موجودة: {0}</value>
   </data>
   <data name="Product_Balance_Not_Found_For_Product" xml:space="preserve">
-    <value>Product balance not found for product {0}</value>
+    <value>رصيد المنتج غير موجود للمنتج {0}</value>
   </data>
   <data name="Insufficient_Available_Quantity_For_Product" xml:space="preserve">
-    <value>Insufficient available quantity for product {0}. Available: {1}, Requested: {2}</value>
+    <value>الكمية المتاحة غير كافية للمنتج {0}. المتاح: {1}, المطلوب: {2}</value>
   </data>
   <data name="Error_Creating_Distribution_Trip" xml:space="preserve">
-    <value>Error creating distribution trip: {0}</value>
+    <value>خطأ في إنشاء رحلة التوزيع: {0}</value>
   </data>
   <data name="Error_Updating_Purchase_Invoice" xml:space="preserve">
-    <value>Error updating purchase invoice: {0}</value>
+    <value>خطأ في تحديث فاتورة المشتريات: {0}</value>
   </data>
   <data name="Cannot_Receive_Goods_For_Non_Posted_Trip" xml:space="preserve">
-    <value>Cannot receive goods for trip that is not in Posted status</value>
+    <value>لا يمكن استلام البضائع لرحلة غير معتمدة</value>
   </data>
   <data name="Trip_Detail_Not_Found" xml:space="preserve">
-    <value>Trip detail not found: {0}</value>
+    <value>تفاصيل الرحلة غير موجودة: {0}</value>
   </data>
   <data name="Returned_Quantity_Exceeds_Loaded_Quantity" xml:space="preserve">
-    <value>Returned quantity ({0}) cannot exceed loaded quantity ({1}) for detail {2}</value>
+    <value>الكمية المرتجعة ({0}) لا يمكن أن تتجاوز الكمية المحملة ({1}) للتفاصيل {2}</value>
   </data>
   <data name="Error_Receiving_Goods" xml:space="preserve">
-    <value>Error receiving goods: {0}</value>
+    <value>خطأ في استلام البضائع: {0}</value>
   </data>
   <data name="Cannot_Post_Trip_Not_In_Draft" xml:space="preserve">
-    <value>Cannot post trip that is not in Draft status</value>
+    <value>لا يمكن اعتماد رحلة ليست في حالة مسودة</value>
   </data>
   <data name="Insufficient_Quantity_For_Product" xml:space="preserve">
-    <value>Insufficient quantity for product {0}. Qty: {1}, Required: {2}</value>
+    <value>الكمية غير كافية للمنتج {0}. المتاح: {1}, المطلوب: {2}</value>
   </data>
   <data name="Error_Posting_Distribution_Trip" xml:space="preserve">
-    <value>Error posting distribution trip: {0}</value>
+    <value>خطأ في اعتماد رحلة التوزيع: {0}</value>
   </data>
   <data name="Cannot_Delete_Trip_Not_In_Draft" xml:space="preserve">
-    <value>Cannot delete distribution trip that is not in Draft status. Only Draft trips can be deleted.</value>
+    <value>لا يمكن حذف رحلة التوزيع التي ليست في حالة مسودة. فقط الرحلات المسودة يمكن حذفها.</value>
   </data>
   <data name="Cannot_Delete_Trip_With_Sales_Invoices" xml:space="preserve">
-    <value>Cannot delete distribution trip that has associated sales invoices</value>
+    <value>لا يمكن حذف رحلة التوزيع التي لها فواتير مبيعات مرتبطة</value>
   </data>
   <data name="Cannot_Delete_Trip_With_Sold_Quantities" xml:space="preserve">
-    <value>Cannot delete distribution trip that has sold or returned quantities</value>
+    <value>لا يمكن حذف رحلة التوزيع التي لها كميات مباعة أو مرتجعة</value>
   </data>
   <data name="Error_Deleting_Distribution_Trip" xml:space="preserve">
-    <value>Error deleting distribution trip: {0}</value>
+    <value>خطأ في حذف رحلة التوزيع: {0}</value>
   </data>
   <data name="CashRegisterId_Required_To_Post_Payment" xml:space="preserve">
-    <value>CashRegisterId is required to post a payment</value>
+    <value>معرف الصندوق مطلوب لاعتماد الدفع</value>
   </data>
   <data name="Insufficient_Balance_In_Cash_Register" xml:space="preserve">
-    <value>Insufficient balance in cash register. Current balance: {0}, Required: {1}</value>
+    <value>الرصيد غير كافي في الصندوق. الرصيد الحالي: {0}, المطلوب: {1}</value>
   </data>
   <data name="Insufficient_Dollar_Balance_In_Cash_Register" xml:space="preserve">
-    <value>Insufficient dollar balance in cash register. Current balance: {0}, Required: {1}</value>
+    <value>الرصيد بالدولار غير كافي في الصندوق. الرصيد الحالي: {0}, المطلوب: {1}</value>
   </data>
   <data name="Cannot_Update_Posted_Payment" xml:space="preserve">
-    <value>Cannot update posted payment</value>
+    <value>لا يمكن تحديث دفعة معتمدة</value>
   </data>
   <data name="Month_Must_Be_Between_1_And_12" xml:space="preserve">
-    <value>Month must be between 1 and 12</value>
+    <value>يجب أن يكون الشهر بين 1 و 12</value>
   </data>
   <data name="Year_Must_Be_Between_2000_And_3000" xml:space="preserve">
-    <value>Year must be between 2000 and 3000</value>
+    <value>يجب أن تكون السنة بين 2000 و 3000</value>
   </data>
   <data name="Amount_Must_Be_Greater_Than_0" xml:space="preserve">
-    <value>Amount must be greater than 0</value>
+    <value>يجب أن يكون المبلغ أكبر من 0</value>
   </data>
   <data name="InvoiceId_Required_For_Payment_Type" xml:space="preserve">
-    <value>InvoiceId is required for this payment type</value>
+    <value>معرف الفاتورة مطلوب لهذا النوع من الدفع</value>
   </data>
   <data name="No_Active_Exchange_Rate_Found" xml:space="preserve">
-    <value>No active exchange rate found</value>
+    <value>لا يوجد سعر صرف نشط</value>
   </data>
   <data name="Deduction_Cannot_Be_Negative" xml:space="preserve">
-    <value>Deduction cannot be negative</value>
+    <value>الخصم لا يمكن أن يكون سالباً</value>
   </data>
   <data name="Total_Payment_And_Deduction_Exceed_Total_Salary" xml:space="preserve">
-    <value>Total payment and deduction exceed total salary. Total Salary: {0}, Already Paid: {1}, Existing Deduction: {2}, New Payment: {3}, New Deduction: {4}, Total After: {5}</value>
+    <value>إجمالي الدفع والخصم يتجاوز إجمالي الراتب. إجمالي الراتب: {0}, المدفوع بالفعل: {1}, الخصم الموجود: {2}, الدفعة الجديدة: {3}, الخصم الجديد: {4}, الإجمالي بعد: {5}</value>
   </data>
   <data name="Product_With_ID_Not_Found" xml:space="preserve">
-    <value>Product with ID {0} not found</value>
+    <value>المنتج بالمعرف {0} غير موجود</value>
   </data>
   <data name="Roasted_Products_Cannot_Be_Purchased_Directly" xml:space="preserve">
-    <value>Roasted products cannot be purchased directly. Product: {0}</value>
+    <value>المنتجات المحمصة لا يمكن شراؤها مباشرة. المنتج: {0}</value>
   </data>
   <data name="Cannot_Update_Employee_With_Posted_Roasting_Invoices" xml:space="preserve">
-    <value>Cannot update employee who has posted roasting invoices</value>
+    <value>لا يمكن تحديث الموظف الذي لديه فواتير تحميص معتمدة</value>
   </data>
   <data name="Cannot_Delete_Employee_With_Posted_Roasting_Invoices" xml:space="preserve">
-    <value>Cannot delete employee who has posted roasting invoices</value>
+    <value>لا يمكن حذف الموظف الذي لديه فواتير تحميص معتمدة</value>
   </data>
   <data name="RoastingInvoice_NotFound_With_ID" xml:space="preserve">
-    <value>Roasting invoice with ID {0} not found</value>
+    <value>فاتورة التحميص بالمعرف {0} غير موجودة</value>
   </data>
   <data name="Cannot_Update_Posted_Roasting_Invoice" xml:space="preserve">
-    <value>Cannot update a posted roasting invoice</value>
+    <value>لا يمكن تحديث فاتورة تحميص معتمدة</value>
   </data>
   <data name="Cannot_Delete_Posted_Roasting_Invoice" xml:space="preserve">
-    <value>Cannot delete a posted roasting invoice</value>
+    <value>لا يمكن حذف فاتورة تحميص معتمدة</value>
   </data>
   <data name="Error_Getting_Product_Select_List" xml:space="preserve">
-    <value>Error getting product select list: {0}</value>
+    <value>خطأ في الحصول على قائمة المنتجات: {0}</value>
   </data>
   <data name="Region_Not_Found" xml:space="preserve">
-    <value>Region not found</value>
+    <value>المنطقة غير موجودة</value>
   </data>
   <data name="Cannot_Delete_Region_With_Associated_Distribution_Trips" xml:space="preserve">
-    <value>Cannot delete region that has associated distribution trips</value>
+    <value>لا يمكن حذف المنطقة التي لها رحلات توزيع مرتبطة</value>
   </data>
 </root>
