@@ -39,6 +39,12 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 				.ThenInclude(x => x.Product)
                 .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 		}
+
+		public async Task<bool> HasDistributionTripsAsync(long regionId, CancellationToken cancellationToken = default)
+		{
+			return await dbContext.Set<DistributionTrip>()
+				.AnyAsync(dt => dt.RegionId == regionId, cancellationToken);
+		}
 	}
 }
 

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using MarketZone.Application.Interfaces;
 using MarketZone.Application.Wrappers;
 using MarketZone.Domain.Cash.Enums;
@@ -16,6 +17,7 @@ namespace MarketZone.Application.Features.Sales.Commands.UpdateSalesInvoice
 		public string PaymentMethod { get; set; }
 		public string Notes { get; set; }
 		public Currency? Currency { get; set; }
+		public List<UpdateSalesInvoiceDetailItem> Details { get; set; }
 	}
 }
 

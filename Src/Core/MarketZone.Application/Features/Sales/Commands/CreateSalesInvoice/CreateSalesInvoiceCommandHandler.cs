@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,6 +20,7 @@ namespace MarketZone.Application.Features.Sales.Commands.CreateSalesInvoice
         private readonly IDistributionTripRepository _tripRepository;
         private readonly IInvoiceNumberGenerator _numberGenerator;
 		private readonly ICustomerRepository _customerRepository;
+		private readonly IProductBalanceRepository _productBalanceRepository;
 
 		public CreateSalesInvoiceCommandHandler(
 			ISalesInvoiceRepository repository,
@@ -26,7 +28,8 @@ namespace MarketZone.Application.Features.Sales.Commands.CreateSalesInvoice
 			IMapper mapper,
             IDistributionTripRepository tripRepository,
             IInvoiceNumberGenerator numberGenerator,
-			ICustomerRepository customerRepository)
+			ICustomerRepository customerRepository,
+			IProductBalanceRepository productBalanceRepository)
 		{
 			_repository = repository;
 			_unitOfWork = unitOfWork;
@@ -34,6 +37,7 @@ namespace MarketZone.Application.Features.Sales.Commands.CreateSalesInvoice
 			_tripRepository = tripRepository;
 			_numberGenerator = numberGenerator;
 			_customerRepository = customerRepository;
+			_productBalanceRepository = productBalanceRepository;
 		}
 
 		public async Task<BaseResult<long>> Handle(CreateSalesInvoiceCommand request, CancellationToken cancellationToken)
@@ -56,11 +60,12 @@ namespace MarketZone.Application.Features.Sales.Commands.CreateSalesInvoice
 					}
 				}
 
-				// Validate pricing: prevent zero/negative prices
+				// Validate details: pricing and quantities
 				if (request.Details?.Any() == true)
 				{
-					if (request.Details.Any(d => d.UnitPrice <= 0))
-						return new Error(ErrorCode.FieldDataInvalid, "Unit price must be greater than zero for all products", nameof(request.Details));
+					var validationResult = await ValidateDetails(request, cancellationToken);
+					if (!validationResult.Success)
+						return validationResult.Errors ?? new List<Error>();
 
 					// Recalculate subtotals based on validated prices
 					foreach (var d in request.Details)
@@ -142,6 +147,41 @@ namespace MarketZone.Application.Features.Sales.Commands.CreateSalesInvoice
 				await _unitOfWork.RollbackAsync();
 				return new Error(ErrorCode.Exception, $"Error creating sales invoice: {ex.Message}", nameof(request));
 			}
+		}
+
+		private async Task<BaseResult> ValidateDetails(CreateSalesInvoiceCommand request, CancellationToken cancellationToken)
+		{
+			// Validate pricing: prevent zero/negative prices
+			if (request.Details.Any(d => d.UnitPrice <= 0))
+			{
+				return new Error(ErrorCode.FieldDataInvalid, 
+					"Unit price must be greater than zero for all products", 
+					nameof(request.Details));
+			}
+
+			// Validate available quantity for normal sales (not distributor invoices)
+			if (request.Type != SalesInvoiceType.Distributor)
+			{
+				foreach (var detail in request.Details)
+				{
+					var productBalance = await _productBalanceRepository.GetByProductIdAsync(detail.ProductId, cancellationToken);
+					if (productBalance == null)
+					{
+						return new Error(ErrorCode.NotFound, 
+							$"Product balance not found for product {detail.ProductId}", 
+							nameof(request.Details));
+					}
+
+					if (productBalance.AvailableQty < detail.Quantity)
+					{
+						return new Error(ErrorCode.FieldDataInvalid, 
+							$"Insufficient available quantity for product {detail.ProductId}. Available: {productBalance.AvailableQty}, Requested: {detail.Quantity}", 
+							nameof(request.Details));
+					}
+				}
+			}
+
+			return BaseResult.Ok();
 		}
 	}
 }

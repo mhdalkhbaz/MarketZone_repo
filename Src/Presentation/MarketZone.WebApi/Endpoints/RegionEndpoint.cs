@@ -1,4 +1,5 @@
 using MarketZone.Application.Features.Logistics.Commands.Regions.CreateRegion;
+using MarketZone.Application.Features.Logistics.Commands.Regions.DeleteRegion;
 using MarketZone.Application.Features.Logistics.Commands.Regions.UpdateRegion;
 using MarketZone.Application.Features.Logistics.Queries.GetPagedListRegion;
 using MarketZone.Application.Features.Logistics.Queries.GetRegionById;
@@ -20,6 +21,7 @@ namespace MarketZone.WebApi.Endpoints
             builder.MapGet(GetPagedListRegion);
             builder.MapPost(CreateRegion).RequireAuthorization();
             builder.MapPut(UpdateRegion).RequireAuthorization();
+            builder.MapDelete(DeleteRegion).RequireAuthorization();
             builder.MapGet(GetRegionById);
         }
 
@@ -34,6 +36,9 @@ namespace MarketZone.WebApi.Endpoints
 
         async Task<BaseResult> UpdateRegion(IMediator mediator, UpdateRegionCommand model)
             => await mediator.Send<UpdateRegionCommand, BaseResult>(model);
+
+        async Task<BaseResult> DeleteRegion(IMediator mediator, [AsParameters] DeleteRegionCommand model)
+            => await mediator.Send<DeleteRegionCommand, BaseResult>(model);
     }
 }
 

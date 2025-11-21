@@ -59,6 +59,7 @@ using (var scope = app.Services.CreateScope())
 app.UseCustomLocalization();
 app.UseAnyCors();
 app.UseRouting();
+app.UseMiddleware<RequestLoggingMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseCustomSwagger();
