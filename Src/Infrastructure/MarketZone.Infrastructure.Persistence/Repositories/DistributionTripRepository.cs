@@ -18,6 +18,10 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 		{
 			var query = dbContext.Set<DistributionTrip>()
 				.Include(x => x.Details)
+					.ThenInclude(d => d.Product)
+				.Include(x => x.Employee)
+				.Include(x => x.Car)
+				.Include(x => x.Region)
 				.OrderByDescending(p => p.TripDate)
 				.AsQueryable();
 
@@ -26,18 +30,43 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 			if (regionId.HasValue)
 				query = query.Where(p => p.RegionId == regionId.Value);
 
-			return await Paged(
-				query.ProjectTo<DistributionTripDto>(mapper.ConfigurationProvider),
-				pageNumber,
-				pageSize);
+			// استخدام Select مباشرة لإضافة الأسماء
+			var dtoQuery = query.Select(trip => new DistributionTripDto
+			{
+				Id = trip.Id,
+				EmployeeId = trip.EmployeeId,
+				EmployeeName = trip.Employee != null ? $"{trip.Employee.FirstName} {trip.Employee.LastName}" : string.Empty,
+				CarId = trip.CarId,
+				CarName = trip.Car != null ? trip.Car.Name : string.Empty,
+				RegionId = trip.RegionId,
+				RegionName = trip.Region != null ? trip.Region.Name : string.Empty,
+				TripDate = trip.TripDate,
+				LoadQty = trip.LoadQty,
+				Notes = trip.Notes,
+				Status = trip.Status,
+				Details = trip.Details.Select(d => new DistributionTripDetailDto
+				{
+					Id = d.Id,
+					ProductId = d.ProductId,
+					Qty = d.Qty,
+					SoldQty = d.SoldQty,
+					ReturnedQty = d.ReturnedQty,
+					ExpectedPrice = d.ExpectedPrice
+				}).ToList()
+			});
+
+			return await Paged(dtoQuery, pageNumber, pageSize);
 		}
 
 		public async Task<DistributionTrip> GetWithDetailsByIdAsync(long id, CancellationToken cancellationToken = default)
 		{
 			return await dbContext.Set<DistributionTrip>()
 				.Include(x => x.Details)
-				.ThenInclude(x => x.Product)
-                .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+					.ThenInclude(x => x.Product)
+				.Include(x => x.Employee)
+				.Include(x => x.Car)
+				.Include(x => x.Region)
+				.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 		}
 
 		public async Task<bool> HasDistributionTripsAsync(long regionId, CancellationToken cancellationToken = default)

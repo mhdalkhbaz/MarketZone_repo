@@ -10,7 +10,10 @@ namespace MarketZone.Application.Features.Logistics
     {
         public DistributionTripProfile()
         {
-            CreateMap<DistributionTrip, DistributionTripDto>();
+			CreateMap<DistributionTrip, DistributionTripDto>()
+				.ForMember(dest => dest.EmployeeName, opt => opt.MapFrom(src => src.Employee != null ? $"{src.Employee.FirstName} {src.Employee.LastName}" : string.Empty))
+				.ForMember(dest => dest.CarName, opt => opt.MapFrom(src => src.Car != null ? src.Car.Name : string.Empty))
+				.ForMember(dest => dest.RegionName, opt => opt.MapFrom(src => src.Region != null ? src.Region.Name : string.Empty));
             CreateMap<DistributionTripDetail, DistributionTripDetailDto>();
             CreateMap<CreateDistributionTripDetailItem, DistributionTripDetail>()
                 .ConstructUsing(s => new DistributionTripDetail(0, s.ProductId, s.Qty, s.ExpectedPrice.Value));

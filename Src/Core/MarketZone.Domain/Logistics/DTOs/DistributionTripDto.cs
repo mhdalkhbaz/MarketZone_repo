@@ -16,8 +16,11 @@ namespace MarketZone.Domain.Logistics.DTOs
 		{
 			Id = trip.Id;
 			EmployeeId = trip.EmployeeId;
+			EmployeeName = trip.Employee != null ? $"{trip.Employee.FirstName} {trip.Employee.LastName}" : string.Empty;
 			CarId = trip.CarId;
+			CarName = trip.Car?.Name ?? string.Empty;
 			RegionId = trip.RegionId;
+			RegionName = trip.Region?.Name ?? string.Empty;
 			TripDate = trip.TripDate;
 			LoadQty = trip.LoadQty;
 			Notes = trip.Notes;
@@ -27,8 +30,11 @@ namespace MarketZone.Domain.Logistics.DTOs
 
 		public long Id { get; set; }
 		public long EmployeeId { get; set; }
+		public string EmployeeName { get; set; }
 		public long CarId { get; set; }
+		public string CarName { get; set; }
 		public long RegionId { get; set; }
+		public string RegionName { get; set; }
 		public DateTime TripDate { get; set; }
 		public decimal? LoadQty { get; set; }
 		public string Notes { get; set; }
