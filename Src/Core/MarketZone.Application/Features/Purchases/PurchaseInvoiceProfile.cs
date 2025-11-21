@@ -10,7 +10,8 @@ namespace MarketZone.Application.Features.Purchases
     {
         public PurchaseInvoiceProfile()
         {
-            CreateMap<PurchaseInvoice, PurchaseInvoiceDto>();
+            CreateMap<PurchaseInvoice, PurchaseInvoiceDto>()
+                .ForMember(dest => dest.SupplierName, opt => opt.MapFrom(src => src.Supplier != null ? src.Supplier.Name : string.Empty));
             CreateMap<PurchaseInvoiceDetail, PurchaseInvoiceDetailDto>();
             CreateMap<CreatePurchaseInvoiceDetailItem, PurchaseInvoiceDetail>()
                 .ConstructUsing(s => new PurchaseInvoiceDetail(0, s.ProductId, s.Quantity, s.UnitPrice, s.TotalPrice, s.Notes));

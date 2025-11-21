@@ -18,23 +18,49 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 {
 	public class PurchaseInvoiceRepository(ApplicationDbContext dbContext, IMapper mapper) : GenericRepository<PurchaseInvoice>(dbContext), IPurchaseInvoiceRepository
 	{
-		public async Task<PaginationResponseDto<PurchaseInvoiceDto>> GetPagedListAsync(int pageNumber, int pageSize, string invoiceNumber)
+	public async Task<PaginationResponseDto<PurchaseInvoiceDto>> GetPagedListAsync(int pageNumber, int pageSize, string invoiceNumber)
+	{
+		var query = dbContext.Set<PurchaseInvoice>()
+			.Include(x => x.Details)
+			.Include(x => x.Supplier)
+			.OrderByDescending(p => p.Id)
+			.AsQueryable();
+
+		if (!string.IsNullOrEmpty(invoiceNumber))
 		{
-			var query = dbContext.Set<PurchaseInvoice>()
-				.Include(x => x.Details)
-				.OrderByDescending(p => p.Id)
-				.AsQueryable();
-
-			if (!string.IsNullOrEmpty(invoiceNumber))
-			{
-				query = query.Where(p => p.InvoiceNumber.Contains(invoiceNumber));
-			}
-
-			return await Paged(
-				query.ProjectTo<PurchaseInvoiceDto>(mapper.ConfigurationProvider),
-				pageNumber,
-				pageSize);
+			query = query.Where(p => p.InvoiceNumber.Contains(invoiceNumber));
 		}
+
+		// استخدام Select مباشرة لإضافة اسم المورد
+		var dtoQuery = query.Select(invoice => new PurchaseInvoiceDto
+		{
+			Id = invoice.Id,
+			InvoiceNumber = invoice.InvoiceNumber,
+			SupplierId = invoice.SupplierId,
+			SupplierName = invoice.Supplier != null ? invoice.Supplier.Name : string.Empty,
+			InvoiceDate = invoice.InvoiceDate,
+			TotalAmount = invoice.TotalAmount,
+			Discount = invoice.Discount,
+			Notes = invoice.Notes,
+			Currency = invoice.Currency,
+			Status = invoice.Status,
+			PaymentStatus = invoice.PaymentStatus,
+			CreatedDateTime = invoice.Created,
+			PaidAmount = 0, // سيتم حسابه من الدفعات
+			UnpaidAmount = 0, // سيتم حسابه من الدفعات
+			Details = invoice.Details.Select(d => new PurchaseInvoiceDetailDto
+			{
+				Id = d.Id,
+				ProductId = d.ProductId,
+				Quantity = d.Quantity,
+				UnitPrice = d.UnitPrice,
+				TotalPrice = d.TotalPrice,
+				Notes = d.Notes
+			}).ToList()
+		});
+
+		return await Paged(dtoQuery, pageNumber, pageSize);
+	}
 
 		public async Task<string> GetNextInvoiceNumberAsync(CancellationToken cancellationToken = default)
 		{
@@ -59,12 +85,13 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 			return $"{prefix}{nextSeq.ToString("D5")}";
 		}
 
-		public async Task<PurchaseInvoice> GetWithDetailsByIdAsync(long id, CancellationToken cancellationToken = default)
-		{
-			return await dbContext.Set<PurchaseInvoice>()
-				.Include(x => x.Details)
-				.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
-		}
+	public async Task<PurchaseInvoice> GetWithDetailsByIdAsync(long id, CancellationToken cancellationToken = default)
+	{
+		return await dbContext.Set<PurchaseInvoice>()
+			.Include(x => x.Details)
+			.Include(x => x.Supplier)
+			.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+	}
 
 		public async Task<List<PurchaseInvoiceDto>> GetUnpaidInvoicesBySupplierAsync(long supplierId, CancellationToken cancellationToken = default)
 		{

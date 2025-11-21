@@ -19,6 +19,7 @@ namespace MarketZone.Domain.Purchases.DTOs
             Id = invoice.Id;
             InvoiceNumber = invoice.InvoiceNumber;
             SupplierId = invoice.SupplierId;
+            SupplierName = invoice.Supplier?.Name ?? string.Empty;
             InvoiceDate = invoice.InvoiceDate;
             TotalAmount = invoice.TotalAmount;
             Discount = invoice.Discount;
@@ -33,6 +34,7 @@ namespace MarketZone.Domain.Purchases.DTOs
         public long Id { get; set; }
         public string InvoiceNumber { get; set; }
         public long SupplierId { get; set; }
+        public string SupplierName { get; set; }
         public DateTime InvoiceDate { get; set; }
         public decimal TotalAmount { get; set; }
         public decimal Discount { get; set; }

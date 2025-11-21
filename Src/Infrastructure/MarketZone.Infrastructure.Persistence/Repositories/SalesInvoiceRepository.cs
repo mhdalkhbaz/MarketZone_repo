@@ -16,30 +16,59 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 {
 	public class SalesInvoiceRepository(ApplicationDbContext dbContext, IMapper mapper) : GenericRepository<SalesInvoice>(dbContext), ISalesInvoiceRepository
 	{
-		public async Task<PaginationResponseDto<SalesInvoiceDto>> GetPagedListAsync(int pageNumber, int pageSize, string invoiceNumber)
-		{
-			var query = dbContext.Set<SalesInvoice>()
-				.Include(x => x.Details)
-				.OrderByDescending(p => p.InvoiceDate)
-				.AsQueryable();
+	public async Task<PaginationResponseDto<SalesInvoiceDto>> GetPagedListAsync(int pageNumber, int pageSize, string invoiceNumber)
+	{
+		var query = dbContext.Set<SalesInvoice>()
+			.Include(x => x.Details)
+			.Include(x => x.Customer)
+			.OrderByDescending(p => p.InvoiceDate)
+			.AsQueryable();
 
-			if (!string.IsNullOrEmpty(invoiceNumber))
+		if (!string.IsNullOrEmpty(invoiceNumber))
+		{
+			query = query.Where(p => p.InvoiceNumber.Contains(invoiceNumber));
+		}
+
+		// استخدام Select مباشرة لإضافة اسم العميل
+		var dtoQuery = query.Select(invoice => new SalesInvoiceDto
+		{
+			Id = invoice.Id,
+			InvoiceNumber = invoice.InvoiceNumber,
+			CustomerId = invoice.CustomerId,
+			CustomerName = invoice.Customer != null ? invoice.Customer.Name : string.Empty,
+			InvoiceDate = invoice.InvoiceDate,
+			TotalAmount = invoice.TotalAmount,
+			Discount = invoice.Discount,
+			PaymentMethod = invoice.PaymentMethod,
+			Notes = invoice.Notes,
+			Currency = invoice.Currency,
+			Status = invoice.Status,
+			Type = invoice.Type,
+			DistributionTripId = invoice.DistributionTripId,
+			CreatedDateTime = invoice.Created,
+			PaidAmount = 0, // سيتم حسابه من الدفعات
+			UnpaidAmount = 0, // سيتم حسابه من الدفعات
+			Details = invoice.Details.Select(d => new SalesInvoiceDetailDto
 			{
-				query = query.Where(p => p.InvoiceNumber.Contains(invoiceNumber));
-			}
+				Id = d.Id,
+				ProductId = d.ProductId,
+				Quantity = d.Quantity,
+				UnitPrice = d.UnitPrice,
+				SubTotal = d.SubTotal,
+				Notes = d.Notes
+			}).ToList()
+		});
 
-			return await Paged(
-				query.ProjectTo<SalesInvoiceDto>(mapper.ConfigurationProvider),
-				pageNumber,
-				pageSize);
-		}
+		return await Paged(dtoQuery, pageNumber, pageSize);
+	}
 
-		public async Task<SalesInvoice> GetWithDetailsByIdAsync(long id, System.Threading.CancellationToken cancellationToken = default)
-		{
-			return await dbContext.Set<SalesInvoice>()
-				.Include(x => x.Details)
-				.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
-		}
+	public async Task<SalesInvoice> GetWithDetailsByIdAsync(long id, System.Threading.CancellationToken cancellationToken = default)
+	{
+		return await dbContext.Set<SalesInvoice>()
+			.Include(x => x.Details)
+			.Include(x => x.Customer)
+			.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+	}
 
 		public async Task<List<SalesInvoiceDto>> GetUnpaidInvoicesByCustomerAsync(long customerId, System.Threading.CancellationToken cancellationToken = default)
 		{

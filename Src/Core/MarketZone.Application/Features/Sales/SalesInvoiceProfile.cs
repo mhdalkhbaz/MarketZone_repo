@@ -10,7 +10,8 @@ namespace MarketZone.Application.Features.Sales
 	{
 		public SalesInvoiceProfile()
 		{
-			CreateMap<SalesInvoice, SalesInvoiceDto>();
+			CreateMap<SalesInvoice, SalesInvoiceDto>()
+			.ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer != null ? src.Customer.Name : string.Empty));
 			CreateMap<SalesInvoiceDetail, SalesInvoiceDetailDto>();
 			CreateMap<CreateSalesInvoiceCommand, SalesInvoice>()
 				.ConstructUsing(s => new SalesInvoice(s.InvoiceNumber, s.CustomerId, s.InvoiceDate, s.TotalAmount, s.Discount, s.PaymentMethod, s.Notes ?? string.Empty, s.Currency))
