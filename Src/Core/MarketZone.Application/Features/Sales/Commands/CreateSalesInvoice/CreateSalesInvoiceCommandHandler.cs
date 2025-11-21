@@ -83,23 +83,23 @@ namespace MarketZone.Application.Features.Sales.Commands.CreateSalesInvoice
 				// إذا كانت فاتورة موزع، التحقق من رحلة التوزيع
 				if (request.DistributionTripId.HasValue)
 				{
-					var trip = await _tripRepository.GetWithDetailsByIdAsync(request.DistributionTripId.Value, cancellationToken);
-					if (trip == null)
-						return new Error(ErrorCode.NotFound, "Distribution trip not found", nameof(request.DistributionTripId));
+				var trip = await _tripRepository.GetWithDetailsByIdAsync(request.DistributionTripId.Value, cancellationToken);
+				if (trip == null)
+					return new Error(ErrorCode.NotFound, "رحلة التوزيع غير موجودة", nameof(request.DistributionTripId));
 
-					// التحقق من أن رحلة التوزيع لم تكتمل بعد (Status <= 4)
-					if ((short)trip.Status > 4)
-						return new Error(ErrorCode.FieldDataInvalid, "Cannot create distributor invoice for completed or cancelled trip", nameof(request.DistributionTripId));
+				// التحقق من أن رحلة التوزيع لم تكتمل بعد (Status <= 4)
+				if ((short)trip.Status > 4)
+					return new Error(ErrorCode.FieldDataInvalid, "لا يمكن إنشاء فاتورة موزع لرحلة مكتملة أو ملغاة", nameof(request.DistributionTripId));
 
-					// التحقق من أن رحلة التوزيع في حالة GoodsReceived أو أقل
-					if (trip.Status != MarketZone.Domain.Logistics.Enums.DistributionTripStatus.GoodsReceived && 
-						trip.Status != MarketZone.Domain.Logistics.Enums.DistributionTripStatus.InProgress)
-						return new Error(ErrorCode.FieldDataInvalid, "Cannot create distributor invoice for trip that is not in GoodsReceived or InProgress status", nameof(request.DistributionTripId));
+				// التحقق من أن رحلة التوزيع في حالة GoodsReceived أو أقل
+				if (trip.Status != MarketZone.Domain.Logistics.Enums.DistributionTripStatus.GoodsReceived && 
+					trip.Status != MarketZone.Domain.Logistics.Enums.DistributionTripStatus.InProgress)
+					return new Error(ErrorCode.FieldDataInvalid, "لا يمكن إنشاء فاتورة موزع لرحلة ليست في حالة استلام البضائع أو قيد التنفيذ", nameof(request.DistributionTripId));
 
-					// التحقق من أن الكمية لم تنتهي (خلصت الكمية)
-					var hasRemainingQuantity = trip.Details.Any(d => (d.Qty - d.SoldQty - d.ReturnedQty) > 0);
-					if (!hasRemainingQuantity)
-						return new Error(ErrorCode.FieldDataInvalid, "Cannot create distributor invoice - all quantities have been sold or returned (خلصت الكمية)", nameof(request.DistributionTripId));
+				// التحقق من أن الكمية لم تنتهي (خلصت الكمية)
+				var hasRemainingQuantity = trip.Details.Any(d => (d.Qty - d.SoldQty - d.ReturnedQty) > 0);
+				if (!hasRemainingQuantity)
+					return new Error(ErrorCode.FieldDataInvalid, "لا يمكن إنشاء فاتورة موزع - جميع الكميات تم بيعها أو إرجاعها", nameof(request.DistributionTripId));
 
 					invoice.SetDistributionTrip(trip);
 					trip.AddSalesInvoice(invoice);
@@ -112,9 +112,9 @@ namespace MarketZone.Application.Features.Sales.Commands.CreateSalesInvoice
 							var tripDetail = trip.Details.FirstOrDefault(d => d.ProductId == detail.ProductId);
 							if (tripDetail != null)
 							{
-								// التحقق من أن الكمية المباعة لا تتجاوز الكمية المحملة
-								if (tripDetail.SoldQty + detail.Quantity > tripDetail.Qty)
-									return new Error(ErrorCode.FieldDataInvalid, $"Sold quantity ({tripDetail.SoldQty + detail.Quantity}) cannot exceed loaded quantity ({tripDetail.Qty}) for product {detail.ProductId}", nameof(request.Details));
+							// التحقق من أن الكمية المباعة لا تتجاوز الكمية المحملة
+							if (tripDetail.SoldQty + detail.Quantity > tripDetail.Qty)
+								return new Error(ErrorCode.FieldDataInvalid, $"الكمية المباعة ({tripDetail.SoldQty + detail.Quantity}) لا يمكن أن تتجاوز الكمية المحملة ({tripDetail.Qty}) للمنتج {detail.ProductId}", nameof(request.Details));
 
 								tripDetail.AddSoldQty(detail.Quantity);
 							}
@@ -139,45 +139,62 @@ namespace MarketZone.Application.Features.Sales.Commands.CreateSalesInvoice
 				
 				// Save changes to persist the details
 				await _unitOfWork.SaveChangesAsync();
+
+				// إنقاص AvailableQty للمبيعات العادية (غير فواتير الموزع)
+				if (request.Type != SalesInvoiceType.Distributor && request.Details?.Any() == true)
+				{
+					foreach (var detail in request.Details)
+					{
+						var productBalance = await _productBalanceRepository.GetByProductIdAsync(detail.ProductId, cancellationToken);
+						if (productBalance != null)
+						{
+							// إنقاص AvailableQty فقط
+							productBalance.Adjust(0, -detail.Quantity);
+							_productBalanceRepository.Update(productBalance);
+						}
+					}
+					await _unitOfWork.SaveChangesAsync();
+				}
+
 				return invoice.Id;
 			}
 			catch (System.Exception ex)
 			{
 				// في حالة الخطأ، التراجع عن جميع التغييرات
 				await _unitOfWork.RollbackAsync();
-				return new Error(ErrorCode.Exception, $"Error creating sales invoice: {ex.Message}", nameof(request));
+				return new Error(ErrorCode.Exception, $"خطأ في إنشاء فاتورة المبيعات: {ex.Message}", nameof(request));
 			}
 		}
 
 		private async Task<BaseResult> ValidateDetails(CreateSalesInvoiceCommand request, CancellationToken cancellationToken)
 		{
-			// Validate pricing: prevent zero/negative prices
-			if (request.Details.Any(d => d.UnitPrice <= 0))
-			{
-				return new Error(ErrorCode.FieldDataInvalid, 
-					"Unit price must be greater than zero for all products", 
-					nameof(request.Details));
-			}
+		// Validate pricing: prevent zero/negative prices
+		if (request.Details.Any(d => d.UnitPrice <= 0))
+		{
+			return new Error(ErrorCode.FieldDataInvalid, 
+				"يجب أن يكون سعر الوحدة أكبر من الصفر لجميع المنتجات", 
+				nameof(request.Details));
+		}
 
 			// Validate available quantity for normal sales (not distributor invoices)
 			if (request.Type != SalesInvoiceType.Distributor)
 			{
 				foreach (var detail in request.Details)
 				{
-					var productBalance = await _productBalanceRepository.GetByProductIdAsync(detail.ProductId, cancellationToken);
-					if (productBalance == null)
-					{
-						return new Error(ErrorCode.NotFound, 
-							$"Product balance not found for product {detail.ProductId}", 
-							nameof(request.Details));
-					}
+				var productBalance = await _productBalanceRepository.GetByProductIdAsync(detail.ProductId, cancellationToken);
+				if (productBalance == null)
+				{
+					return new Error(ErrorCode.NotFound, 
+						$"رصيد المنتج غير موجود للمنتج {detail.ProductId}", 
+						nameof(request.Details));
+				}
 
-					if (productBalance.AvailableQty < detail.Quantity)
-					{
-						return new Error(ErrorCode.FieldDataInvalid, 
-							$"Insufficient available quantity for product {detail.ProductId}. Available: {productBalance.AvailableQty}, Requested: {detail.Quantity}", 
-							nameof(request.Details));
-					}
+				if (productBalance.AvailableQty < detail.Quantity)
+				{
+					return new Error(ErrorCode.FieldDataInvalid, 
+						$"الكمية المتاحة غير كافية للمنتج {detail.ProductId}. المتاح: {productBalance.AvailableQty}, المطلوب: {detail.Quantity}", 
+						nameof(request.Details));
+				}
 				}
 			}
 

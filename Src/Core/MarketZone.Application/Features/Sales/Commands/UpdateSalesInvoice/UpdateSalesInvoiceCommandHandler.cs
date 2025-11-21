@@ -78,86 +78,169 @@ namespace MarketZone.Application.Features.Sales.Commands.UpdateSalesInvoice
 			var existingDetails = invoice.Details?.ToDictionary(d => d.Id) 
 				?? new System.Collections.Generic.Dictionary<long, SalesInvoiceDetail>();
 
+			// تحديد IDs المرسلة في الطلب
+			var requestDetailIds = requestDetails.Where(d => d.Id.HasValue).Select(d => d.Id.Value).ToHashSet();
+
+			// تحديد التفاصيل المحذوفة: موجودة في existingDetails لكن غير موجودة في requestDetails
+			var detailsToDelete = existingDetails.Values
+				.Where(d => !requestDetailIds.Contains(d.Id))
+				.ToList();
+
+		// أولاً: التحقق من الكميات المتاحة للمبيعات العادية
+		// نحسب الكميات التي سيتم إرجاعها من الحذف والتعديلات لأخذها في الاعتبار عند التحقق
+		var quantitiesToReturn = new System.Collections.Generic.Dictionary<long, decimal>();
+		
+		if (invoice.Type != SalesInvoiceType.Distributor)
+		{
+			// حساب الكميات التي سيتم إرجاعها من الحذف
+			foreach (var toRemove in detailsToDelete)
+			{
+				if (!quantitiesToReturn.ContainsKey(toRemove.ProductId))
+					quantitiesToReturn[toRemove.ProductId] = 0;
+				quantitiesToReturn[toRemove.ProductId] += toRemove.Quantity;
+			}
+
+			// حساب الكميات التي سيتم إرجاعها من التعديلات (عندما تقل الكمية)
 			foreach (var item in requestDetails)
 			{
-				// Handle deletion
-				if (item.IsDeleted && item.Id.HasValue && existingDetails.TryGetValue(item.Id.Value, out var toRemove))
+				if (item.Id.HasValue && existingDetails.TryGetValue(item.Id.Value, out var existingDetail))
 				{
-					invoice.Details.Remove(toRemove);
-					continue;
+					var quantityDifference = item.Quantity - existingDetail.Quantity;
+					if (quantityDifference < 0) // الكمية قلت
+					{
+						var quantityToReturn = -quantityDifference; // جعلها موجبة
+						if (!quantitiesToReturn.ContainsKey(item.ProductId))
+							quantitiesToReturn[item.ProductId] = 0;
+						quantitiesToReturn[item.ProductId] += quantityToReturn;
+					}
 				}
+			}
 
-				// Skip deleted items
-				if (item.IsDeleted)
-					continue;
+			// التحقق من الكميات المطلوبة
+			foreach (var item in requestDetails)
+			{
+				var validationResult = await ValidateQuantityForNormalSales(invoice, item, existingDetails, quantitiesToReturn, cancellationToken);
+				if (!validationResult.Success)
+					return validationResult;
+			}
+		}
 
-				// Validate quantity for normal sales (not distributor invoices)
+		// ثانياً: حذف التفاصيل المحذوفة وإرجاع AvailableQty
+		foreach (var toRemove in detailsToDelete)
+		{
+			// للمبيعات العادية: إرجاع AvailableQty
+			if (invoice.Type != SalesInvoiceType.Distributor)
+			{
+				var productBalance = await _productBalanceRepository.GetByProductIdAsync(toRemove.ProductId, cancellationToken);
+				if (productBalance != null)
+				{
+					// إرجاع AvailableQty للكمية المحذوفة
+					productBalance.Adjust(0, toRemove.Quantity);
+					_productBalanceRepository.Update(productBalance);
+				}
+			}
+			invoice.Details.Remove(toRemove);
+		}
+
+		// ثالثاً: تطبيق التغييرات على Details و AvailableQty للسطور المتبقية
+		foreach (var item in requestDetails)
+		{
+			// Update existing detail
+			if (item.Id.HasValue && existingDetails.TryGetValue(item.Id.Value, out var toUpdate))
+			{
+				// تعديل سطر موجود
 				if (invoice.Type != SalesInvoiceType.Distributor)
 				{
-					var validationResult = await ValidateQuantityForNormalSales(invoice, item, existingDetails, cancellationToken);
-					if (!validationResult.Success)
-						return validationResult;
+					var productBalance = await _productBalanceRepository.GetByProductIdAsync(item.ProductId, cancellationToken);
+					if (productBalance != null)
+					{
+						// حساب الفرق في الكمية
+						var quantityDifference = item.Quantity - toUpdate.Quantity;
+						if (quantityDifference != 0)
+						{
+							// إذا زادت الكمية: إنقاص الفرق من AvailableQty (quantityDifference موجب)
+							// إذا قلت الكمية: إرجاع الفرق إلى AvailableQty (quantityDifference سالب، فالإرجاع موجب)
+							productBalance.Adjust(0, -quantityDifference);
+							_productBalanceRepository.Update(productBalance);
+						}
+					}
 				}
-
-				// Update existing detail
-				if (item.Id.HasValue && existingDetails.TryGetValue(item.Id.Value, out var toUpdate))
-				{
-					toUpdate.Update(item.ProductId, item.Quantity, item.UnitPrice, item.SubTotal, item.Notes ?? string.Empty);
-				}
-				// Add new detail
-				else
-				{
-					invoice.Details.Add(new SalesInvoiceDetail(
-						invoice.Id,
-						item.ProductId,
-						item.Quantity,
-						item.UnitPrice,
-						item.SubTotal,
-						item.Notes ?? string.Empty));
-				}
+				toUpdate.Update(item.ProductId, item.Quantity, item.UnitPrice, item.SubTotal, item.Notes ?? string.Empty);
 			}
-
-			return BaseResult.Ok();
-		}
-
-		private async Task<BaseResult> ValidateQuantityForNormalSales(
-			SalesInvoice invoice,
-			UpdateSalesInvoiceDetailItem item,
-			System.Collections.Generic.Dictionary<long, SalesInvoiceDetail> existingDetails,
-			CancellationToken cancellationToken)
-		{
-			var productBalance = await _productBalanceRepository.GetByProductIdAsync(item.ProductId, cancellationToken);
-			if (productBalance == null)
-			{
-				return new Error(ErrorCode.NotFound,
-					$"Product balance not found for product {item.ProductId}",
-					nameof(UpdateSalesInvoiceCommand.Details));
-			}
-
-			// For new items, check if available quantity is sufficient
-			if (!item.Id.HasValue || !existingDetails.TryGetValue(item.Id.Value, out var existingDetail))
-			{
-				if (productBalance.AvailableQty < item.Quantity)
-				{
-					return new Error(ErrorCode.FieldDataInvalid,
-						$"Insufficient available quantity for product {item.ProductId}. Available: {productBalance.AvailableQty}, Requested: {item.Quantity}",
-						nameof(UpdateSalesInvoiceCommand.Details));
-				}
-			}
-			// For existing items, check if the quantity increase is within available stock
+			// Add new detail - إنقاص AvailableQty
 			else
 			{
-				var quantityDifference = item.Quantity - existingDetail.Quantity;
-				if (quantityDifference > 0 && productBalance.AvailableQty < quantityDifference)
+				// للمبيعات العادية: إنقاص AvailableQty
+				if (invoice.Type != SalesInvoiceType.Distributor)
 				{
-					return new Error(ErrorCode.FieldDataInvalid,
-						$"Insufficient available quantity for product {item.ProductId}. Available: {productBalance.AvailableQty}, Additional needed: {quantityDifference}",
-						nameof(UpdateSalesInvoiceCommand.Details));
+					var productBalance = await _productBalanceRepository.GetByProductIdAsync(item.ProductId, cancellationToken);
+					if (productBalance != null)
+					{
+						// إنقاص AvailableQty للكمية الجديدة
+						productBalance.Adjust(0, -item.Quantity);
+						_productBalanceRepository.Update(productBalance);
+					}
 				}
+
+				invoice.Details.Add(new SalesInvoiceDetail(
+					invoice.Id,
+					item.ProductId,
+					item.Quantity,
+					item.UnitPrice,
+					item.SubTotal,
+					item.Notes ?? string.Empty));
 			}
+		}
 
 			return BaseResult.Ok();
 		}
+
+	private async Task<BaseResult> ValidateQuantityForNormalSales(
+		SalesInvoice invoice,
+		UpdateSalesInvoiceDetailItem item,
+		System.Collections.Generic.Dictionary<long, SalesInvoiceDetail> existingDetails,
+		System.Collections.Generic.Dictionary<long, decimal> quantitiesToReturn,
+		CancellationToken cancellationToken)
+	{
+		var productBalance = await _productBalanceRepository.GetByProductIdAsync(item.ProductId, cancellationToken);
+		if (productBalance == null)
+		{
+			return new Error(ErrorCode.NotFound,
+				$"رصيد المنتج غير موجود للمنتج {item.ProductId}",
+				nameof(UpdateSalesInvoiceCommand.Details));
+		}
+
+		// حساب AvailableQty الفعلية بعد أخذ الكميات المرجعة من الحذف والتعديلات في الاعتبار
+		var effectiveAvailableQty = productBalance.AvailableQty;
+		if (quantitiesToReturn.TryGetValue(item.ProductId, out var returnedQty))
+		{
+			effectiveAvailableQty += returnedQty;
+		}
+
+		// For new items, check if available quantity is sufficient
+		if (!item.Id.HasValue || !existingDetails.TryGetValue(item.Id.Value, out var existingDetail))
+		{
+			if (effectiveAvailableQty < item.Quantity)
+			{
+				return new Error(ErrorCode.FieldDataInvalid,
+					$"الكمية المتاحة غير كافية للمنتج {item.ProductId}. المتاح: {effectiveAvailableQty}, المطلوب: {item.Quantity}",
+					nameof(UpdateSalesInvoiceCommand.Details));
+			}
+		}
+		// For existing items, check if the quantity increase is within available stock
+		else
+		{
+			var quantityDifference = item.Quantity - existingDetail.Quantity;
+			if (quantityDifference > 0 && effectiveAvailableQty < quantityDifference)
+			{
+				return new Error(ErrorCode.FieldDataInvalid,
+					$"الكمية المتاحة غير كافية للمنتج {item.ProductId}. المتاح: {effectiveAvailableQty}, المطلوب إضافياً: {quantityDifference}",
+					nameof(UpdateSalesInvoiceCommand.Details));
+			}
+		}
+
+		return BaseResult.Ok();
+	}
 	}
 }
 

@@ -65,7 +65,7 @@ namespace MarketZone.Application.Features.Sales.Commands.PostSalesInvoice
             {
                 var trip = await _tripRepository.GetWithDetailsByIdAsync(invoice.DistributionTripId.Value, cancellationToken);
                 if (trip == null)
-                    return new Error(ErrorCode.NotFound, "Distribution trip not found", nameof(invoice.DistributionTripId));
+                    return new Error(ErrorCode.NotFound, "رحلة التوزيع غير موجودة", nameof(invoice.DistributionTripId));
 
                 // حساب نسبة الموظف من عمولة المنتجات المباعة في هذه الفاتورة (عند كل Post فاتورة)
                 var employee = await _employeeRepository.GetByIdAsync(trip.EmployeeId);
@@ -94,7 +94,7 @@ namespace MarketZone.Application.Features.Sales.Commands.PostSalesInvoice
                         // الحصول على سعر الصرف الحالي
                         var exchangeRate = await _exchangeRateRepository.GetLatestActiveRateAsync(cancellationToken);
                         if (exchangeRate == null)
-                            return new Error(ErrorCode.FieldDataInvalid, "No active exchange rate found", nameof(request.Id));
+                            return new Error(ErrorCode.FieldDataInvalid, "لا يوجد سعر صرف نشط", nameof(request.Id));
 
                         // ضرب totalPercentageAmount بسعر الصرف الحالي
                         var totalPercentageAmountInSyrian = totalPercentageAmount * exchangeRate.Rate;
