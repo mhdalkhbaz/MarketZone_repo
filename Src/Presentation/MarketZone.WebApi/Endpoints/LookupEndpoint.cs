@@ -74,8 +74,20 @@ namespace MarketZone.WebApi.Endpoints
             return BaseResult<List<CustomerSelectListDto>>.Ok(customers);
         }
 
-        async Task<BaseResult<List<SelectListDto>>> GetSupplierSelectList(ApplicationDbContext db, IMapper mapper)
-            => BaseResult<List<SelectListDto>>.Ok(await db.Suppliers.AsNoTracking().OrderBy(p => p.Id).ProjectTo<SelectListDto>(mapper.ConfigurationProvider).ToListAsync());
+        async Task<BaseResult<List<SupplierSelectListDto>>> GetSupplierSelectList(ApplicationDbContext db)
+        {
+            var suppliers = await db.Suppliers.AsNoTracking()
+                .OrderBy(s => s.Name)
+                .Select(s => new SupplierSelectListDto
+                {
+                    Id = s.Id,
+                    Name = s.Name,
+                    Currency = s.Currency ?? MarketZone.Domain.Cash.Enums.Currency.SY // Default currency
+                })
+                .ToListAsync();
+
+            return BaseResult<List<SupplierSelectListDto>>.Ok(suppliers);
+        }
 
         async Task<BaseResult<List<SelectListDto>>> GetEmployeeSelectList(ApplicationDbContext db, IMapper mapper)
             => BaseResult<List<SelectListDto>>.Ok(await db.Employees.AsNoTracking().OrderBy(p => p.FirstName + p.LastName).ProjectTo<SelectListDto>(mapper.ConfigurationProvider).ToListAsync());

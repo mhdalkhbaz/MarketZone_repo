@@ -4,6 +4,7 @@ using System.Linq;
 using MarketZone.Domain.Sales.Entities;
 using MarketZone.Domain.Sales.Enums;
 using MarketZone.Domain.Cash.Enums;
+using MarketZone.Domain.Purchases.Enums;
 
 namespace MarketZone.Domain.Sales.DTOs
 {
@@ -48,6 +49,7 @@ namespace MarketZone.Domain.Sales.DTOs
 	public DateTime CreatedDateTime { get; set; }
 	public decimal PaidAmount { get; set; }
 	public decimal UnpaidAmount { get; set; }
+	public PurchasePaymentStatus? PaymentStatus { get; set; }
 	public List<SalesInvoiceDetailDto> Details { get; set; } = new List<SalesInvoiceDetailDto>();
 	}
 }

@@ -9,6 +9,7 @@ using MarketZone.Domain.Cash.Enums;
 using MarketZone.Domain.Sales.DTOs;
 using MarketZone.Domain.Sales.Entities;
 using MarketZone.Domain.Sales.Enums;
+using MarketZone.Domain.Purchases.Enums;
 using MarketZone.Infrastructure.Persistence.Contexts;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,35 +30,50 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 			query = query.Where(p => p.InvoiceNumber.Contains(invoiceNumber));
 		}
 
-		// استخدام Select مباشرة لإضافة اسم العميل
-		var dtoQuery = query.Select(invoice => new SalesInvoiceDto
-		{
-			Id = invoice.Id,
-			InvoiceNumber = invoice.InvoiceNumber,
-			CustomerId = invoice.CustomerId,
-			CustomerName = invoice.Customer != null ? invoice.Customer.Name : string.Empty,
-			InvoiceDate = invoice.InvoiceDate,
-			TotalAmount = invoice.TotalAmount,
-			Discount = invoice.Discount,
-			PaymentMethod = invoice.PaymentMethod,
-			Notes = invoice.Notes,
-			Currency = invoice.Currency,
-			Status = invoice.Status,
-			Type = invoice.Type,
-			DistributionTripId = invoice.DistributionTripId,
-			CreatedDateTime = invoice.Created,
-			PaidAmount = 0, // سيتم حسابه من الدفعات
-			UnpaidAmount = 0, // سيتم حسابه من الدفعات
-			Details = invoice.Details.Select(d => new SalesInvoiceDetailDto
+		// استخدام Select مباشرة لإضافة اسم العميل و PaymentStatus
+		var dtoQuery = query
+			.GroupJoin(
+				dbContext.Payments.Where(p => p.PaymentType == PaymentType.SalesPayment && p.Status == MarketZone.Domain.Cash.Entities.PaymentStatus.Posted),
+				invoice => invoice.Id,
+				payment => payment.InvoiceId,
+				(invoice, payments) => new
+				{
+					Invoice = invoice,
+					PaidAmount = payments.Where(p => p != null).Sum(p => (decimal?)(p.AmountInPaymentCurrency ?? p.Amount)) ?? 0
+				})
+			.Select(x => new SalesInvoiceDto
 			{
-				Id = d.Id,
-				ProductId = d.ProductId,
-				Quantity = d.Quantity,
-				UnitPrice = d.UnitPrice,
-				SubTotal = d.SubTotal,
-				Notes = d.Notes
-			}).ToList()
-		});
+				Id = x.Invoice.Id,
+				InvoiceNumber = x.Invoice.InvoiceNumber,
+				CustomerId = x.Invoice.CustomerId,
+				CustomerName = x.Invoice.Customer != null ? x.Invoice.Customer.Name : string.Empty,
+				InvoiceDate = x.Invoice.InvoiceDate,
+				TotalAmount = x.Invoice.TotalAmount,
+				Discount = x.Invoice.Discount,
+				PaymentMethod = x.Invoice.PaymentMethod,
+				Notes = x.Invoice.Notes,
+				Currency = x.Invoice.Currency,
+				Status = x.Invoice.Status,
+				Type = x.Invoice.Type,
+				DistributionTripId = x.Invoice.DistributionTripId,
+				CreatedDateTime = x.Invoice.Created,
+				PaidAmount = x.PaidAmount,
+				UnpaidAmount = x.Invoice.TotalAmount - x.Invoice.Discount - x.PaidAmount,
+				PaymentStatus = x.PaidAmount >= (x.Invoice.TotalAmount - x.Invoice.Discount) 
+					? PurchasePaymentStatus.CompletePayment 
+					: x.PaidAmount > 0 
+						? PurchasePaymentStatus.PartialPayment 
+						: PurchasePaymentStatus.InProgress,
+				Details = x.Invoice.Details.Select(d => new SalesInvoiceDetailDto
+				{
+					Id = d.Id,
+					ProductId = d.ProductId,
+					Quantity = d.Quantity,
+					UnitPrice = d.UnitPrice,
+					SubTotal = d.SubTotal,
+					Notes = d.Notes
+				}).ToList()
+			});
 
 		return await Paged(dtoQuery, pageNumber, pageSize);
 	}
@@ -85,23 +101,33 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 					(x, payment) => new { x.Invoice, Payment = payment }
 				)
 				.GroupBy(x => x.Invoice.Id)
-				.Select(g => new SalesInvoiceDto
+				.Select(g => new
 				{
-					Id = g.First().Invoice.Id,
-					InvoiceNumber = g.First().Invoice.InvoiceNumber,
-					CustomerId = g.First().Invoice.CustomerId,
-					InvoiceDate = g.First().Invoice.InvoiceDate,
-					TotalAmount = g.First().Invoice.TotalAmount,
-					Discount = g.First().Invoice.Discount,
-					PaymentMethod = g.First().Invoice.PaymentMethod,
-					Notes = g.First().Invoice.Notes,
-					Currency = g.First().Invoice.Currency ?? Currency.SY,
-					Status = g.First().Invoice.Status,
-					Type = g.First().Invoice.Type,
-					DistributionTripId = g.First().Invoice.DistributionTripId,
-					CreatedDateTime = g.First().Invoice.Created,
-					PaidAmount = g.Where(x => x.Payment != null).Sum(x => x.Payment.AmountInPaymentCurrency ?? x.Payment.Amount),
-					UnpaidAmount = g.First().Invoice.TotalAmount - g.First().Invoice.Discount - g.Where(x => x.Payment != null).Sum(x => x.Payment.AmountInPaymentCurrency ?? x.Payment.Amount)
+					Invoice = g.First().Invoice,
+					PaidAmount = g.Where(x => x.Payment != null).Sum(x => x.Payment.AmountInPaymentCurrency ?? x.Payment.Amount)
+				})
+				.Select(x => new SalesInvoiceDto
+				{
+					Id = x.Invoice.Id,
+					InvoiceNumber = x.Invoice.InvoiceNumber,
+					CustomerId = x.Invoice.CustomerId,
+					InvoiceDate = x.Invoice.InvoiceDate,
+					TotalAmount = x.Invoice.TotalAmount,
+					Discount = x.Invoice.Discount,
+					PaymentMethod = x.Invoice.PaymentMethod,
+					Notes = x.Invoice.Notes,
+					Currency = x.Invoice.Currency ?? Currency.SY,
+					Status = x.Invoice.Status,
+					Type = x.Invoice.Type,
+					DistributionTripId = x.Invoice.DistributionTripId,
+					CreatedDateTime = x.Invoice.Created,
+					PaidAmount = x.PaidAmount,
+					UnpaidAmount = x.Invoice.TotalAmount - x.Invoice.Discount - x.PaidAmount,
+					PaymentStatus = x.PaidAmount >= (x.Invoice.TotalAmount - x.Invoice.Discount) 
+						? PurchasePaymentStatus.CompletePayment 
+						: x.PaidAmount > 0 
+							? PurchasePaymentStatus.PartialPayment 
+							: PurchasePaymentStatus.InProgress
 				})
 				.Where(x => x.UnpaidAmount > 0) // فواتير لم يتم دفعها بالكامل (جزئياً أو غير مسددة)
 				.OrderByDescending(x => x.InvoiceDate)
