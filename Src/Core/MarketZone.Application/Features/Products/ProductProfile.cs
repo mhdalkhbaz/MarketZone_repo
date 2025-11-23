@@ -31,26 +31,15 @@ namespace MarketZone.Application.Features.Products
 
 
             CreateMap<UpdateProductCommand, Product>();
-                //.IgnoreAllPropertiesWithAnInaccessibleSetter()
-                //.AfterMap((src, dest) =>
-                //{
-                //    // Use Product.Update() method to update properties properly
-                //    dest.Update(
-                //        src.CategoryId,
-                //        src.Name ?? dest.Name,
-                //        src.Description ?? dest.Description,
-                //        src.UnitOfMeasure ?? dest.UnitOfMeasure,
-                //        src.MinStockLevel ?? dest.MinStockLevel,
-                //        src.IsActive ?? dest.IsActive,
-                //        src.NeedsRoasting ?? dest.NeedsRoasting,
-                //        src.BarCode ?? dest.BarCode);
-                    
-                //    // Update commission if provided
-                //    if (src.CommissionPerKg.HasValue)
-                //    {
-                //        dest.SetCommissionPerKg(src.CommissionPerKg);
-                //    }
-                //});
+
+            // Composite Product mappings
+            CreateMap<CompositeProduct, CompositeProductDto>()
+                .ForMember(d => d.CreatedDateTime, o => o.MapFrom(s => s.Created))
+                .ForMember(d => d.ResultingProductName, o => o.MapFrom(s => s.ResultingProduct != null ? s.ResultingProduct.Name : string.Empty))
+                .ForMember(d => d.Details, o => o.MapFrom(s => s.Details));
+
+            CreateMap<CompositeProductDetail, CompositeProductDetailDto>()
+                .ForMember(d => d.ComponentProductName, o => o.MapFrom(s => s.ComponentProduct != null ? s.ComponentProduct.Name : string.Empty));
         }
     }
 }

@@ -793,6 +793,11 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("TripDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("TripNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CarId");
@@ -895,6 +900,85 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                     b.ToTable("Regions");
                 });
 
+            modelBuilder.Entity("MarketZone.Domain.Products.Entities.CompositeProduct", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<decimal>("CommissionPerKg")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("LastModifiedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<long>("ResultingProductId")
+                        .HasColumnType("bigint");
+
+                    b.Property<decimal>("SalePrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<short>("Status")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)0);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ResultingProductId");
+
+                    b.ToTable("CompositeProducts");
+                });
+
+            modelBuilder.Entity("MarketZone.Domain.Products.Entities.CompositeProductDetail", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("ComponentProductId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("CompositeProductId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("LastModifiedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Quantity")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ComponentProductId");
+
+                    b.HasIndex("CompositeProductId");
+
+                    b.ToTable("CompositeProductDetails");
+                });
+
             modelBuilder.Entity("MarketZone.Domain.Products.Entities.Product", b =>
                 {
                     b.Property<long>("Id")
@@ -950,6 +1034,11 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
+
+                    b.Property<short>("ProductType")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)0);
 
                     b.Property<long?>("RawProductId")
                         .HasColumnType("bigint");
@@ -1542,6 +1631,36 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                     b.Navigation("Trip");
                 });
 
+            modelBuilder.Entity("MarketZone.Domain.Products.Entities.CompositeProduct", b =>
+                {
+                    b.HasOne("MarketZone.Domain.Products.Entities.Product", "ResultingProduct")
+                        .WithMany()
+                        .HasForeignKey("ResultingProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ResultingProduct");
+                });
+
+            modelBuilder.Entity("MarketZone.Domain.Products.Entities.CompositeProductDetail", b =>
+                {
+                    b.HasOne("MarketZone.Domain.Products.Entities.Product", "ComponentProduct")
+                        .WithMany()
+                        .HasForeignKey("ComponentProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MarketZone.Domain.Products.Entities.CompositeProduct", "CompositeProduct")
+                        .WithMany("Details")
+                        .HasForeignKey("CompositeProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ComponentProduct");
+
+                    b.Navigation("CompositeProduct");
+                });
+
             modelBuilder.Entity("MarketZone.Domain.Products.Entities.Product", b =>
                 {
                     b.HasOne("MarketZone.Domain.Categories.Entities.Category", "Category")
@@ -1669,6 +1788,11 @@ namespace MarketZone.Infrastructure.Persistence.Migrations
                     b.Navigation("Details");
 
                     b.Navigation("DistributionTripSalesInvoices");
+                });
+
+            modelBuilder.Entity("MarketZone.Domain.Products.Entities.CompositeProduct", b =>
+                {
+                    b.Navigation("Details");
                 });
 
             modelBuilder.Entity("MarketZone.Domain.Purchases.Entities.PurchaseInvoice", b =>

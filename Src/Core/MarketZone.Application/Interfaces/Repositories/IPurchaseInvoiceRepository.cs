@@ -13,6 +13,7 @@ namespace MarketZone.Application.Interfaces.Repositories
         Task<string> GetNextInvoiceNumberAsync(CancellationToken cancellationToken = default);
         Task<PurchaseInvoice> GetWithDetailsByIdAsync(long id, CancellationToken cancellationToken = default);
         Task<List<PurchaseInvoiceDto>> GetUnpaidInvoicesBySupplierAsync(long supplierId, CancellationToken cancellationToken = default);
+        Task<List<PurchaseInvoiceUnpaidDto>> GetUnpaidInvoicesBySupplierSimpleAsync(long supplierId, CancellationToken cancellationToken = default);
         Task<bool> SupplierExistsAsync(long supplierId);
     }
 }

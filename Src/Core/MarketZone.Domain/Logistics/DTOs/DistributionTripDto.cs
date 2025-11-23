@@ -24,6 +24,7 @@ namespace MarketZone.Domain.Logistics.DTOs
 			TripDate = trip.TripDate;
 			LoadQty = trip.LoadQty;
 			Notes = trip.Notes;
+			TripNumber = trip.TripNumber;
 			Status = trip.Status;
 			Details = trip.Details?.Select(d => new DistributionTripDetailDto(d)).ToList() ?? new List<DistributionTripDetailDto>();
 		}
@@ -38,6 +39,7 @@ namespace MarketZone.Domain.Logistics.DTOs
 		public DateTime TripDate { get; set; }
 		public decimal? LoadQty { get; set; }
 		public string Notes { get; set; }
+		public string TripNumber { get; set; }
 		public DistributionTripStatus Status { get; set; }
 		public List<DistributionTripDetailDto> Details { get; set; } = new List<DistributionTripDetailDto>();
 	}

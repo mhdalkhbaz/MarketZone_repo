@@ -5,7 +5,7 @@ using MarketZone.Domain.Sales.DTOs;
 
 namespace MarketZone.Application.Features.Customers.Queries.GetUnpaidInvoicesByCustomer
 {
-    public class GetUnpaidInvoicesByCustomerQuery : IRequest<BaseResult<List<SalesInvoiceDto>>>
+    public class GetUnpaidInvoicesByCustomerQuery : IRequest<BaseResult<List<SalesInvoiceUnpaidDto>>>
     {
         public long CustomerId { get; set; }
     }

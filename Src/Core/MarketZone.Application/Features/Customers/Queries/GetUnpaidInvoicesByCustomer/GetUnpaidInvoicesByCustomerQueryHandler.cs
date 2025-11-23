@@ -12,9 +12,9 @@ using MarketZone.Domain.Sales.Enums;
 
 namespace MarketZone.Application.Features.Customers.Queries.GetUnpaidInvoicesByCustomer
 {
-    public class GetUnpaidInvoicesByCustomerQueryHandler(ISalesInvoiceRepository salesInvoiceRepository, IPaymentRepository paymentRepository, ITranslator translator) : IRequestHandler<GetUnpaidInvoicesByCustomerQuery, BaseResult<List<SalesInvoiceDto>>>
+    public class GetUnpaidInvoicesByCustomerQueryHandler(ISalesInvoiceRepository salesInvoiceRepository, IPaymentRepository paymentRepository, ITranslator translator) : IRequestHandler<GetUnpaidInvoicesByCustomerQuery, BaseResult<List<SalesInvoiceUnpaidDto>>>
     {
-        public async Task<BaseResult<List<SalesInvoiceDto>>> Handle(GetUnpaidInvoicesByCustomerQuery request, CancellationToken cancellationToken)
+        public async Task<BaseResult<List<SalesInvoiceUnpaidDto>>> Handle(GetUnpaidInvoicesByCustomerQuery request, CancellationToken cancellationToken)
         {
             // التحقق من وجود الزبون
             var customerExists = await salesInvoiceRepository.CustomerExistsAsync(request.CustomerId);
@@ -24,9 +24,9 @@ namespace MarketZone.Application.Features.Customers.Queries.GetUnpaidInvoicesByC
             }
 
             // الحصول على الفواتير غير المسددة للزبون
-            var unpaidInvoices = await salesInvoiceRepository.GetUnpaidInvoicesByCustomerAsync(request.CustomerId, cancellationToken);
+            var unpaidInvoices = await salesInvoiceRepository.GetUnpaidInvoicesByCustomerSimpleAsync(request.CustomerId, cancellationToken);
 
-            return BaseResult<List<SalesInvoiceDto>>.Ok(unpaidInvoices);
+            return BaseResult<List<SalesInvoiceUnpaidDto>>.Ok(unpaidInvoices);
         }
     }
 }

@@ -1,4 +1,5 @@
 using MarketZone.Domain.Products.Entities;
+using MarketZone.Domain.Products.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -19,6 +20,7 @@ namespace MarketZone.Infrastructure.Persistence.Contexts.Configurations
             builder.Property(p => p.NeedsRoasting).HasDefaultValue(false);
             builder.Property(p => p.CommissionPerKg).HasColumnType("decimal(18,2)");
             builder.Property(p => p.BarCode).HasMaxLength(50);
+            builder.Property(p => p.ProductType).HasConversion<short>().HasDefaultValue(ProductType.Ready);
 
             builder.HasOne(p => p.Category)
                 .WithMany()

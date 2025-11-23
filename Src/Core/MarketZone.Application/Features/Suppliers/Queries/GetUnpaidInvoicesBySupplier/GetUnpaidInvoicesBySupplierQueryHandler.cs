@@ -12,9 +12,9 @@ using MarketZone.Domain.Purchases.Enums;
 
 namespace MarketZone.Application.Features.Suppliers.Queries.GetUnpaidInvoicesBySupplier
 {
-    public class GetUnpaidInvoicesBySupplierQueryHandler(IPurchaseInvoiceRepository purchaseInvoiceRepository, IPaymentRepository paymentRepository, ITranslator translator) : IRequestHandler<GetUnpaidInvoicesBySupplierQuery, BaseResult<List<PurchaseInvoiceDto>>>
+    public class GetUnpaidInvoicesBySupplierQueryHandler(IPurchaseInvoiceRepository purchaseInvoiceRepository, IPaymentRepository paymentRepository, ITranslator translator) : IRequestHandler<GetUnpaidInvoicesBySupplierQuery, BaseResult<List<PurchaseInvoiceUnpaidDto>>>
     {
-        public async Task<BaseResult<List<PurchaseInvoiceDto>>> Handle(GetUnpaidInvoicesBySupplierQuery request, CancellationToken cancellationToken)
+        public async Task<BaseResult<List<PurchaseInvoiceUnpaidDto>>> Handle(GetUnpaidInvoicesBySupplierQuery request, CancellationToken cancellationToken)
         {
             // التحقق من وجود المورد
             var supplierExists = await purchaseInvoiceRepository.SupplierExistsAsync(request.SupplierId);
@@ -24,9 +24,9 @@ namespace MarketZone.Application.Features.Suppliers.Queries.GetUnpaidInvoicesByS
             }
 
             // الحصول على الفواتير غير المسددة للمورد
-            var unpaidInvoices = await purchaseInvoiceRepository.GetUnpaidInvoicesBySupplierAsync(request.SupplierId, cancellationToken);
+            var unpaidInvoices = await purchaseInvoiceRepository.GetUnpaidInvoicesBySupplierSimpleAsync(request.SupplierId, cancellationToken);
 
-            return BaseResult<List<PurchaseInvoiceDto>>.Ok(unpaidInvoices);
+            return BaseResult<List<PurchaseInvoiceUnpaidDto>>.Ok(unpaidInvoices);
         }
     }
 }

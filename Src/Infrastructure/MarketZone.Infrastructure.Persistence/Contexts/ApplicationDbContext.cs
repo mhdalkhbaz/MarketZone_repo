@@ -44,6 +44,8 @@ namespace MarketZone.Infrastructure.Persistence.Contexts
         public DbSet<Region> Regions { get; set; }
         public DbSet<DistributionTrip> DistributionTrips { get; set; }
         public DbSet<DistributionTripDetail> DistributionTripDetails { get; set; }
+        public DbSet<CompositeProduct> CompositeProducts { get; set; }
+        public DbSet<CompositeProductDetail> CompositeProductDetails { get; set; }
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new())
         {
             ChangeTracker.ApplyAuditing(authenticatedUser);

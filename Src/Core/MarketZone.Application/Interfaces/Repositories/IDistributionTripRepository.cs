@@ -11,6 +11,7 @@ namespace MarketZone.Application.Interfaces.Repositories
 		Task<PaginationResponseDto<DistributionTripDto>> GetPagedListAsync(int pageNumber, int pageSize, long? carId, long? regionId);
 		Task<DistributionTrip> GetWithDetailsByIdAsync(long id, CancellationToken cancellationToken = default);
 		Task<bool> HasDistributionTripsAsync(long regionId, CancellationToken cancellationToken = default);
+		Task<string> GetNextTripNumberAsync(CancellationToken cancellationToken = default);
 	}
 }
 

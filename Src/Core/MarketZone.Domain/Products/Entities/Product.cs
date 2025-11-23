@@ -1,5 +1,6 @@
 using MarketZone.Domain.Categories.Entities;
 using MarketZone.Domain.Common;
+using MarketZone.Domain.Products.Enums;
 
 namespace MarketZone.Domain.Products.Entities
 {
@@ -16,7 +17,8 @@ namespace MarketZone.Domain.Products.Entities
             decimal minStockLevel,
             bool isActive,
             bool needsRoasting,
-            string barCode)
+            string barCode,
+            ProductType productType = ProductType.Ready)
         {
             CategoryId = categoryId;
             Name = name;
@@ -26,6 +28,7 @@ namespace MarketZone.Domain.Products.Entities
             IsActive = isActive;
             NeedsRoasting = needsRoasting;
             BarCode = barCode;
+            ProductType = productType;
         }
 
         public long CategoryId { get; private set; }
@@ -44,6 +47,7 @@ namespace MarketZone.Domain.Products.Entities
         public long? RawProductId { get; private set; }
 
         public decimal? CommissionPerKg { get; private set; }
+        public ProductType ProductType { get; private set; } = ProductType.Ready;
 
         public void Update(
             long categoryId,
@@ -53,7 +57,8 @@ namespace MarketZone.Domain.Products.Entities
             decimal minStockLevel,
             bool isActive,
             bool needsRoasting,
-            string barCode)
+            string barCode,
+            ProductType? productType = null)
         {
             CategoryId = categoryId;
             Name = name;
@@ -63,6 +68,15 @@ namespace MarketZone.Domain.Products.Entities
             IsActive = isActive;
             NeedsRoasting = needsRoasting;
             BarCode = barCode;
+            if (productType.HasValue)
+            {
+                ProductType = productType.Value;
+            }
+        }
+
+        public void SetProductType(ProductType productType)
+        {
+            ProductType = productType;
         }
 
         public void SetRawProduct(long? rawProductId)

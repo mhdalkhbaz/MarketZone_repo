@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -43,6 +44,7 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 				TripDate = trip.TripDate,
 				LoadQty = trip.LoadQty,
 				Notes = trip.Notes,
+				TripNumber = trip.TripNumber,
 				Status = trip.Status,
 				Details = trip.Details.Select(d => new DistributionTripDetailDto
 				{
@@ -73,6 +75,29 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 		{
 			return await dbContext.Set<DistributionTrip>()
 				.AnyAsync(dt => dt.RegionId == regionId, cancellationToken);
+		}
+
+		public async Task<string> GetNextTripNumberAsync(CancellationToken cancellationToken = default)
+		{
+			var year = DateTime.UtcNow.Year;
+			var prefix = $"DT-{year}-";
+			var lastForYear = await dbContext.Set<DistributionTrip>()
+				.Where(t => t.TripNumber != null && t.TripNumber.StartsWith(prefix))
+				.OrderByDescending(t => t.TripNumber)
+				.Select(t => t.TripNumber)
+				.FirstOrDefaultAsync(cancellationToken);
+
+			int nextSeq = 1;
+			if (!string.IsNullOrEmpty(lastForYear))
+			{
+				var parts = lastForYear.Split('-');
+				if (parts.Length == 3 && int.TryParse(parts[2], out var seq))
+				{
+					nextSeq = seq + 1;
+				}
+			}
+
+			return $"{prefix}{nextSeq.ToString("D5")}";
 		}
 	}
 }

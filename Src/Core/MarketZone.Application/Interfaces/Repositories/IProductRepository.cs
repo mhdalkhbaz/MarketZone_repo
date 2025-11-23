@@ -10,5 +10,6 @@ namespace MarketZone.Application.Interfaces.Repositories
     {
         Task<PaginationResponseDto<ProductDto>> GetPagedListAsync(int pageNumber, int pageSize, string name);
         Task<Dictionary<long, Product>> GetByIdsAsync(IEnumerable<long> ids, System.Threading.CancellationToken cancellationToken = default);
+        Task<List<ProductForCompositeDto>> GetProductsForCompositeAsync(System.Threading.CancellationToken cancellationToken = default);
     }
 }

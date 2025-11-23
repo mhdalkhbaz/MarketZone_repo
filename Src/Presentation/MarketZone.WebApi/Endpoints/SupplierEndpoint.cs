@@ -38,8 +38,8 @@ namespace MarketZone.WebApi.Endpoints
         async Task<BaseResult<SupplierDto>> GetSupplierById(IMediator mediator, [AsParameters] GetSupplierByIdQuery model)
             => await mediator.Send<GetSupplierByIdQuery, BaseResult<SupplierDto>>(model);
 
-        async Task<BaseResult<List<MarketZone.Domain.Purchases.DTOs.PurchaseInvoiceDto>>> GetUnpaidInvoicesBySupplier(IMediator mediator, [AsParameters] GetUnpaidInvoicesBySupplierQuery model)
-            => await mediator.Send<GetUnpaidInvoicesBySupplierQuery, BaseResult<List<MarketZone.Domain.Purchases.DTOs.PurchaseInvoiceDto>>>(model);
+        async Task<BaseResult<List<MarketZone.Domain.Purchases.DTOs.PurchaseInvoiceUnpaidDto>>> GetUnpaidInvoicesBySupplier(IMediator mediator, [AsParameters] GetUnpaidInvoicesBySupplierQuery model)
+            => await mediator.Send<GetUnpaidInvoicesBySupplierQuery, BaseResult<List<MarketZone.Domain.Purchases.DTOs.PurchaseInvoiceUnpaidDto>>>(model);
 
         async Task<BaseResult<long>> CreateSupplier(IMediator mediator, [FromBody] CreateSupplierCommand model)
             => await mediator.Send<CreateSupplierCommand, BaseResult<long>>(model);

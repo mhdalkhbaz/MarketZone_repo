@@ -22,6 +22,7 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 	{
 		var query = dbContext.Set<PurchaseInvoice>()
 			.Include(x => x.Details)
+				.ThenInclude(d => d.Product)
 			.Include(x => x.Supplier)
 			.OrderByDescending(p => p.Id)
 			.AsQueryable();
@@ -52,6 +53,7 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 			{
 				Id = d.Id,
 				ProductId = d.ProductId,
+				ProductName = d.Product != null ? d.Product.Name : string.Empty,
 				Quantity = d.Quantity,
 				UnitPrice = d.UnitPrice,
 				TotalPrice = d.TotalPrice,
@@ -89,6 +91,7 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 	{
 		return await dbContext.Set<PurchaseInvoice>()
 			.Include(x => x.Details)
+				.ThenInclude(d => d.Product)
 			.Include(x => x.Supplier)
 			.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 	}
@@ -134,6 +137,47 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 				.ToListAsync(cancellationToken);
 
 			unpaidInvoices.ForEach(i => i.Currency = supplierCurrency);
+
+			return unpaidInvoices;
+		}
+
+		public async Task<List<PurchaseInvoiceUnpaidDto>> GetUnpaidInvoicesBySupplierSimpleAsync(long supplierId, CancellationToken cancellationToken = default)
+		{
+			var supplierCurrency = await dbContext.Suppliers
+				.Where(s => s.Id == supplierId)
+				.Select(s => s.Currency)
+				.FirstOrDefaultAsync(cancellationToken);
+
+			var invoices = await dbContext.PurchaseInvoices
+				.Where(pi => pi.SupplierId == supplierId && pi.Status == PurchaseInvoiceStatus.Posted)
+				.Select(pi => new
+				{
+					pi.Id,
+					pi.InvoiceNumber,
+					pi.TotalAmount,
+					pi.Discount,
+					pi.InvoiceDate,
+					PaidAmount = dbContext.Payments
+						.Where(p => p.PaymentType == PaymentType.PurchasePayment 
+							&& p.Status == MarketZone.Domain.Cash.Entities.PaymentStatus.Posted
+							&& p.InvoiceId == pi.Id)
+						.Sum(p => (decimal?)(p.AmountInPaymentCurrency ?? p.Amount)) ?? 0
+				})
+				.ToListAsync(cancellationToken);
+
+			var unpaidInvoices = invoices
+				.Select(x => new PurchaseInvoiceUnpaidDto
+				{
+					Id = x.Id,
+					InvoiceNumber = x.InvoiceNumber,
+					TotalAmount = x.TotalAmount - x.Discount,
+					UnpaidAmount = x.TotalAmount - x.Discount - x.PaidAmount,
+					Currency = supplierCurrency ?? Currency.SY,
+					InvoiceDate = x.InvoiceDate
+				})
+				.Where(x => x.UnpaidAmount > 0) // فواتير لم يتم دفعها بالكامل (جزئياً أو غير مسددة)
+				.OrderByDescending(x => x.InvoiceDate)
+				.ToList();
 
 			return unpaidInvoices;
 		}

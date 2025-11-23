@@ -102,8 +102,12 @@ namespace MarketZone.Application.Features.Logistics.Commands.DistributionTrips.C
 			productBalances[detail.ProductId] = balance;
 		}
 
+				// إنشاء رقم الرحلة
+				var tripNumber = await _repository.GetNextTripNumberAsync(cancellationToken);
+
 				// إنشاء رحلة التوزيع
 				var trip = _mapper.Map<DistributionTrip>(request);
+				trip.SetTripNumber(tripNumber);
 
 				// إضافة التفاصيل
 				if (request.Details?.Any() == true)

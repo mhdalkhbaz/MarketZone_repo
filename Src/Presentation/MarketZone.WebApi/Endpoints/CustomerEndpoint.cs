@@ -12,6 +12,7 @@ using MarketZone.Domain.Customers.DTOs;
 using MarketZone.WebApi.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -24,7 +25,7 @@ namespace MarketZone.WebApi.Endpoints
         {
             builder.MapGet(GetPagedListCustomer);
             builder.MapGet(GetCustomerById);
-            builder.MapGet(GetUnpaidInvoicesByCustomer);
+            builder.MapGet("GetUnpaidInvoicesByCustomer", GetUnpaidInvoicesByCustomer);
             builder.MapPost(CreateCustomer).RequireAuthorization();
             builder.MapPut(UpdateCustomer).RequireAuthorization();
             builder.MapDelete(DeleteCustomer).RequireAuthorization();
@@ -37,8 +38,8 @@ namespace MarketZone.WebApi.Endpoints
         async Task<BaseResult<CustomerDto>> GetCustomerById(IMediator mediator, [AsParameters] GetCustomerByIdQuery model)
             => await mediator.Send<GetCustomerByIdQuery, BaseResult<CustomerDto>>(model);
 
-        async Task<BaseResult<List<MarketZone.Domain.Sales.DTOs.SalesInvoiceDto>>> GetUnpaidInvoicesByCustomer(IMediator mediator, [AsParameters] GetUnpaidInvoicesByCustomerQuery model)
-            => await mediator.Send<GetUnpaidInvoicesByCustomerQuery, BaseResult<List<MarketZone.Domain.Sales.DTOs.SalesInvoiceDto>>>(model);
+        async Task<BaseResult<List<MarketZone.Domain.Sales.DTOs.SalesInvoiceUnpaidDto>>> GetUnpaidInvoicesByCustomer(IMediator mediator, [FromQuery(Name = "CustomerId")] long customerId)
+            => await mediator.Send<GetUnpaidInvoicesByCustomerQuery, BaseResult<List<MarketZone.Domain.Sales.DTOs.SalesInvoiceUnpaidDto>>>(new GetUnpaidInvoicesByCustomerQuery { CustomerId = customerId });
 
         async Task<BaseResult<long>> CreateCustomer(IMediator mediator, CreateCustomerCommand model)
             => await mediator.Send<CreateCustomerCommand, BaseResult<long>>(model);

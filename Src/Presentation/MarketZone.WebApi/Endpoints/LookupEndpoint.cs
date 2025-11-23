@@ -333,6 +333,7 @@ namespace MarketZone.WebApi.Endpoints
                     InvoiceId = g.Key,
                     CustomerId = g.First().Invoice.CustomerId,
                     CustomerName = g.First().Invoice.Customer.Name,
+                    CustomerCurrency = g.First().Invoice.Customer.Currency,
                     TotalAmount = g.First().Invoice.TotalAmount - g.First().Invoice.Discount,
                     PaidAmount = g.Where(x => x.Payment != null).Sum(x => x.Payment.AmountInPaymentCurrency ?? x.Payment.Amount)
                 })
@@ -341,10 +342,11 @@ namespace MarketZone.WebApi.Endpoints
                 .Select(g => new
                 {
                     CustomerId = g.Key,
-                    CustomerName = g.First().CustomerName
+                    CustomerName = g.First().CustomerName,
+                    CustomerCurrency = g.First().CustomerCurrency
                 })
                 .OrderBy(x => x.CustomerName)
-                .Select(x => new SelectListDto(x.CustomerName, x.CustomerId.ToString()))
+                .Select(x => new SelectListDto(x.CustomerName, x.CustomerId.ToString(), x.CustomerCurrency ?? Currency.SY))
                 .ToListAsync();
 
             return BaseResult<List<SelectListDto>>.Ok(customersWithDebts);
@@ -371,6 +373,7 @@ namespace MarketZone.WebApi.Endpoints
                     InvoiceId = g.Key,
                     SupplierId = g.First().Invoice.SupplierId,
                     SupplierName = g.First().Invoice.Supplier.Name,
+                    SupplierCurrency = g.First().Invoice.Supplier.Currency,
                     TotalAmount = g.First().Invoice.TotalAmount - g.First().Invoice.Discount,
                     PaidAmount = g.Where(x => x.Payment != null).Sum(x => x.Payment.AmountInPaymentCurrency ?? x.Payment.Amount)
                 })
@@ -379,10 +382,11 @@ namespace MarketZone.WebApi.Endpoints
                 .Select(g => new
                 {
                     SupplierId = g.Key,
-                    SupplierName = g.First().SupplierName
+                    SupplierName = g.First().SupplierName,
+                    SupplierCurrency = g.First().SupplierCurrency
                 })
                 .OrderBy(x => x.SupplierName)
-                .Select(x => new SelectListDto(x.SupplierName, x.SupplierId.ToString()))
+                .Select(x => new SelectListDto(x.SupplierName, x.SupplierId.ToString(), x.SupplierCurrency ?? Currency.SY))
                 .ToListAsync();
 
             return BaseResult<List<SelectListDto>>.Ok(suppliersWithDebts);

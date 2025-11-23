@@ -14,6 +14,7 @@ namespace MarketZone.Domain.Purchases.DTOs
         {
             Id = detail.Id;
             ProductId = detail.ProductId;
+            ProductName = detail.Product?.Name ?? string.Empty;
             Quantity = detail.Quantity;
             UnitPrice = detail.UnitPrice;
             TotalPrice = detail.TotalPrice;
@@ -22,6 +23,7 @@ namespace MarketZone.Domain.Purchases.DTOs
 
         public long Id { get; set; }
         public long ProductId { get; set; }
+        public string ProductName { get; set; }
         public decimal Quantity { get; set; }
         public decimal UnitPrice { get; set; }
         public decimal TotalPrice { get; set; }

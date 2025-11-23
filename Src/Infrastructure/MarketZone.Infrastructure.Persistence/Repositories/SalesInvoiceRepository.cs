@@ -21,6 +21,7 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 	{
 		var query = dbContext.Set<SalesInvoice>()
 			.Include(x => x.Details)
+				.ThenInclude(d => d.Product)
 			.Include(x => x.Customer)
 			.OrderByDescending(p => p.InvoiceDate)
 			.AsQueryable();
@@ -68,6 +69,7 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 				{
 					Id = d.Id,
 					ProductId = d.ProductId,
+					ProductName = d.Product != null ? d.Product.Name : string.Empty,
 					Quantity = d.Quantity,
 					UnitPrice = d.UnitPrice,
 					SubTotal = d.SubTotal,
@@ -82,6 +84,7 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 	{
 		return await dbContext.Set<SalesInvoice>()
 			.Include(x => x.Details)
+				.ThenInclude(d => d.Product)
 			.Include(x => x.Customer)
 			.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 	}
@@ -89,6 +92,9 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 		public async Task<List<SalesInvoiceDto>> GetUnpaidInvoicesByCustomerAsync(long customerId, System.Threading.CancellationToken cancellationToken = default)
 		{
 			var unpaidInvoices = await dbContext.SalesInvoices
+				.Include(si => si.Details)
+					.ThenInclude(d => d.Product)
+				.Include(si => si.Customer)
 				.Where(si => si.CustomerId == customerId && si.Status == SalesInvoiceStatus.Posted)
 				.GroupJoin(
 					dbContext.Payments.Where(p => p.PaymentType == PaymentType.SalesPayment && p.Status == MarketZone.Domain.Cash.Entities.PaymentStatus.Posted),
@@ -111,6 +117,7 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 					Id = x.Invoice.Id,
 					InvoiceNumber = x.Invoice.InvoiceNumber,
 					CustomerId = x.Invoice.CustomerId,
+					CustomerName = x.Invoice.Customer != null ? x.Invoice.Customer.Name : string.Empty,
 					InvoiceDate = x.Invoice.InvoiceDate,
 					TotalAmount = x.Invoice.TotalAmount,
 					Discount = x.Invoice.Discount,
@@ -127,11 +134,58 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 						? PurchasePaymentStatus.CompletePayment 
 						: x.PaidAmount > 0 
 							? PurchasePaymentStatus.PartialPayment 
-							: PurchasePaymentStatus.InProgress
+							: PurchasePaymentStatus.InProgress,
+					Details = x.Invoice.Details.Select(d => new SalesInvoiceDetailDto
+					{
+						Id = d.Id,
+						ProductId = d.ProductId,
+						ProductName = d.Product != null ? d.Product.Name : string.Empty,
+						Quantity = d.Quantity,
+						UnitPrice = d.UnitPrice,
+						SubTotal = d.SubTotal,
+						Notes = d.Notes
+					}).ToList()
 				})
 				.Where(x => x.UnpaidAmount > 0) // فواتير لم يتم دفعها بالكامل (جزئياً أو غير مسددة)
 				.OrderByDescending(x => x.InvoiceDate)
 				.ToListAsync(cancellationToken);
+
+		return unpaidInvoices;
+	}
+
+		public async Task<List<SalesInvoiceUnpaidDto>> GetUnpaidInvoicesByCustomerSimpleAsync(long customerId, System.Threading.CancellationToken cancellationToken = default)
+		{
+			var invoices = await dbContext.SalesInvoices
+				.Where(si => si.CustomerId == customerId && si.Status == SalesInvoiceStatus.Posted)
+				.Select(si => new
+				{
+					si.Id,
+					si.InvoiceNumber,
+					si.TotalAmount,
+					si.Discount,
+					si.Currency,
+					si.InvoiceDate,
+					PaidAmount = dbContext.Payments
+						.Where(p => p.PaymentType == PaymentType.SalesPayment 
+							&& p.Status == MarketZone.Domain.Cash.Entities.PaymentStatus.Posted
+							&& p.InvoiceId == si.Id)
+						.Sum(p => (decimal?)(p.AmountInPaymentCurrency ?? p.Amount)) ?? 0
+				})
+				.ToListAsync(cancellationToken);
+
+			var unpaidInvoices = invoices
+				.Select(x => new SalesInvoiceUnpaidDto
+				{
+					Id = x.Id,
+					InvoiceNumber = x.InvoiceNumber,
+					TotalAmount = x.TotalAmount - x.Discount,
+					UnpaidAmount = x.TotalAmount - x.Discount - x.PaidAmount,
+					Currency = x.Currency ?? Currency.SY,
+					InvoiceDate = x.InvoiceDate
+				})
+				.Where(x => x.UnpaidAmount > 0) // فواتير لم يتم دفعها بالكامل (جزئياً أو غير مسددة)
+				.OrderByDescending(x => x.InvoiceDate)
+				.ToList();
 
 			return unpaidInvoices;
 		}

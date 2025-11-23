@@ -69,5 +69,23 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
                 .ToListAsync(cancellationToken);
             return list.ToDictionary(p => p.Id, p => p);
         }
+
+        public async Task<List<ProductForCompositeDto>> GetProductsForCompositeAsync(CancellationToken cancellationToken = default)
+        {
+            var query = from p in _dbContext.Products
+                        join pb in _dbContext.ProductBalances on p.Id equals pb.ProductId
+                        where pb.Qty > 0 && p.IsActive
+                        orderby p.Name
+                        select new ProductForCompositeDto
+                        {
+                            Id = p.Id,
+                            Name = p.Name,
+                            Qty = pb.Qty,
+                            SalePrice = pb.SalePrice,
+                            CommissionPerKg = p.CommissionPerKg
+                        };
+
+            return await query.ToListAsync(cancellationToken);
+        }
     }
 }

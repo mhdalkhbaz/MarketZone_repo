@@ -15,7 +15,7 @@ namespace MarketZone.Domain.Logistics.Entities
             DistributionTripSalesInvoices = new List<SalesInvoice>();
         }
 
-        public DistributionTrip(long employeeId, long carId, long regionId, DateTime tripDate, decimal? loadQty, string notes)
+        public DistributionTrip(long employeeId, long carId, long regionId, DateTime tripDate, decimal? loadQty, string notes, string tripNumber)
         {
             EmployeeId = employeeId;
             CarId = carId;
@@ -23,6 +23,7 @@ namespace MarketZone.Domain.Logistics.Entities
             TripDate = tripDate;
             LoadQty = loadQty;
             Notes = notes ?? string.Empty;
+            TripNumber = tripNumber;
             Status = DistributionTripStatus.Draft;
             Details = new List<DistributionTripDetail>();
             DistributionTripSalesInvoices = new List<SalesInvoice>();
@@ -37,6 +38,7 @@ namespace MarketZone.Domain.Logistics.Entities
         public DateTime TripDate { get; private set; }
         public decimal? LoadQty { get; private set; }
         public string Notes { get; private set; }
+        public string TripNumber { get; private set; }
         public DistributionTripStatus Status { get; private set; }
 
         public List<DistributionTripDetail> Details { get; private set; }
@@ -50,6 +52,11 @@ namespace MarketZone.Domain.Logistics.Entities
             TripDate = tripDate;
             LoadQty = loadQty;
             Notes = notes ?? string.Empty;
+        }
+
+        public void SetTripNumber(string tripNumber)
+        {
+            TripNumber = tripNumber;
         }
 
         public void SetStatus(DistributionTripStatus status)

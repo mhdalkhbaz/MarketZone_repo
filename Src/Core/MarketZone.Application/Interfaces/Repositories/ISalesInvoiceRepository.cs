@@ -11,6 +11,7 @@ namespace MarketZone.Application.Interfaces.Repositories
 		Task<PaginationResponseDto<SalesInvoiceDto>> GetPagedListAsync(int pageNumber, int pageSize, string invoiceNumber);
 		Task<SalesInvoice> GetWithDetailsByIdAsync(long id, System.Threading.CancellationToken cancellationToken = default);
 		Task<List<SalesInvoiceDto>> GetUnpaidInvoicesByCustomerAsync(long customerId, System.Threading.CancellationToken cancellationToken = default);
+		Task<List<SalesInvoiceUnpaidDto>> GetUnpaidInvoicesByCustomerSimpleAsync(long customerId, System.Threading.CancellationToken cancellationToken = default);
 		Task<bool> CustomerExistsAsync(long customerId);
 		Task<bool> HasInvoicesForCustomerAsync(long customerId, System.Threading.CancellationToken cancellationToken = default);
 		Task<List<SalesInvoice>> GetInvoicesByTripIdAsync(long tripId, System.Threading.CancellationToken cancellationToken = default);
