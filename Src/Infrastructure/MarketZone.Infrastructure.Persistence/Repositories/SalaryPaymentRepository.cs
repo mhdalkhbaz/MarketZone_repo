@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using MarketZone.Application.DTOs;
 using MarketZone.Application.Interfaces.Repositories;
+using MarketZone.Application.Parameters;
 using MarketZone.Domain.Employees.DTOs;
 using MarketZone.Infrastructure.Persistence.Contexts;
 using Microsoft.EntityFrameworkCore;
@@ -11,26 +12,37 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 {
     public class SalaryPaymentRepository(ApplicationDbContext dbContext) : GenericRepository<MarketZone.Domain.Employees.Entities.SalaryPayment>(dbContext), ISalaryPaymentRepository
     {
-        public async Task<PaginationResponseDto<SalaryPaymentDto>> GetPagedListAsync(int pageNumber, int pageSize, long? employeeId, int? year, int? month)
+        public async Task<PaginationResponseDto<SalaryPaymentDto>> GetPagedListAsync(SalaryPaymentFilter filter)
         {
             var query = dbContext.SalaryPayments
                 .Include(sp => sp.Employee)
                 .Include(sp => sp.CashRegister)
                 .AsQueryable();
 
-            if (employeeId.HasValue)
+            // Apply filters using FilterBuilder pattern
+            if (filter.EmployeeId.HasValue)
             {
-                query = query.Where(sp => sp.EmployeeId == employeeId.Value);
+                query = query.Where(sp => sp.EmployeeId == filter.EmployeeId.Value);
             }
 
-            if (year.HasValue)
+            if (filter.Year.HasValue)
             {
-                query = query.Where(sp => sp.Year == year.Value);
+                query = query.Where(sp => sp.Year == filter.Year.Value);
             }
 
-            if (month.HasValue)
+            if (filter.Month.HasValue)
             {
-                query = query.Where(sp => sp.Month == month.Value);
+                query = query.Where(sp => sp.Month == filter.Month.Value);
+            }
+
+            if (filter.CashRegisterId.HasValue)
+            {
+                query = query.Where(sp => sp.CashRegisterId == filter.CashRegisterId.Value);
+            }
+
+            if (!string.IsNullOrEmpty(filter.Name))
+            {
+                query = query.Where(sp => sp.Employee.FirstName.Contains(filter.Name) || sp.Employee.LastName.Contains(filter.Name));
             }
 
             query = query.OrderByDescending(sp => sp.PaymentDate);
@@ -53,7 +65,7 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
                 LastModifiedDateTime = sp.LastModified
             });
 
-            return await Paged(pagedQuery, pageNumber, pageSize);
+            return await Paged(pagedQuery, filter.PageNumber, filter.PageSize);
         }
 
         public async Task<List<SalaryPaymentDto>> GetByEmployeeAndMonthAsync(long employeeId, int year, int month)

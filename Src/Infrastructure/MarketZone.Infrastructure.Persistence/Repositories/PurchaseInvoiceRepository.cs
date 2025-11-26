@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using MarketZone.Application.DTOs;
+using MarketZone.Application.Parameters;
 using MarketZone.Application.Interfaces.Repositories;
 using MarketZone.Domain.Cash.Enums;
 using MarketZone.Domain.Purchases.DTOs;
@@ -18,19 +19,41 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 {
 	public class PurchaseInvoiceRepository(ApplicationDbContext dbContext, IMapper mapper) : GenericRepository<PurchaseInvoice>(dbContext), IPurchaseInvoiceRepository
 	{
-	public async Task<PaginationResponseDto<PurchaseInvoiceDto>> GetPagedListAsync(int pageNumber, int pageSize, string invoiceNumber)
+	public async Task<PaginationResponseDto<PurchaseInvoiceDto>> GetPagedListAsync(PurchaseInvoiceFilter filter)
 	{
 		var query = dbContext.Set<PurchaseInvoice>()
 			.Include(x => x.Details)
 				.ThenInclude(d => d.Product)
 			.Include(x => x.Supplier)
-			.OrderByDescending(p => p.Id)
 			.AsQueryable();
 
-		if (!string.IsNullOrEmpty(invoiceNumber))
+		// Apply filters using FilterBuilder pattern
+		if (!string.IsNullOrEmpty(filter.InvoiceNumber))
 		{
-			query = query.Where(p => p.InvoiceNumber.Contains(invoiceNumber));
+			query = query.Where(p => p.InvoiceNumber.Contains(filter.InvoiceNumber));
 		}
+
+		if (!string.IsNullOrEmpty(filter.SupplierName))
+		{
+			query = query.Where(p => p.Supplier != null && p.Supplier.Name.Contains(filter.SupplierName));
+		}
+
+		if (!string.IsNullOrEmpty(filter.Name))
+		{
+			query = query.Where(p => p.InvoiceNumber.Contains(filter.Name));
+		}
+
+		if (!string.IsNullOrEmpty(filter.Description))
+		{
+			query = query.Where(p => !string.IsNullOrEmpty(p.Notes) && p.Notes.Contains(filter.Description));
+		}
+
+		if (filter.Status.HasValue)
+		{
+			query = query.Where(p => (int)p.Status == filter.Status.Value);
+		}
+
+		query = query.OrderByDescending(p => p.Id);
 
 		// استخدام Select مباشرة لإضافة اسم المورد
 		var dtoQuery = query.Select(invoice => new PurchaseInvoiceDto
@@ -61,7 +84,7 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 			}).ToList()
 		});
 
-		return await Paged(dtoQuery, pageNumber, pageSize);
+		return await Paged(dtoQuery, filter.PageNumber, filter.PageSize);
 	}
 
 		public async Task<string> GetNextInvoiceNumberAsync(CancellationToken cancellationToken = default)

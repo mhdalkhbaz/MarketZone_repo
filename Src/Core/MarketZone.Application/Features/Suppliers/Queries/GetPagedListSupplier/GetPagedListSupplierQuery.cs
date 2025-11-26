@@ -5,9 +5,8 @@ using MarketZone.Domain.Suppliers.DTOs;
 
 namespace MarketZone.Application.Features.Suppliers.Queries.GetPagedListSupplier
 {
-	public class GetPagedListSupplierQuery : PaginationRequestParameter, IRequest<PagedResponse<SupplierDto>>
+	public class GetPagedListSupplierQuery : SupplierFilter, IRequest<PagedResponse<SupplierDto>>
 	{
-		public string Name { get; set; }
 	}
 }
 

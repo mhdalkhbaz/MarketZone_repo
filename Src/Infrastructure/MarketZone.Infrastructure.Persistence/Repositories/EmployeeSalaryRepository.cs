@@ -2,6 +2,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using MarketZone.Application.DTOs;
 using MarketZone.Application.Interfaces.Repositories;
+using MarketZone.Application.Parameters;
 using MarketZone.Domain.Employees.DTOs;
 using MarketZone.Domain.Employees.Entities;
 using MarketZone.Infrastructure.Persistence.Contexts;
@@ -34,25 +35,31 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
             return newSalary;
         }
 
-        public async Task<PaginationResponseDto<EmployeeSalaryDto>> GetPagedListAsync(int pageNumber, int pageSize, long? employeeId, int? year, int? month)
+        public async Task<PaginationResponseDto<EmployeeSalaryDto>> GetPagedListAsync(EmployeeSalaryFilter filter)
         {
             var query = dbContext.EmployeeSalaries
                 .Include(es => es.Employee)
                 .AsQueryable();
 
-            if (employeeId.HasValue)
+            // Apply filters using FilterBuilder pattern
+            if (filter.EmployeeId.HasValue)
             {
-                query = query.Where(es => es.EmployeeId == employeeId.Value);
+                query = query.Where(es => es.EmployeeId == filter.EmployeeId.Value);
             }
 
-            if (year.HasValue)
+            if (filter.Year.HasValue)
             {
-                query = query.Where(es => es.Year == year.Value);
+                query = query.Where(es => es.Year == filter.Year.Value);
             }
 
-            if (month.HasValue)
+            if (filter.Month.HasValue)
             {
-                query = query.Where(es => es.Month == month.Value);
+                query = query.Where(es => es.Month == filter.Month.Value);
+            }
+
+            if (!string.IsNullOrEmpty(filter.Name))
+            {
+                query = query.Where(es => es.Employee.FirstName.Contains(filter.Name) || es.Employee.LastName.Contains(filter.Name));
             }
 
             query = query.OrderByDescending(es => es.Year)
@@ -77,7 +84,7 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
                 LastModifiedDateTime = es.LastModified
             });
 
-            return await Paged(pagedQuery, pageNumber, pageSize);
+            return await Paged(pagedQuery, filter.PageNumber, filter.PageSize);
         }
     }
 }

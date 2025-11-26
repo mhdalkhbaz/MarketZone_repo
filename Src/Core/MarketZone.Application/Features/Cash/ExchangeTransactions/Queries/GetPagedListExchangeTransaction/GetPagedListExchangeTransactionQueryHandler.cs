@@ -11,8 +11,7 @@ namespace MarketZone.Application.Features.Cash.ExchangeTransactions.Queries.GetP
     {
         public async Task<PagedResponse<ExchangeTransactionDto>> Handle(GetPagedListExchangeTransactionQuery request, CancellationToken cancellationToken)
         {
-            var paged = await repository.GetPagedListAsync(request.PageNumber, request.PageSize, request.CashRegisterId, request.FromDate, request.ToDate);
-            return paged;
+            return await repository.GetPagedListAsync(request);
         }
     }
 }

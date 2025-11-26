@@ -5,9 +5,8 @@ using MarketZone.Domain.Purchases.DTOs;
 
 namespace MarketZone.Application.Features.Purchases.Queries.GetPagedListPurchaseInvoice
 {
-	public class GetPagedListPurchaseInvoiceQuery : PaginationRequestParameter, IRequest<PagedResponse<PurchaseInvoiceDto>>
+	public class GetPagedListPurchaseInvoiceQuery : PurchaseInvoiceFilter, IRequest<PagedResponse<PurchaseInvoiceDto>>
 	{
-		public string InvoiceNumber { get; set; }
 	}
 }
 

@@ -2,7 +2,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using MarketZone.Application.DTOs;
+using MarketZone.Application.Parameters;
 using MarketZone.Application.Interfaces.Repositories;
 using MarketZone.Domain.Cash.Enums;
 using MarketZone.Domain.Roasting.DTOs;
@@ -13,7 +16,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MarketZone.Infrastructure.Persistence.Repositories
 {
-    public class RoastingInvoiceRepository(ApplicationDbContext dbContext) : GenericRepository<RoastingInvoice>(dbContext), IRoastingInvoiceRepository
+    public class RoastingInvoiceRepository(ApplicationDbContext dbContext, IMapper mapper) : GenericRepository<RoastingInvoice>(dbContext), IRoastingInvoiceRepository
     {
 
         public async Task<RoastingInvoice> GetWithDetailsByIdAsync(long id)
@@ -29,16 +32,41 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
             return data;
         }
 
-        public async Task<PaginationResponseDto<RoastingInvoice>> GetPagedListAsync(int pageNumber, int pageSize)
+        public async Task<PaginationResponseDto<RoastingInvoiceDto>> GetPagedListAsync(RoastingInvoiceFilter filter)
         {
             var query = dbContext.RoastingInvoices
                 .Include(x => x.Details)
                 .ThenInclude(x => x.RawProduct)
                 .Include(x => x.Receipts)
                 .Include(x => x.Payments)
-                .OrderByDescending(x => x.Created);
+                .AsQueryable();
 
-            return await Paged(query, pageNumber, pageSize);
+            // Apply filters using FilterBuilder pattern
+            if (!string.IsNullOrEmpty(filter.InvoiceNumber))
+            {
+                query = query.Where(p => p.InvoiceNumber.Contains(filter.InvoiceNumber));
+            }
+
+            if (!string.IsNullOrEmpty(filter.Name))
+            {
+                query = query.Where(p => p.InvoiceNumber.Contains(filter.Name));
+            }
+
+            if (!string.IsNullOrEmpty(filter.Description))
+            {
+                query = query.Where(p => !string.IsNullOrEmpty(p.Notes) && p.Notes.Contains(filter.Description));
+            }
+
+            if (filter.Status.HasValue)
+            {
+                query = query.Where(p => (int)p.Status == filter.Status.Value);
+            }
+
+            query = query.OrderByDescending(x => x.Created);
+
+            var dtoQuery = query.ProjectTo<RoastingInvoiceDto>(mapper.ConfigurationProvider);
+
+            return await Paged(dtoQuery, filter.PageNumber, filter.PageSize);
         }
 
         public async Task<List<RoastingInvoiceUnpaidDto>> GetUnpaidInvoicesByEmployeeAsync(long employeeId, System.Threading.CancellationToken cancellationToken = default)

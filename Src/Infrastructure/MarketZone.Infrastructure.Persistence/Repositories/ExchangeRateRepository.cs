@@ -1,5 +1,6 @@
 using MarketZone.Application.DTOs;
 using MarketZone.Application.Interfaces.Repositories;
+using MarketZone.Application.Parameters;
 using MarketZone.Application.Wrappers;
 using MarketZone.Domain.Cash.DTOs;
 using MarketZone.Domain.Cash.Entities;
@@ -46,20 +47,21 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
                 .ToListAsync(cancellationToken);
         }
 
-        public async Task<PagedResponse<ExchangeRateDto>> GetPagedListAsync(int pageNumber, int pageSize, bool? isActive = null)
+        public async Task<PagedResponse<ExchangeRateDto>> GetPagedListAsync(ExchangeRateFilter filter)
         {
             var query = _context.Set<ExchangeRate>().AsQueryable();
 
-            if (isActive.HasValue)
+            // Apply filters using FilterBuilder pattern
+            if (filter.IsActive.HasValue)
             {
-                query = query.Where(r => r.IsActive == isActive.Value);
+                query = query.Where(r => r.IsActive == filter.IsActive.Value);
             }
 
             var totalCount = await query.CountAsync();
             var items = await query
                 .OrderByDescending(r => r.EffectiveDate)
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
+                .Skip((filter.PageNumber - 1) * filter.PageSize)
+                .Take(filter.PageSize)
                 .Select(r => new ExchangeRateDto
                 {
                     Id = r.Id,
@@ -69,7 +71,7 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
                 })
                 .ToListAsync();
 
-            return PagedResponse<ExchangeRateDto>.Ok(new PaginationResponseDto<ExchangeRateDto>(items, totalCount, pageNumber, pageSize));
+            return PagedResponse<ExchangeRateDto>.Ok(new PaginationResponseDto<ExchangeRateDto>(items, totalCount, filter.PageNumber, filter.PageSize));
         }
     }
 }

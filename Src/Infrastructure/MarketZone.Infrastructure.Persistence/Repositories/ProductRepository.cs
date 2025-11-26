@@ -3,10 +3,12 @@ using System.Threading.Tasks;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using MarketZone.Application.DTOs;
+using MarketZone.Application.Parameters;
 using MarketZone.Application.Interfaces.Repositories;
 using MarketZone.Domain.Products.DTOs;
 using MarketZone.Domain.Products.Entities;
 using MarketZone.Domain.Inventory.Entities;
+using MarketZone.Domain.Products.Enums;
 using MarketZone.Infrastructure.Persistence.Contexts;
 using System.Collections.Generic;
 using System.Threading;
@@ -25,9 +27,36 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
             _mapper = mapper;
         }
 
-        public async Task<PaginationResponseDto<ProductDto>> GetPagedListAsync(int pageNumber, int pageSize, string name)
+        public async Task<PaginationResponseDto<ProductDto>> GetPagedListAsync(ProductFilter filter)
         {
-            var query = from p in _dbContext.Products
+            // Start with base query on entity level to apply filters before projection
+            var baseQuery = _dbContext.Products.AsQueryable();
+
+            // Apply filters using FilterBuilder pattern
+            if (!string.IsNullOrEmpty(filter.Name))
+            {
+                baseQuery = baseQuery.Where(p => p.Name.Contains(filter.Name));
+            }
+
+            if (!string.IsNullOrEmpty(filter.Description))
+            {
+                baseQuery = baseQuery.Where(p => !string.IsNullOrEmpty(p.Description) && p.Description.Contains(filter.Description));
+            }
+
+            if (filter.Status.HasValue)
+            {
+                // Map status to IsActive: 1 = true, 0 = false
+                baseQuery = baseQuery.Where(p => p.IsActive == (filter.Status.Value == 1));
+            }
+
+            if (filter.Type.HasValue)
+            {
+                // Map type to ProductType enum
+                baseQuery = baseQuery.Where(p => (int)p.ProductType == filter.Type.Value);
+            }
+
+            // Now project to DTO with join
+            var query = from p in baseQuery
                         join pb in _dbContext.ProductBalances on p.Id equals pb.ProductId into balanceGroup
                         from balance in balanceGroup.DefaultIfEmpty()
                         orderby p.Created descending
@@ -54,12 +83,7 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 							AverageCost = balance != null ? balance.AverageCost : 0m
                         };
 
-            if (!string.IsNullOrEmpty(name))
-            {
-                query = query.Where(p => p.Name.Contains(name));
-            }
-
-            return await Paged(query, pageNumber, pageSize);
+            return await Paged(query, filter.PageNumber, filter.PageSize);
         }
 
         public async Task<Dictionary<long, Product>> GetByIdsAsync(IEnumerable<long> ids, CancellationToken cancellationToken = default)

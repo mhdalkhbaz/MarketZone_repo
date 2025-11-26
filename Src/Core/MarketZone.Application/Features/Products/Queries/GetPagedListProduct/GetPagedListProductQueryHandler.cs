@@ -11,7 +11,7 @@ namespace MarketZone.Application.Features.Products.Queries.GetPagedListProduct
     {
         public async Task<PagedResponse<ProductDto>> Handle(GetPagedListProductQuery request, CancellationToken cancellationToken)
         {
-            return await productRepository.GetPagedListAsync(request.PageNumber, request.PageSize, request.Name);
+            return await productRepository.GetPagedListAsync(request);
         }
     }
 }

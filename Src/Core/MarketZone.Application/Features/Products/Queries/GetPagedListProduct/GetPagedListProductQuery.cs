@@ -5,8 +5,7 @@ using MarketZone.Domain.Products.DTOs;
 
 namespace MarketZone.Application.Features.Products.Queries.GetPagedListProduct
 {
-    public class GetPagedListProductQuery : PaginationRequestParameter, IRequest<PagedResponse<ProductDto>>
+    public class GetPagedListProductQuery : ProductFilter, IRequest<PagedResponse<ProductDto>>
     {
-        public string Name { get; set; }
     }
 }

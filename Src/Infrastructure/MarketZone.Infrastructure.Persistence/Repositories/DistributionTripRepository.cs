@@ -6,6 +6,7 @@ using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using MarketZone.Application.DTOs;
 using MarketZone.Application.Interfaces.Repositories;
+using MarketZone.Application.Parameters;
 using MarketZone.Domain.Logistics.DTOs;
 using MarketZone.Domain.Logistics.Entities;
 using MarketZone.Infrastructure.Persistence.Contexts;
@@ -15,7 +16,7 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 {
 	public class DistributionTripRepository(ApplicationDbContext dbContext, IMapper mapper) : GenericRepository<DistributionTrip>(dbContext), IDistributionTripRepository
 	{
-		public async Task<PaginationResponseDto<DistributionTripDto>> GetPagedListAsync(int pageNumber, int pageSize, long? carId, long? regionId)
+		public async Task<PaginationResponseDto<DistributionTripDto>> GetPagedListAsync(DistributionTripFilter filter)
 		{
 			var query = dbContext.Set<DistributionTrip>()
 				.Include(x => x.Details)
@@ -26,10 +27,21 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 				.OrderByDescending(p => p.TripDate)
 				.AsQueryable();
 
-			if (carId.HasValue)
-				query = query.Where(p => p.CarId == carId.Value);
-			if (regionId.HasValue)
-				query = query.Where(p => p.RegionId == regionId.Value);
+			// Apply filters using FilterBuilder pattern
+			if (filter.CarId.HasValue)
+			{
+				query = query.Where(p => p.CarId == filter.CarId.Value);
+			}
+
+			if (filter.RegionId.HasValue)
+			{
+				query = query.Where(p => p.RegionId == filter.RegionId.Value);
+			}
+
+			if (!string.IsNullOrEmpty(filter.Name))
+			{
+				query = query.Where(p => p.TripNumber != null && p.TripNumber.Contains(filter.Name));
+			}
 
 			// استخدام Select مباشرة لإضافة الأسماء
 			var dtoQuery = query.Select(trip => new DistributionTripDto
@@ -57,7 +69,7 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 				}).ToList()
 			});
 
-			return await Paged(dtoQuery, pageNumber, pageSize);
+			return await Paged(dtoQuery, filter.PageNumber, filter.PageSize);
 		}
 
 		public async Task<DistributionTrip> GetWithDetailsByIdAsync(long id, CancellationToken cancellationToken = default)

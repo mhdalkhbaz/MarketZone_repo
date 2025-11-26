@@ -11,8 +11,8 @@ namespace MarketZone.Application.Features.Logistics.Queries.GetPagedListRegion
 	{
 		public async Task<PagedResponse<RegionDto>> Handle(GetPagedListRegionQuery request, CancellationToken cancellationToken)
 		{
-			var paged = await repository.GetPagedListAsync(request.PageNumber, request.PageSize, request.Name);
-			return PagedResponse<RegionDto>.Ok(paged);
+			var result = await repository.GetPagedListAsync(request);
+			return PagedResponse<RegionDto>.Ok(result);
 		}
 	}
 }

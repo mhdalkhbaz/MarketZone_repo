@@ -5,9 +5,8 @@ using MarketZone.Domain.Categories.DTOs;
 
 namespace MarketZone.Application.Features.Categories.Queries.GetPagedListCategory
 {
-	public class GetPagedListCategoryQuery : PaginationRequestParameter, IRequest<PagedResponse<CategoryDto>>
+	public class GetPagedListCategoryQuery : CategoryFilter, IRequest<PagedResponse<CategoryDto>>
 	{
-		public string Name { get; set; }
 	}
 }
 

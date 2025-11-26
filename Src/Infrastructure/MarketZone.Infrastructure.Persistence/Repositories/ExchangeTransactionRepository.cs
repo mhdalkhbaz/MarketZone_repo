@@ -1,5 +1,6 @@
 using MarketZone.Application.DTOs;
 using MarketZone.Application.Interfaces.Repositories;
+using MarketZone.Application.Parameters;
 using MarketZone.Application.Wrappers;
 using MarketZone.Domain.Cash.DTOs;
 using MarketZone.Domain.Cash.Entities;
@@ -47,30 +48,31 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
                 .ToListAsync(cancellationToken);
         }
 
-        public async Task<PagedResponse<ExchangeTransactionDto>> GetPagedListAsync(int pageNumber, int pageSize, long? cashRegisterId = null, DateTime? fromDate = null, DateTime? toDate = null)
+        public async Task<PagedResponse<ExchangeTransactionDto>> GetPagedListAsync(ExchangeTransactionFilter filter)
         {
             var query = _context.Set<ExchangeTransaction>().AsQueryable();
 
-            if (cashRegisterId.HasValue)
+            // Apply filters using FilterBuilder pattern
+            if (filter.CashRegisterId.HasValue)
             {
-                query = query.Where(t => t.CashRegisterId == cashRegisterId.Value);
+                query = query.Where(t => t.CashRegisterId == filter.CashRegisterId.Value);
             }
 
-            if (fromDate.HasValue)
+            if (filter.FromDate.HasValue)
             {
-                query = query.Where(t => t.TransactionDate >= fromDate.Value);
+                query = query.Where(t => t.TransactionDate >= filter.FromDate.Value);
             }
 
-            if (toDate.HasValue)
+            if (filter.ToDate.HasValue)
             {
-                query = query.Where(t => t.TransactionDate <= toDate.Value);
+                query = query.Where(t => t.TransactionDate <= filter.ToDate.Value);
             }
 
             var totalCount = await query.CountAsync();
             var items = await query
                 .OrderByDescending(t => t.TransactionDate)
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
+                .Skip((filter.PageNumber - 1) * filter.PageSize)
+                .Take(filter.PageSize)
                 .Select(t => new ExchangeTransactionDto
                 {
                     Id = t.Id,
@@ -84,7 +86,7 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
                 })
                 .ToListAsync();
 
-            return PagedResponse<ExchangeTransactionDto>.Ok(new PaginationResponseDto<ExchangeTransactionDto>(items, totalCount, pageNumber, pageSize));
+            return PagedResponse<ExchangeTransactionDto>.Ok(new PaginationResponseDto<ExchangeTransactionDto>(items, totalCount, filter.PageNumber, filter.PageSize));
         }
     }
 }

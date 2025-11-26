@@ -5,9 +5,8 @@ using MarketZone.Domain.Employees.DTOs;
 
 namespace MarketZone.Application.Features.Employees.Queries.GetPagedListEmployee
 {
-	public class GetPagedListEmployeeQuery : PaginationRequestParameter, IRequest<PagedResponse<EmployeeDto>>
+	public class GetPagedListEmployeeQuery : EmployeeFilter, IRequest<PagedResponse<EmployeeDto>>
 	{
-		public string Name { get; set; }
 	}
 }
 

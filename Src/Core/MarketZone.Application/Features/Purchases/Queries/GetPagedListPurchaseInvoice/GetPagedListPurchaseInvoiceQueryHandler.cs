@@ -11,7 +11,7 @@ namespace MarketZone.Application.Features.Purchases.Queries.GetPagedListPurchase
 	{
 		public async Task<PagedResponse<PurchaseInvoiceDto>> Handle(GetPagedListPurchaseInvoiceQuery request, CancellationToken cancellationToken)
 		{
-			return await repository.GetPagedListAsync(request.PageNumber, request.PageSize, request.InvoiceNumber);
+			return await repository.GetPagedListAsync(request);
 		}
 	}
 }

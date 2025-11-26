@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using MarketZone.Application.DTOs;
+using MarketZone.Application.Parameters;
 using MarketZone.Application.Interfaces.Repositories;
 using MarketZone.Domain.Cash.Enums;
 using MarketZone.Domain.Sales.DTOs;
@@ -17,19 +18,46 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 {
 	public class SalesInvoiceRepository(ApplicationDbContext dbContext, IMapper mapper) : GenericRepository<SalesInvoice>(dbContext), ISalesInvoiceRepository
 	{
-	public async Task<PaginationResponseDto<SalesInvoiceDto>> GetPagedListAsync(int pageNumber, int pageSize, string invoiceNumber)
+	public async Task<PaginationResponseDto<SalesInvoiceDto>> GetPagedListAsync(SalesInvoiceFilter filter)
 	{
 		var query = dbContext.Set<SalesInvoice>()
 			.Include(x => x.Details)
 				.ThenInclude(d => d.Product)
 			.Include(x => x.Customer)
-			.OrderByDescending(p => p.InvoiceDate)
 			.AsQueryable();
 
-		if (!string.IsNullOrEmpty(invoiceNumber))
+		// Apply filters using FilterBuilder pattern
+		if (!string.IsNullOrEmpty(filter.InvoiceNumber))
 		{
-			query = query.Where(p => p.InvoiceNumber.Contains(invoiceNumber));
+			query = query.Where(p => p.InvoiceNumber.Contains(filter.InvoiceNumber));
 		}
+
+		if (!string.IsNullOrEmpty(filter.CustomerName))
+		{
+			query = query.Where(p => p.Customer != null && p.Customer.Name.Contains(filter.CustomerName));
+		}
+
+		if (!string.IsNullOrEmpty(filter.Name))
+		{
+			query = query.Where(p => p.InvoiceNumber.Contains(filter.Name));
+		}
+
+		if (!string.IsNullOrEmpty(filter.Description))
+		{
+			query = query.Where(p => !string.IsNullOrEmpty(p.Notes) && p.Notes.Contains(filter.Description));
+		}
+
+		if (filter.Status.HasValue)
+		{
+			query = query.Where(p => (int)p.Status == filter.Status.Value);
+		}
+
+		if (filter.Type.HasValue)
+		{
+			query = query.Where(p => (int)p.Type == filter.Type.Value);
+		}
+
+		query = query.OrderByDescending(p => p.InvoiceDate);
 
 		// استخدام Select مباشرة لإضافة اسم العميل و PaymentStatus
 		var dtoQuery = query
@@ -77,7 +105,7 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 				}).ToList()
 			});
 
-		return await Paged(dtoQuery, pageNumber, pageSize);
+		return await Paged(dtoQuery, filter.PageNumber, filter.PageSize);
 	}
 
 	public async Task<SalesInvoice> GetWithDetailsByIdAsync(long id, System.Threading.CancellationToken cancellationToken = default)

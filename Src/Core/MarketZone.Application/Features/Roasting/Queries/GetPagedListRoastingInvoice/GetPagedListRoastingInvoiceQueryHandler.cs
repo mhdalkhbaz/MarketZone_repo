@@ -34,7 +34,7 @@ namespace MarketZone.Application.Features.Roasting.Queries.GetPagedListRoastingI
 
         public async Task<PagedResponse<RoastingInvoiceDto>> Handle(GetPagedListRoastingInvoiceQuery request, CancellationToken cancellationToken)
         {
-            var pagedResult = await _repository.GetPagedListAsync(request.PageNumber, request.PageSize);
+            var pagedResult = await _repository.GetPagedListAsync(request);
             var mappedData = _mapper.Map<List<RoastingInvoiceDto>>(pagedResult.Data);
 
             // Collect all raw product ids from details in this page

@@ -11,8 +11,8 @@ namespace MarketZone.Application.Features.Logistics.Queries.GetPagedListDistribu
 	{
 		public async Task<PagedResponse<DistributionTripDto>> Handle(GetPagedListDistributionTripQuery request, CancellationToken cancellationToken)
 		{
-			var paged = await repository.GetPagedListAsync(request.PageNumber, request.PageSize, request.CarId, request.RegionId);
-			return PagedResponse<DistributionTripDto>.Ok(paged);
+			var result = await repository.GetPagedListAsync(request);
+			return PagedResponse<DistributionTripDto>.Ok(result);
 		}
 	}
 }

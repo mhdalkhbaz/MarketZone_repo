@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using MarketZone.Application.DTOs;
+using MarketZone.Application.Parameters;
 using System.Collections.Generic;
 using MarketZone.Domain.Employees.DTOs;
 using MarketZone.Application.Interfaces.Repositories;
@@ -18,19 +19,39 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 {
 	public class EmployeeRepository(ApplicationDbContext dbContext, IMapper mapper) : GenericRepository<Employee>(dbContext), IEmployeeRepository
 	{
-		public async Task<PaginationResponseDto<EmployeeDto>> GetPagedListAsync(int pageNumber, int pageSize, string name)
+		public async Task<PaginationResponseDto<EmployeeDto>> GetPagedListAsync(EmployeeFilter filter)
 		{
-			var query = dbContext.Set<Employee>().OrderByDescending(p => p.Created).AsQueryable();
+			var query = dbContext.Set<Employee>().AsQueryable();
 
-			if (!string.IsNullOrEmpty(name))
+			// Apply filters using FilterBuilder pattern
+			if (!string.IsNullOrEmpty(filter.Name))
 			{
-				query = query.Where(p => p.FirstName.Contains(name) || p.LastName.Contains(name));
+				query = query.Where(p => p.FirstName.Contains(filter.Name) || p.LastName.Contains(filter.Name));
 			}
+
+			if (!string.IsNullOrEmpty(filter.Description))
+			{
+				query = query.Where(p => !string.IsNullOrEmpty(p.Address) && p.Address.Contains(filter.Description));
+			}
+
+			if (filter.Status.HasValue)
+			{
+				// Map status to IsActive: 1 = true, 0 = false
+				query = query.Where(p => p.IsActive == (filter.Status.Value == 1));
+			}
+
+			if (filter.Type.HasValue)
+			{
+				// Map type to SalaryType enum
+				query = query.Where(p => (int)p.SalaryType == filter.Type.Value);
+			}
+
+			query = query.OrderByDescending(p => p.Created);
 
 			return await Paged(
 				query.ProjectTo<EmployeeDto>(mapper.ConfigurationProvider),
-				pageNumber,
-				pageSize);
+				filter.PageNumber,
+				filter.PageSize);
 		}
 
 		public async Task<List<SelectListDto>> GetActiveSelectListAsync(string? type = null)
