@@ -3,6 +3,7 @@ using MarketZone.Application.Features.Cash.Payments.Commands.CreatePayment;
 using MarketZone.Application.Features.Cash.Payments.Commands.PostPayment;
 using MarketZone.Application.Features.Cash.Payments.Commands.UpdatePayment;
 using MarketZone.Application.Features.Cash.Payments.Queries.GetPagedListPayment;
+using MarketZone.Application.Features.Cash.Payments.Queries.GetPaymentById;
 using MarketZone.Application.Interfaces;
 using MarketZone.Application.Wrappers;
 using MarketZone.Domain.Cash.DTOs;
@@ -19,6 +20,7 @@ namespace MarketZone.WebApi.Endpoints
         public override void Map(RouteGroupBuilder builder)
         {
             builder.MapGet(GetPagedListPayment);
+            builder.MapGet(GetPaymentById);
             builder.MapPost(CreatePayment).RequireAuthorization();
             builder.MapPut(UpdatePayment).RequireAuthorization();
             builder.MapPut(PostPayment).RequireAuthorization();
@@ -26,6 +28,9 @@ namespace MarketZone.WebApi.Endpoints
 
         async Task<PagedResponse<PaymentDto>> GetPagedListPayment(IMediator mediator, [AsParameters] GetPagedListPaymentQuery model)
             => await mediator.Send<GetPagedListPaymentQuery, PagedResponse<PaymentDto>>(model);
+
+        async Task<BaseResult<PaymentDto>> GetPaymentById(IMediator mediator, [AsParameters] GetPaymentByIdQuery model)
+            => await mediator.Send<GetPaymentByIdQuery, BaseResult<PaymentDto>>(model);
 
         async Task<BaseResult<long>> CreatePayment(IMediator mediator, CreatePaymentCommand model)
             => await mediator.Send<CreatePaymentCommand, BaseResult<long>>(model);
