@@ -23,6 +23,13 @@ namespace MarketZone.Application.Features.Products.Commands.UpdateProduct
 
             // Update commission if provided
             product.SetCommissionPerKg(request.CommissionPerKg);
+            
+            // Update product type if provided
+            if (request.ProductType.HasValue)
+            {
+                product.SetProductType(request.ProductType.Value);
+            }
+            
             await unitOfWork.SaveChangesAsync();
 
             return BaseResult.Ok();

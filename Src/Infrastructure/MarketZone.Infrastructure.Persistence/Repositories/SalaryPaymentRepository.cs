@@ -94,5 +94,13 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
                 })
                 .ToListAsync();
         }
+
+        public async Task<MarketZone.Domain.Employees.Entities.SalaryPayment> GetByIdWithIncludesAsync(long id, System.Threading.CancellationToken cancellationToken = default)
+        {
+            return await dbContext.SalaryPayments
+                .Include(sp => sp.Employee)
+                .Include(sp => sp.CashRegister)
+                .FirstOrDefaultAsync(sp => sp.Id == id, cancellationToken);
+        }
     }
 }

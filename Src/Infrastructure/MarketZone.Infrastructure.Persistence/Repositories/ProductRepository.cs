@@ -80,7 +80,8 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
                             CreatedDateTime = p.Created,
                             Qty = balance != null ? balance.Qty : 0,
 							AvailableQty = balance != null ? balance.AvailableQty : 0,
-							AverageCost = balance != null ? balance.AverageCost : 0m
+							AverageCost = balance != null ? balance.AverageCost : 0m,
+                            ProductType = p.ProductType
                         };
 
             return await Paged(query, filter.PageNumber, filter.PageSize);

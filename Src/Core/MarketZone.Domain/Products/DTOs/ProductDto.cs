@@ -1,4 +1,6 @@
 using System;
+using MarketZone.Domain.Products.Enums;
+
 namespace MarketZone.Domain.Products.DTOs
 {
     public class ProductDto
@@ -27,5 +29,6 @@ namespace MarketZone.Domain.Products.DTOs
         public decimal Qty { get; set; }
         public decimal AvailableQty { get; set; }
         public decimal AverageCost { get; set; }
+        public ProductType ProductType { get; set; }
     }
 }

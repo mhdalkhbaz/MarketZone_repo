@@ -1,21 +1,19 @@
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
-using MarketZone.Application.Helpers;
 using MarketZone.Application.Interfaces;
 using MarketZone.Application.Interfaces.Repositories;
 using MarketZone.Application.Wrappers;
 using MarketZone.Domain.Cash.DTOs;
+using MarketZone.Domain.Cash.Entities;
 using MarketZone.Domain.Cash.Enums;
-using MarketZone.Infrastructure.Persistence.Contexts;
-using Microsoft.EntityFrameworkCore;
 
 namespace MarketZone.Application.Features.Cash.Payments.Queries.GetPaymentById
 {
     public class GetPaymentByIdQueryHandler(
         IPaymentRepository paymentRepository,
-        ApplicationDbContext dbContext,
+        ISalaryPaymentRepository salaryPaymentRepository,
+        ICashTransactionRepository cashTransactionRepository,
         ITranslator translator,
         IMapper mapper) : IRequestHandler<GetPaymentByIdQuery, BaseResult<PaymentDto>>
     {
@@ -32,10 +30,7 @@ namespace MarketZone.Application.Features.Cash.Payments.Queries.GetPaymentById
             }
 
             // If not found in Payment table, try to find in SalaryPayments table
-            var salaryPayment = await dbContext.SalaryPayments
-                .Include(sp => sp.Employee)
-                .Include(sp => sp.CashRegister)
-                .FirstOrDefaultAsync(sp => sp.Id == request.Id, cancellationToken);
+            var salaryPayment = await salaryPaymentRepository.GetByIdWithIncludesAsync(request.Id, cancellationToken);
 
             if (salaryPayment == null)
             {
@@ -47,8 +42,7 @@ namespace MarketZone.Application.Features.Cash.Payments.Queries.GetPaymentById
             // Found in SalaryPayments, convert to PaymentDto
             // Get Currency from CashTransaction if exists, otherwise from Employee or default
             var currency = Currency.SY;
-            var cashTransaction = await dbContext.Set<Domain.Cash.Entities.CashTransaction>()
-                .FirstOrDefaultAsync(ct => ct.ReferenceType == ReferenceType.Salaries && ct.ReferenceId == salaryPayment.Id, cancellationToken);
+            var cashTransaction = await cashTransactionRepository.GetByReferenceAsync(ReferenceType.Salaries, salaryPayment.Id, cancellationToken);
             
             if (cashTransaction != null)
             {

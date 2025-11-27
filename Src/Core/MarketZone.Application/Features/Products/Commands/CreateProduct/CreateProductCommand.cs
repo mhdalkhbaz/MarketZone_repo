@@ -1,5 +1,6 @@
 using MarketZone.Application.Interfaces;
 using MarketZone.Application.Wrappers;
+using MarketZone.Domain.Products.Enums;
 
 namespace MarketZone.Application.Features.Products.Commands.CreateProduct
 {
@@ -15,5 +16,6 @@ namespace MarketZone.Application.Features.Products.Commands.CreateProduct
         public string BarCode { get; set; } = "";
         public long? RawProductId { get; set; }
         public decimal? CommissionPerKg { get; set; }
+        public ProductType ProductType { get; set; } = ProductType.Ready;
     }
 }

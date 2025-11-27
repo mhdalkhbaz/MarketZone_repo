@@ -5,6 +5,7 @@ using MarketZone.Application.Features.Products.Commands.DeleteCompositeProduct;
 using MarketZone.Application.Features.Products.Commands.UpdateCompositeProduct;
 using MarketZone.Application.Features.Products.Commands.PostCompositeProduct;
 using MarketZone.Application.Features.Products.Queries.GetProductsForComposite;
+using MarketZone.Application.Features.Products.Queries.GetPagedListCompositeProduct;
 using MarketZone.Application.Interfaces;
 using MarketZone.Application.Wrappers;
 using MarketZone.Domain.Products.DTOs;
@@ -20,6 +21,7 @@ namespace MarketZone.WebApi.Endpoints
     {
         public override void Map(RouteGroupBuilder builder)
         {
+            builder.MapGet(GetPagedListCompositeProduct);
             builder.MapGet(GetProductsForComposite);
 
             builder.MapPost(CreateCompositeProduct).RequireAuthorization();
@@ -30,6 +32,9 @@ namespace MarketZone.WebApi.Endpoints
 
             builder.MapDelete(DeleteCompositeProduct).RequireAuthorization();
         }
+
+        async Task<PagedResponse<CompositeProductDto>> GetPagedListCompositeProduct(IMediator mediator, [AsParameters] GetPagedListCompositeProductQuery model)
+            => await mediator.Send<GetPagedListCompositeProductQuery, PagedResponse<CompositeProductDto>>(model);
 
         async Task<BaseResult<List<ProductForCompositeDto>>> GetProductsForComposite(IMediator mediator)
             => await mediator.Send<GetProductsForCompositeQuery, BaseResult<List<ProductForCompositeDto>>>(new GetProductsForCompositeQuery());

@@ -50,7 +50,7 @@ namespace MarketZone.Application.Features.Products.Commands.CreateCompositeProdu
                 request.SalePrice,
                 request.CommissionPerKg);
 
-            // إضافة التفاصيل وحجز الكمية من AvailableQty
+            // إضافة التفاصيل (بدون تعديل الكميات - سيتم تعديلها عند Post فقط)
             foreach (var detailItem in request.Details)
             {
                 // التحقق من وجود المنتج المكون
@@ -59,24 +59,6 @@ namespace MarketZone.Application.Features.Products.Commands.CreateCompositeProdu
                 {
                     return new Error(ErrorCode.NotFound, _translator.GetString("Product_Not_Found"), nameof(detailItem.ComponentProductId));
                 }
-
-                // التحقق من الكمية المتاحة
-                var componentBalance = await _productBalanceRepository.GetByProductIdAsync(detailItem.ComponentProductId, cancellationToken);
-                if (componentBalance == null)
-                {
-                    return new Error(ErrorCode.NotFound, _translator.GetString("Product_Balance_Not_Found"), nameof(detailItem.ComponentProductId));
-                }
-
-                if (componentBalance.AvailableQty < detailItem.Quantity)
-                {
-                    return new Error(ErrorCode.FieldDataInvalid, 
-                        _translator.GetString("Insufficient_Available_Quantity"), 
-                        nameof(detailItem.ComponentProductId));
-                }
-
-                // حجز الكمية من AvailableQty
-                componentBalance.Adjust(0, -detailItem.Quantity);
-                _productBalanceRepository.Update(componentBalance);
 
                 var detail = new CompositeProductDetail(
                     detailItem.ComponentProductId,

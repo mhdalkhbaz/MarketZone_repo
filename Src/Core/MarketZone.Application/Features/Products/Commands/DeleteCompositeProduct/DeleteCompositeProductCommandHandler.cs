@@ -34,6 +34,12 @@ namespace MarketZone.Application.Features.Products.Commands.DeleteCompositeProdu
                 return new Error(ErrorCode.NotFound, _translator.GetString("Composite_Product_Not_Found"), nameof(request.Id));
             }
 
+            // لا يمكن حذف المنتجات المركبة التي تم عمل Post لها
+            if (compositeProduct.Status == CompositeProductStatus.Posted)
+            {
+                return new Error(ErrorCode.FieldDataInvalid, _translator.GetString("Cannot_Delete_Posted_Composite_Product"), nameof(request.Id));
+            }
+
             // تحديث نوع المنتج الناتج إذا كان مركب
             var resultingProduct = await _productRepository.GetByIdAsync(compositeProduct.ResultingProductId);
             if (resultingProduct != null && resultingProduct.ProductType == ProductType.Composite)

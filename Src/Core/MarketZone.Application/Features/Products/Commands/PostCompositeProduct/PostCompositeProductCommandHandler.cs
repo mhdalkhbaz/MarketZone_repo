@@ -48,6 +48,12 @@ namespace MarketZone.Application.Features.Products.Commands.PostCompositeProduct
                 return new Error(ErrorCode.FieldDataInvalid, _translator.GetString("Composite_Product_Already_Posted"), nameof(request.Id));
             }
 
+            // التحقق من أن المنتج في حالة Draft
+            if (compositeProduct.Status != CompositeProductStatus.Draft)
+            {
+                return new Error(ErrorCode.FieldDataInvalid, _translator.GetString("Composite_Product_Must_Be_In_Draft_Status"), nameof(request.Id));
+            }
+
             // حساب الكمية الناتجة (أصغر كمية ممكنة من المكونات)
             decimal resultingQuantity = 0;
             if (compositeProduct.Details.Any())
@@ -65,13 +71,21 @@ namespace MarketZone.Application.Features.Products.Commands.PostCompositeProduct
                 return new Error(ErrorCode.FieldDataInvalid, _translator.GetString("Invalid_Resulting_Quantity"), nameof(request.Id));
             }
 
-            // استهلاك الكمية من Qty للمنتجات المكونة
+            // استهلاك الكمية من Qty و AvailableQty للمنتجات المكونة
             foreach (var detail in compositeProduct.Details)
             {
                 var componentBalance = await _productBalanceRepository.GetByProductIdAsync(detail.ComponentProductId, cancellationToken);
                 if (componentBalance == null)
                 {
                     return new Error(ErrorCode.NotFound, _translator.GetString("Product_Balance_Not_Found"), nameof(detail.ComponentProductId));
+                }
+
+                // التحقق من الكمية المتاحة
+                if (componentBalance.AvailableQty < detail.Quantity)
+                {
+                    return new Error(ErrorCode.FieldDataInvalid,
+                        _translator.GetString("Insufficient_Available_Quantity"),
+                        nameof(detail.ComponentProductId));
                 }
 
                 // التحقق من الكمية الأساسية
@@ -82,8 +96,8 @@ namespace MarketZone.Application.Features.Products.Commands.PostCompositeProduct
                         nameof(detail.ComponentProductId));
                 }
 
-                // استهلاك الكمية من Qty (AvailableQty تم حجزها عند Create/Update)
-                componentBalance.Adjust(-detail.Quantity, 0);
+                // استهلاك الكمية من Qty و AvailableQty
+                componentBalance.Adjust(-detail.Quantity, -detail.Quantity);
                 _productBalanceRepository.Update(componentBalance);
 
                 // إنشاء سجل في InventoryHistory

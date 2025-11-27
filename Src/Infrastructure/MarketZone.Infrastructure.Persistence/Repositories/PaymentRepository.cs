@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -35,7 +36,7 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 			var paymentQuery = dbContext.Set<Payment>().AsQueryable();
 
 			// Handle SalaryPayment separately - merge from SalaryPayments table
-			if (paymentType.HasValue && paymentType.Value == PaymentType.SalaryPayment)
+			if (filter.PaymentType.HasValue && filter.PaymentType.Value == PaymentType.SalaryPayment)
 			{
 				// Query SalaryPayments instead
 				var salaryPaymentQuery = dbContext.SalaryPayments
@@ -43,33 +44,33 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 					.Include(sp => sp.CashRegister)
 					.AsQueryable();
 
-				if (cashRegisterId.HasValue)
-					salaryPaymentQuery = salaryPaymentQuery.Where(sp => sp.CashRegisterId == cashRegisterId.Value);
+				if (filter.CashRegisterId.HasValue)
+					salaryPaymentQuery = salaryPaymentQuery.Where(sp => sp.CashRegisterId == filter.CashRegisterId.Value);
 
-				if (fromDate.HasValue)
-					salaryPaymentQuery = salaryPaymentQuery.Where(sp => sp.PaymentDate >= fromDate.Value);
+				if (filter.FromDate.HasValue)
+					salaryPaymentQuery = salaryPaymentQuery.Where(sp => sp.PaymentDate >= filter.FromDate.Value);
 
-				if (toDate.HasValue)
-					salaryPaymentQuery = salaryPaymentQuery.Where(sp => sp.PaymentDate <= toDate.Value);
+				if (filter.ToDate.HasValue)
+					salaryPaymentQuery = salaryPaymentQuery.Where(sp => sp.PaymentDate <= filter.ToDate.Value);
 
-				if (isExpense.HasValue && isExpense.Value)
+				if (filter.IsExpense.HasValue && filter.IsExpense.Value)
 				{
 					// SalaryPayment is always expense, so include it
 				}
-				else if (isIncome.HasValue && isIncome.Value)
+				else if (filter.IsIncome.HasValue && filter.IsIncome.Value)
 				{
 					// SalaryPayment is not income, return empty
 					salaryPaymentQuery = salaryPaymentQuery.Where(sp => false);
 				}
 
 				// Get total count
-				var totalCount = await salaryPaymentQuery.CountAsync();
+				var salaryTotalCount = await salaryPaymentQuery.CountAsync();
 
 				// Get salary payments and convert to PaymentDto
 				var salaryPayments = await salaryPaymentQuery
 					.OrderByDescending(sp => sp.PaymentDate)
-					.Skip((pageNumber - 1) * pageSize)
-					.Take(pageSize)
+					.Skip((filter.PageNumber - 1) * filter.PageSize)
+					.Take(filter.PageSize)
 					.ToListAsync();
 
 				// Get all salary payment IDs for efficient CashTransaction lookup
@@ -120,30 +121,30 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 					paymentDtos.Add(paymentDto);
 				}
 
-				return PagedResponse<PaymentDto>.Ok(new PaginationResponseDto<PaymentDto>(paymentDtos, totalCount, pageNumber, pageSize));
+				return PagedResponse<PaymentDto>.Ok(new PaginationResponseDto<PaymentDto>(paymentDtos, salaryTotalCount, filter.PageNumber, filter.PageSize));
 			}
 
 			// Apply filters using FilterBuilder pattern
 			if (filter.InvoiceId.HasValue)
-				query = query.Where(p => p.InvoiceId == filter.InvoiceId.Value);
+				paymentQuery = paymentQuery.Where(p => p.InvoiceId == filter.InvoiceId.Value);
 
 			if (filter.CashRegisterId.HasValue)
-				query = query.Where(p => p.CashRegisterId == filter.CashRegisterId.Value);
+				paymentQuery = paymentQuery.Where(p => p.CashRegisterId == filter.CashRegisterId.Value);
 
 			if (filter.PaymentType.HasValue)
-				query = query.Where(p => p.PaymentType == filter.PaymentType.Value);
+				paymentQuery = paymentQuery.Where(p => p.PaymentType == filter.PaymentType.Value);
 
 			if (filter.FromDate.HasValue)
-				query = query.Where(p => p.PaymentDate >= filter.FromDate.Value);
+				paymentQuery = paymentQuery.Where(p => p.PaymentDate >= filter.FromDate.Value);
 
 			if (filter.ToDate.HasValue)
-				query = query.Where(p => p.PaymentDate <= filter.ToDate.Value);
+				paymentQuery = paymentQuery.Where(p => p.PaymentDate <= filter.ToDate.Value);
 
 			if (filter.IsIncome.HasValue && filter.IsIncome.Value)
-				query = query.Where(p => p.PaymentType == PaymentType.SalesPayment);
+				paymentQuery = paymentQuery.Where(p => p.PaymentType == PaymentType.SalesPayment);
 
 			if (filter.IsExpense.HasValue && filter.IsExpense.Value)
-				query = query.Where(p => p.PaymentType != PaymentType.SalesPayment);
+				paymentQuery = paymentQuery.Where(p => p.PaymentType != PaymentType.SalesPayment);
 
 			var totalCount = await paymentQuery.CountAsync();
 			var items = await paymentQuery

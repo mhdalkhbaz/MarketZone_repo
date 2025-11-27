@@ -13,24 +13,26 @@ namespace MarketZone.Application.Features.Products
             CreateMap<Product, ProductDto>()
                 .ForMember(d => d.CreatedDateTime, o => o.MapFrom(s => s.Created));
 
-            CreateMap<CreateProductCommand, Product>();
-                //.ConstructUsing(s => new Product(
-                //    s.CategoryId.Value,
-                //    s.Name,
-                //    s.Description,
-                //    s.UnitOfMeasure,
-                //    s.MinStockLevel,
-                //    s.IsActive,
-                //    s.NeedsRoasting,
-                //    s.BarCode))
-                //.AfterMap((src, dest) =>
-                //{
-                //    dest.SetRawProduct(src.RawProductId);
-                //    //dest.SetCommissionPerKg(src.CommissionPerKg);
-                //});
+            CreateMap<CreateProductCommand, Product>()
+                .ConstructUsing(s => new Product(
+                    s.CategoryId.Value,
+                    s.Name,
+                    s.Description,
+                    s.UnitOfMeasure,
+                    s.MinStockLevel,
+                    s.IsActive,
+                    s.NeedsRoasting,
+                    s.BarCode,
+                    s.ProductType))
+                .AfterMap((src, dest) =>
+                {
+                    dest.SetRawProduct(src.RawProductId);
+                    dest.SetCommissionPerKg(src.CommissionPerKg);
+                });
 
 
-            CreateMap<UpdateProductCommand, Product>();
+            CreateMap<UpdateProductCommand, Product>()
+                .ForMember(dest => dest.ProductType, opt => opt.Ignore());
 
             // Composite Product mappings
             CreateMap<CompositeProduct, CompositeProductDto>()

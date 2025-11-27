@@ -10,5 +10,6 @@ namespace MarketZone.Application.Interfaces.Repositories
     {
         Task<PaginationResponseDto<SalaryPaymentDto>> GetPagedListAsync(SalaryPaymentFilter filter);
         Task<List<SalaryPaymentDto>> GetByEmployeeAndMonthAsync(long employeeId, int year, int month);
+        Task<MarketZone.Domain.Employees.Entities.SalaryPayment> GetByIdWithIncludesAsync(long id, System.Threading.CancellationToken cancellationToken = default);
     }
 }
