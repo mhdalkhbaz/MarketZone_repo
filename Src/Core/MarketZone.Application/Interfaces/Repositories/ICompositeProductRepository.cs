@@ -11,6 +11,7 @@ namespace MarketZone.Application.Interfaces.Repositories
     {
         Task<CompositeProduct> GetWithDetailsByIdAsync(long id, CancellationToken cancellationToken = default);
         Task<PaginationResponseDto<CompositeProductDto>> GetPagedListAsync(CompositeProductFilter filter);
+        Task<CompositeProduct> GetByIdsAsync(long id, CancellationToken cancellationToken = default);
     }
 }
 

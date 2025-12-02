@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using MarketZone.Application.Features.Products.Queries.GetProductById;
 
 namespace MarketZone.WebApi.Endpoints
 {
@@ -31,6 +32,9 @@ namespace MarketZone.WebApi.Endpoints
             builder.MapPut(PostCompositeProduct).RequireAuthorization();
 
             builder.MapDelete(DeleteCompositeProduct).RequireAuthorization();
+
+            builder.MapGet(GetCompositeProductById);
+
         }
 
         async Task<PagedResponse<CompositeProductDto>> GetPagedListCompositeProduct(IMediator mediator, [AsParameters] GetPagedListCompositeProductQuery model)
@@ -38,6 +42,9 @@ namespace MarketZone.WebApi.Endpoints
 
         async Task<BaseResult<List<ProductForCompositeDto>>> GetProductsForComposite(IMediator mediator)
             => await mediator.Send<GetProductsForCompositeQuery, BaseResult<List<ProductForCompositeDto>>>(new GetProductsForCompositeQuery());
+
+        async Task<BaseResult<CompositeProductDto>> GetCompositeProductById(IMediator mediator, [AsParameters] GetCompositeProductByIdQuery model)
+       => await mediator.Send<GetCompositeProductByIdQuery, BaseResult<CompositeProductDto>>(model);
 
         async Task<BaseResult<long>> CreateCompositeProduct(IMediator mediator, [FromBody] CreateCompositeProductCommand model)
             => await mediator.Send<CreateCompositeProductCommand, BaseResult<long>>(model);

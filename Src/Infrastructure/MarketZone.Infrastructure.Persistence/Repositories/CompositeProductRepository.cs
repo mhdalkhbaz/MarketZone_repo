@@ -34,6 +34,17 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
                 .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
         }
 
+        public async Task<CompositeProduct> GetByIdsAsync(long id, CancellationToken cancellationToken = default)
+        {
+            var product = _dbContext.CompositeProducts
+                .Include(x=>x.ResultingProduct)
+                .Include(x => x.Details)
+                .ThenInclude(x=>x.ComponentProduct)
+                .FirstOrDefault(p => p.Id == id);
+            return product;
+        }
+
+
         public async Task<PaginationResponseDto<CompositeProductDto>> GetPagedListAsync(CompositeProductFilter filter)
         {
             var baseQuery = _dbContext.Set<CompositeProduct>()
