@@ -12,6 +12,7 @@ using MarketZone.Domain.Purchases.Enums;
 using MarketZone.Domain.Sales.Enums;
 using MarketZone.Infrastructure.Persistence.Contexts;
 using MarketZone.WebApi.Infrastructure.Extensions;
+using MarketZone.Domain.Products.Enums;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -258,7 +259,8 @@ namespace MarketZone.WebApi.Endpoints
         async Task<BaseResult<List<UnroastedProductDto>>> GetAllProductsForPurchase(ApplicationDbContext db)
         {
             var query = from p in db.Products.AsNoTracking()
-                        where p.RawProductId == null  
+                        where p.ProductType == ProductType.Ready  
+                        || p.ProductType == ProductType.Raw 
                         orderby p.Name
                         select new UnroastedProductDto(p.Id.ToString(), p.Name, 0);
             var list = await query.ToListAsync();
@@ -277,7 +279,7 @@ namespace MarketZone.WebApi.Endpoints
             var list = await query.ToListAsync();
             return BaseResult<List<UnroastedProductDto>>.Ok(list);
         }
-
+        
         // Returns employees with job title "roasting" (محماصين)
         async Task<BaseResult<List<EmployeeSelectListDto>>> GetRoastingEmployeesSelectList(ApplicationDbContext db)
         {

@@ -1,5 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
+using MarketZone.Application.DTOs;
+using MarketZone.Application.Helpers;
 using MarketZone.Application.Interfaces;
 using MarketZone.Application.Interfaces.Repositories;
 using MarketZone.Application.Wrappers;
@@ -10,19 +12,49 @@ namespace MarketZone.Application.Features.Cash.ExchangeTransactions.Commands.Cre
     public class CreateExchangeTransactionCommandHandler(
         IExchangeTransactionRepository repository, 
         ICashRegisterRepository cashRegisterRepository,
-        IUnitOfWork unitOfWork) : IRequestHandler<CreateExchangeTransactionCommand, BaseResult<long>>
+        IUnitOfWork unitOfWork,
+        ITranslator translator) : IRequestHandler<CreateExchangeTransactionCommand, BaseResult<long>>
     {
         public async Task<BaseResult<long>> Handle(CreateExchangeTransactionCommand request, CancellationToken cancellationToken)
         {
+            var cashRegister = await cashRegisterRepository.GetByIdAsync(request.CashRegisterId);
+            if (cashRegister == null)
+            {
+                var message = translator.GetString(TranslatorMessages.CashRegisterMessages.CashRegister_NotFound_with_id(request.CashRegisterId));
+                return new Error(ErrorCode.NotFound, message, nameof(request.CashRegisterId));
+            }
+
             // Calculate the converted amount
             decimal toAmount;
+            decimal sypDelta;
+            decimal usdDelta;
             if (request.Direction == ExchangeDirection.USD_To_SYP)
             {
                 toAmount = request.FromAmount * request.ExchangeRate; // USD to SYP
+                sypDelta = toAmount;
+                usdDelta = -request.FromAmount;
+
+                if (cashRegister.CurrentBalanceDollar + usdDelta < 0)
+                {
+                    var message = translator.GetString(new TranslatorMessageDto(
+                        "Insufficient_Dollar_Balance_In_Cash_Register",
+                        [cashRegister.CurrentBalanceDollar.ToString(), request.FromAmount.ToString()]));
+                    return new Error(ErrorCode.FieldDataInvalid, message, nameof(request.FromAmount));
+                }
             }
             else
             {
                 toAmount = request.FromAmount / request.ExchangeRate; // SYP to USD
+                sypDelta = -request.FromAmount;
+                usdDelta = toAmount;
+
+                if (cashRegister.CurrentBalance + sypDelta < 0)
+                {
+                    var message = translator.GetString(new TranslatorMessageDto(
+                        "Insufficient_Balance_In_Cash_Register",
+                        [cashRegister.CurrentBalance.ToString(), request.FromAmount.ToString()]));
+                    return new Error(ErrorCode.FieldDataInvalid, message, nameof(request.FromAmount));
+                }
             }
 
             // Create exchange transaction
@@ -38,21 +70,8 @@ namespace MarketZone.Application.Features.Cash.ExchangeTransactions.Commands.Cre
 
             await repository.AddAsync(entity);
 
-            // Update cash register balances
-            var cashRegister = await cashRegisterRepository.GetByIdAsync(request.CashRegisterId);
-            if (cashRegister != null)
-            {
-                if (request.Direction == ExchangeDirection.USD_To_SYP)
-                {
-                    // Decrease USD, Increase SYP
-                    cashRegister.Adjust(toAmount, -request.FromAmount);
-                }
-                else
-                {
-                    // Decrease SYP, Increase USD
-                    cashRegister.Adjust(-request.FromAmount, toAmount);
-                }
-            }
+            // Update cash register balances after passing balance checks
+            cashRegister.Adjust(sypDelta, usdDelta);
 
             await unitOfWork.SaveChangesAsync();
             return entity.Id;

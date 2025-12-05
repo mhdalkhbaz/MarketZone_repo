@@ -21,6 +21,7 @@ namespace MarketZone.WebApi.Endpoints
         {
             builder.MapGet(GetPagedListPayment);
             builder.MapGet(GetPaymentById);
+            builder.MapGet("GetPaymentById/{id:long}", GetPaymentByIdByRoute);
             builder.MapPost(CreatePayment).RequireAuthorization();
             builder.MapPut(UpdatePayment).RequireAuthorization();
             builder.MapPut(PostPayment).RequireAuthorization();
@@ -31,6 +32,10 @@ namespace MarketZone.WebApi.Endpoints
 
         async Task<BaseResult<PaymentDto>> GetPaymentById(IMediator mediator, [AsParameters] GetPaymentByIdQuery model)
             => await mediator.Send<GetPaymentByIdQuery, BaseResult<PaymentDto>>(model);
+
+        // دعم مسار /api/Payment/GetPaymentById/{id}
+        async Task<BaseResult<PaymentDto>> GetPaymentByIdByRoute(IMediator mediator, long id)
+            => await mediator.Send<GetPaymentByIdQuery, BaseResult<PaymentDto>>(new GetPaymentByIdQuery { Id = id });
 
         async Task<BaseResult<long>> CreatePayment(IMediator mediator, CreatePaymentCommand model)
             => await mediator.Send<CreatePaymentCommand, BaseResult<long>>(model);

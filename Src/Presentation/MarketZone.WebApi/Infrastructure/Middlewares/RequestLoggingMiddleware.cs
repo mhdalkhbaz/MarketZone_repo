@@ -154,7 +154,7 @@ namespace MarketZone.WebApi.Infrastructure.Middlewares
                 }
                 else
                 {
-                    //sb.AppendLine($"  {header.Key}: {String.Join(", ", header.Value)}");
+                    //sb.AppendLine($"  {header.Key}: {String.Join(", ", header.resultingProductId)}");
                 }
             }
             return sb.ToString();

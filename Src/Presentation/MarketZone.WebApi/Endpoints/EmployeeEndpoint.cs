@@ -8,6 +8,7 @@ using MarketZone.Application.Features.Employees.Queries.GetEmployeeById;
 using MarketZone.Application.Features.Employees.Queries.GetPagedListEmployee;
 using MarketZone.Application.Features.Employees.Queries.GetEmployeesWithRemainingSalary;
 using MarketZone.Application.Features.Employees.Queries.GetPagedListEmployeeSalary;
+using MarketZone.Application.Features.Employees.Queries.GetSalaryPaymentById;
 using MarketZone.Application.Features.Cash.Payments.Queries.GetPagedListPayment;
 using MarketZone.Application.Interfaces;
 using MarketZone.Application.Wrappers;
@@ -37,6 +38,7 @@ namespace MarketZone.WebApi.Endpoints
             builder.MapGet(GetEmployeesWithRemainingSalary);
             builder.MapGet(GetPagedListEmployeeSalary);
             builder.MapPost(CreateSalaryPayment).RequireAuthorization();
+            builder.MapGet(GetSalaryPaymentById);
         }
 
         async Task<PagedResponse<EmployeeDto>> GetPagedListEmployee(IMediator mediator, [AsParameters] GetPagedListEmployeeQuery model)
@@ -66,6 +68,9 @@ namespace MarketZone.WebApi.Endpoints
 
         async Task<BaseResult<long>> CreateSalaryPayment(IMediator mediator, [FromBody] CreateSalaryPaymentCommand model)
             => await mediator.Send<CreateSalaryPaymentCommand, BaseResult<long>>(model);
+
+        async Task<BaseResult<SalaryPaymentDto>> GetSalaryPaymentById(IMediator mediator, [AsParameters] GetSalaryPaymentByIdQuery model)
+            => await mediator.Send<GetSalaryPaymentByIdQuery, BaseResult<SalaryPaymentDto>>(model);
     }
 }
 

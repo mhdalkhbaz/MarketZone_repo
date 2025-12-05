@@ -5,7 +5,7 @@ namespace MarketZone.Application.Parameters
         public string Name { get; set; }
         public string Description { get; set; } // Maps to Address
         public int? Status { get; set; } // Maps to IsActive: 1 = true, 0 = false
-        public int? Type { get; set; } // Maps to SalaryType enum
+        public string? Type { get; set; }  
     }
 }
 

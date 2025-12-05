@@ -40,10 +40,9 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 				query = query.Where(p => p.IsActive == (filter.Status.Value == 1));
 			}
 
-			if (filter.Type.HasValue)
+			if (!string.IsNullOrEmpty(filter.Type))
 			{
-				// Map type to SalaryType enum
-				query = query.Where(p => (int)p.SalaryType == filter.Type.Value);
+				query = query.Where(p => p.JobTitle == filter.Type);
 			}
 
 			query = query.OrderByDescending(p => p.Created);

@@ -103,8 +103,8 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
                         orderby p.Name
                         select new ProductForCompositeDto
                         {
-                            Id = p.Id,
-                            Name = p.Name,
+                            resultingProductId = p.Id,
+                            resultingProductName = p.Name,
                             Qty = pb.Qty,
                             SalePrice = pb.SalePrice,
                             CommissionPerKg = p.CommissionPerKg
