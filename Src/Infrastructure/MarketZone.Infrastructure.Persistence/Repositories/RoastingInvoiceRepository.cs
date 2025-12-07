@@ -52,9 +52,9 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
                 query = query.Where(p => p.InvoiceNumber.Contains(filter.Name));
             }
 
-            if (!string.IsNullOrEmpty(filter.Description))
+            if (!string.IsNullOrEmpty(filter.Notes))
             {
-                query = query.Where(p => !string.IsNullOrEmpty(p.Notes) && p.Notes.Contains(filter.Description));
+                query = query.Where(p => !string.IsNullOrEmpty(p.Notes) && p.Notes.Contains(filter.Notes));
             }
 
             if (filter.Status.HasValue)

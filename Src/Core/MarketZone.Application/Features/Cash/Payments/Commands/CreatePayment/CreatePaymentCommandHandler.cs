@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MarketZone.Application.Interfaces;
 using MarketZone.Application.Interfaces.Repositories;
+using MarketZone.Application.Helpers;
 using MarketZone.Application.Wrappers;
 using MarketZone.Domain.Cash.Entities;
 using MarketZone.Domain.Cash.Enums;
@@ -13,6 +14,8 @@ namespace MarketZone.Application.Features.Cash.Payments.Commands.CreatePayment
 	public class CreatePaymentCommandHandler(
 		IPaymentRepository repository, 
 		IUnitOfWork unitOfWork,
+		IPurchaseInvoiceRepository purchaseInvoiceRepository,
+		ISalesInvoiceRepository salesInvoiceRepository,
 		IRoastingInvoiceRepository roastingInvoiceRepository,
 		IEmployeeRepository employeeRepository,
 		ITranslator translator) : IRequestHandler<CreatePaymentCommand, BaseResult<long>>
@@ -32,6 +35,52 @@ namespace MarketZone.Application.Features.Cash.Payments.Commands.CreatePayment
 		{
 			if (!request.InvoiceId.HasValue)
 				return new Error(ErrorCode.FieldDataInvalid, translator.GetString("InvoiceId_Required_For_Payment_Type"), nameof(request.InvoiceId));
+
+				// تحقق من المتبقي قبل إنشاء الدفع
+				var currentInvoiceAmount = request.Amount;
+				decimal invoiceRemaining = decimal.MaxValue;
+				switch (request.PaymentType)
+				{
+					case PaymentType.PurchasePayment:
+					{
+						var invoice = await purchaseInvoiceRepository.GetByIdAsync(request.InvoiceId.Value);
+						if (invoice == null)
+							return new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.PurchaseInvoiceMessages.PurchaseInvoice_NotFound_with_id(request.InvoiceId.Value)), nameof(request.InvoiceId));
+
+						var total = invoice.TotalAmount - invoice.Discount;
+						var paid = await repository.GetPostedTotalForInvoiceAsync(invoice.Id, cancellationToken);
+						invoiceRemaining = total - paid;
+						break;
+					}
+					case PaymentType.SalesPayment:
+					{
+						var invoice = await salesInvoiceRepository.GetByIdAsync(request.InvoiceId.Value);
+						if (invoice == null)
+							return new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.SalesInvoiceMessages.SalesInvoice_NotFound_with_id(request.InvoiceId.Value)), nameof(request.InvoiceId));
+
+						var total = invoice.TotalAmount - invoice.Discount;
+						var paid = await repository.GetPostedTotalForInvoiceAsync(invoice.Id, cancellationToken);
+						invoiceRemaining = total - paid;
+						break;
+					}
+					case PaymentType.RoastingPayment:
+					{
+						var invoice = await roastingInvoiceRepository.GetByIdAsync(request.InvoiceId.Value);
+						if (invoice == null)
+							return new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.SalesInvoiceMessages.SalesInvoice_NotFound_with_id(request.InvoiceId.Value)), nameof(request.InvoiceId));
+
+						var total = invoice.TotalAmount;
+						var paid = await repository.GetPostedTotalForInvoiceAsync(invoice.Id, cancellationToken);
+						invoiceRemaining = total - paid;
+						break;
+					}
+				}
+
+				if (currentInvoiceAmount > invoiceRemaining)
+				{
+					var message = translator.GetString("Payment_Amount_Exceeds_Remaining");
+					return new Error(ErrorCode.FieldDataInvalid, message, nameof(request.Amount));
+				}
 
 				var currency = request.Currency;
 				var paymentCurrency = request.PaymentCurrency;
@@ -81,6 +130,9 @@ namespace MarketZone.Application.Features.Cash.Payments.Commands.CreatePayment
 					request.Description,
 					request.Notes,
 					request.PaidBy,
+					request.Currency,
+					request.PaymentCurrency,
+					request.ExchangeRate,
 					request.IsConfirmed
 				);
 			}

@@ -17,7 +17,24 @@ namespace MarketZone.Application.Features.Cash.Payments.Commands.UpdatePayment
 				return BaseResult.Failure();
 			if (entity.Status == Domain.Cash.Entities.PaymentStatus.Posted)
 				return new Error(ErrorCode.AccessDenied, translator.GetString("Cannot_Update_Posted_Payment"), nameof(request.Id));
-			mapper.Map(request, entity);
+			// Apply partial updates safely
+			entity.UpdateGeneral(
+				amount: request.Amount,
+				paymentDate: request.PaymentDate,
+				description: request.Description,
+				notes: request.Notes,
+				paidBy: request.PaidBy,
+				currency: request.Currency,
+				paymentCurrency: request.PaymentCurrency,
+				exchangeRate: request.ExchangeRate,
+				isConfirmed: request.IsConfirmed);
+
+			if (request.CashRegisterId.HasValue)
+				entity.AssignRegister(request.CashRegisterId);
+
+			if (request.Status.HasValue && request.Status.Value == Domain.Cash.Entities.PaymentStatus.Posted)
+				entity.Post();
+
 			await unitOfWork.SaveChangesAsync();
 			return BaseResult.Ok();
 		}

@@ -28,7 +28,7 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 		{
 			return await dbContext.Set<Payment>()
 				.Where(p => p.InvoiceId == invoiceId && p.Status == PaymentStatus.Posted)
-				.SumAsync(p => (decimal?)p.Amount, cancellationToken) ?? 0m;
+				.SumAsync(p => (decimal?)p.AmountInPaymentCurrency, cancellationToken) ?? 0m;
 		}
 
 		public async Task<PagedResponse<PaymentDto>> GetPagedListAsync(PaymentFilter filter)

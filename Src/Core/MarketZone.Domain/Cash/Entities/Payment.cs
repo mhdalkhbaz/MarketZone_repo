@@ -25,15 +25,7 @@ namespace MarketZone.Domain.Cash.Entities
 			PaymentCurrency = paymentCurrency;
 			ExchangeRate = exchangeRate;
 			
-			// Calculate amount in payment currency
-			if (currency == paymentCurrency)
-			{
-				AmountInPaymentCurrency = amount;
-			}
-			else if (exchangeRate.HasValue)
-			{
-				AmountInPaymentCurrency = amount * exchangeRate.Value;
-			}
+			RecalculateAmountInPaymentCurrency();
 			
 			Notes = notes;
 			ReceivedBy = receivedBy;
@@ -42,7 +34,17 @@ namespace MarketZone.Domain.Cash.Entities
 		}
 
 		// Constructor for general expenses (not invoice-related)
-		public Payment(PaymentType paymentType, decimal amount, DateTime paymentDate, string description,string notes, string paidBy, bool isConfirmed = true)
+		public Payment(
+			PaymentType paymentType,
+			decimal amount,
+			DateTime paymentDate,
+			string description,
+			string notes,
+			string paidBy,
+			Currency currency,
+			Currency paymentCurrency,
+			decimal? exchangeRate,
+			bool isConfirmed = true)
 		{
 			if (RequiresInvoice(paymentType))
 				throw new ArgumentException("This payment type requires an invoice", nameof(paymentType));
@@ -55,6 +57,12 @@ namespace MarketZone.Domain.Cash.Entities
 			IsConfirmed = isConfirmed;
 			Notes = notes;
             Status = PaymentStatus.Draft;
+
+			Currency = currency;
+			PaymentCurrency = paymentCurrency;
+			ExchangeRate = exchangeRate;
+
+			RecalculateAmountInPaymentCurrency();
 		}
 
 		public long? CashRegisterId { get; private set; }
@@ -90,6 +98,58 @@ namespace MarketZone.Domain.Cash.Entities
 
 		public void AssignRegister(long? cashRegisterId) => CashRegisterId = cashRegisterId;
 		public void Post() => Status = PaymentStatus.Posted;
+
+		public void UpdateGeneral(
+			decimal? amount = null,
+			DateTime? paymentDate = null,
+			string description = null,
+			string notes = null,
+			string paidBy = null,
+			Currency? currency = null,
+			Currency? paymentCurrency = null,
+			decimal? exchangeRate = null,
+			bool? isConfirmed = null)
+		{
+			if (amount.HasValue) Amount = amount.Value;
+			if (paymentDate.HasValue) PaymentDate = paymentDate.Value;
+			if (description != null) Description = description;
+			if (notes !=  null) Notes = notes;
+			if (paidBy != null) PaidBy = paidBy;
+			if (currency.HasValue) Currency = currency.Value;
+			if (paymentCurrency.HasValue) PaymentCurrency = paymentCurrency.Value;
+			if (exchangeRate.HasValue) ExchangeRate = exchangeRate;
+			if (isConfirmed.HasValue) IsConfirmed = isConfirmed.Value;
+
+			RecalculateAmountInPaymentCurrency();
+		}
+
+		public void RecalculateAmountInPaymentCurrency()
+		{
+			if (Currency == PaymentCurrency)
+			{
+				AmountInPaymentCurrency = Amount;
+				return;
+			}
+
+			if (ExchangeRate.HasValue && ExchangeRate.Value != 0)
+			{
+ 				if (Currency == Currency.SY && PaymentCurrency == Currency.Dollar)
+				{
+					AmountInPaymentCurrency = Amount * ExchangeRate.Value;
+				}
+				else if (Currency == Currency.Dollar && PaymentCurrency == Currency.SY)
+				{
+					AmountInPaymentCurrency = Amount / ExchangeRate.Value;
+				}
+				else
+				{
+					AmountInPaymentCurrency = Amount / ExchangeRate.Value;
+				}
+				return;
+			}
+
+			AmountInPaymentCurrency = Amount;
+		}
 	}
 
 	public enum PaymentStatus : short

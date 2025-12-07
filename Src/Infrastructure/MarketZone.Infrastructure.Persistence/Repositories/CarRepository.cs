@@ -23,9 +23,9 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 				query = query.Where(p => p.Name.Contains(filter.Name));
 			}
 
-			if (!string.IsNullOrEmpty(filter.Description))
+			if (!string.IsNullOrEmpty(filter.Model))
 			{
-				query = query.Where(p => !string.IsNullOrEmpty(p.Model) && p.Model.Contains(filter.Description));
+				query = query.Where(p => !string.IsNullOrEmpty(p.Model) && p.Model.Contains(filter.Model));
 			}
 
 			if (filter.Status.HasValue)

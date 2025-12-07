@@ -14,7 +14,7 @@ namespace MarketZone.Application.Features.Cash.Payments
             CreateMap<CreatePaymentCommand, Payment>()
                 .ConstructUsing(s => RequiresInvoice(s.PaymentType) 
                     ? new Payment(s.PaymentType, s.InvoiceId.Value, s.InvoiceType.Value, s.Amount, s.PaymentDate, s.Currency, s.PaymentCurrency, s.ExchangeRate, s.Notes, s.ReceivedBy, s.IsConfirmed)
-                    : new Payment(s.PaymentType, s.Amount, s.PaymentDate ?? System.DateTime.UtcNow, s.Description, s.PaidBy,s.Notes, s.IsConfirmed));
+                    : new Payment(s.PaymentType, s.Amount, s.PaymentDate ?? System.DateTime.UtcNow, s.Description, s.Notes, s.PaidBy, s.Currency, s.PaymentCurrency, s.ExchangeRate, s.IsConfirmed));
         }
 
         private static bool RequiresInvoice(PaymentType type)
