@@ -36,9 +36,12 @@ namespace MarketZone.Application.Features.Cash.Payments.Commands.CreatePayment
 			if (!request.InvoiceId.HasValue)
 				return new Error(ErrorCode.FieldDataInvalid, translator.GetString("InvoiceId_Required_For_Payment_Type"), nameof(request.InvoiceId));
 
-				// تحقق من المتبقي قبل إنشاء الدفع
-				var currentInvoiceAmount = request.Amount;
-				decimal invoiceRemaining = decimal.MaxValue;
+				// تحقق من المتبقي قبل إنشاء الدفع مع مراعاة اختلاف العملة
+				var currency = request.Currency;               // عملة الفاتورة (سيتم ضبطها من الفاتورة)
+				var paymentCurrency = request.PaymentCurrency; // العملة المدفوعة
+				decimal invoiceTotal = 0m;
+				decimal invoicePaid = 0m;
+
 				switch (request.PaymentType)
 				{
 					case PaymentType.PurchasePayment:
@@ -47,9 +50,11 @@ namespace MarketZone.Application.Features.Cash.Payments.Commands.CreatePayment
 						if (invoice == null)
 							return new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.PurchaseInvoiceMessages.PurchaseInvoice_NotFound_with_id(request.InvoiceId.Value)), nameof(request.InvoiceId));
 
-						var total = invoice.TotalAmount - invoice.Discount;
-						var paid = await repository.GetPostedTotalForInvoiceAsync(invoice.Id, cancellationToken);
-						invoiceRemaining = total - paid;
+						if (invoice.Currency.HasValue)
+							currency = invoice.Currency.Value;
+
+						invoiceTotal = invoice.TotalAmount - invoice.Discount;
+						invoicePaid = await repository.GetPostedTotalForInvoiceAsync(invoice.Id, cancellationToken);
 						break;
 					}
 					case PaymentType.SalesPayment:
@@ -58,22 +63,40 @@ namespace MarketZone.Application.Features.Cash.Payments.Commands.CreatePayment
 						if (invoice == null)
 							return new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.SalesInvoiceMessages.SalesInvoice_NotFound_with_id(request.InvoiceId.Value)), nameof(request.InvoiceId));
 
-						var total = invoice.TotalAmount - invoice.Discount;
-						var paid = await repository.GetPostedTotalForInvoiceAsync(invoice.Id, cancellationToken);
-						invoiceRemaining = total - paid;
+						if (invoice.Currency.HasValue)
+							currency = invoice.Currency.Value;
+
+						invoiceTotal = invoice.TotalAmount - invoice.Discount;
+						invoicePaid = await repository.GetPostedTotalForInvoiceAsync(invoice.Id, cancellationToken);
 						break;
 					}
 					case PaymentType.RoastingPayment:
 					{
 						var invoice = await roastingInvoiceRepository.GetByIdAsync(request.InvoiceId.Value);
 						if (invoice == null)
-							return new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.SalesInvoiceMessages.SalesInvoice_NotFound_with_id(request.InvoiceId.Value)), nameof(request.InvoiceId));
+							return new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.SalaryPaymentMessages.SalaryPayment_NotFound_with_id(request.InvoiceId.Value)), nameof(request.InvoiceId));
 
-						var total = invoice.TotalAmount;
-						var paid = await repository.GetPostedTotalForInvoiceAsync(invoice.Id, cancellationToken);
-						invoiceRemaining = total - paid;
+						invoiceTotal = invoice.TotalAmount;
+						invoicePaid = await repository.GetPostedTotalForInvoiceAsync(invoice.Id, cancellationToken);
 						break;
 					}
+				}
+
+				var invoiceRemaining = invoiceTotal - invoicePaid;
+
+				// تحويل مبلغ الدفع إلى عملة الفاتورة للمقارنة
+				decimal currentInvoiceAmount = request.Amount;
+				if (currency != paymentCurrency)
+				{
+					if (!request.ExchangeRate.HasValue || request.ExchangeRate.Value <= 0)
+						return new Error(ErrorCode.FieldDataInvalid, translator.GetString("ExchangeRate_Required_For_Currency_Conversion"), nameof(request.ExchangeRate));
+
+					if (paymentCurrency == Currency.SY && currency == Currency.Dollar)
+						currentInvoiceAmount = request.Amount / request.ExchangeRate.Value; // دفع سوري، فاتورة دولار
+					else if (paymentCurrency == Currency.Dollar && currency == Currency.SY)
+						currentInvoiceAmount = request.Amount * request.ExchangeRate.Value; // دفع دولار، فاتورة سوري
+					else
+						currentInvoiceAmount = request.Amount / request.ExchangeRate.Value; // افتراضي
 				}
 
 				if (currentInvoiceAmount > invoiceRemaining)
@@ -81,9 +104,6 @@ namespace MarketZone.Application.Features.Cash.Payments.Commands.CreatePayment
 					var message = translator.GetString("Payment_Amount_Exceeds_Remaining");
 					return new Error(ErrorCode.FieldDataInvalid, message, nameof(request.Amount));
 				}
-
-				var currency = request.Currency;
-				var paymentCurrency = request.PaymentCurrency;
 
 				// For RoastingPayment, automatically set Currency to employee's currency
 				if (request.PaymentType == PaymentType.RoastingPayment && request.InvoiceId.HasValue)

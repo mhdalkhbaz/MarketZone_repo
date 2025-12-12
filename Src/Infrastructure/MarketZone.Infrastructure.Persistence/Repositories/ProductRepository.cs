@@ -98,6 +98,7 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
         public async Task<List<ProductForCompositeDto>> GetProductsForCompositeAsync(CancellationToken cancellationToken = default)
         {
             var query = from p in _dbContext.Products
+                        where p.ProductType != ProductType.Raw
                         join pb in _dbContext.ProductBalances on p.Id equals pb.ProductId
                         where pb.Qty > 0 && p.IsActive
                         orderby p.Name

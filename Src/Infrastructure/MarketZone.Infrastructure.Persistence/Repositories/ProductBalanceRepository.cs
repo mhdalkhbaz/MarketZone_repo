@@ -26,6 +26,7 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
         public async Task<ProductBalance> GetByProductIdAsync(long productId, CancellationToken cancellationToken = default)
         {
             return await _dbContext.Set<ProductBalance>()
+                .Include(x=>x.Product)
                 .FirstOrDefaultAsync(b => b.ProductId == productId, cancellationToken);
         }
     }

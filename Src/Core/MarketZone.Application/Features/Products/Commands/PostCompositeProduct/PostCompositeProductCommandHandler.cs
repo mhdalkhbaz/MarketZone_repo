@@ -54,17 +54,10 @@ namespace MarketZone.Application.Features.Products.Commands.PostCompositeProduct
                 return new Error(ErrorCode.FieldDataInvalid, _translator.GetString("Composite_Product_Must_Be_In_Draft_Status"), nameof(request.Id));
             }
 
-            // حساب الكمية الناتجة (أصغر كمية ممكنة من المكونات)
-            decimal resultingQuantity = 0;
-            if (compositeProduct.Details.Any())
-            {
-                resultingQuantity = compositeProduct.Details.Min(d =>
-                {
-                    // سنستخدم أصغر كمية من المكونات
-                    // يمكن تعديل هذا المنطق حسب احتياجات العمل
-                    return d.Quantity;
-                });
-            }
+            // حساب الكمية الناتجة: مجموع الكميات المدخلة لكل المكونات
+            var resultingQuantity = compositeProduct.Details.Any()
+                ? compositeProduct.Details.Sum(d => d.Quantity)
+                : 0;
 
             if (resultingQuantity <= 0)
             {
@@ -111,18 +104,20 @@ namespace MarketZone.Application.Features.Products.Commands.PostCompositeProduct
                 await _inventoryHistoryRepository.AddAsync(inventoryHistory);
             }
 
-            // حساب القيمة للمنتج المركب (من المكونات)
+            // حساب القيمة والتكلفة للمنتج المركب (من المكونات)
             decimal totalValue = 0;
             foreach (var detail in compositeProduct.Details)
             {
                 var componentBalance = await _productBalanceRepository.GetByProductIdAsync(detail.ComponentProductId, cancellationToken);
                 if (componentBalance != null)
                 {
-                    // استخدام AverageCost للمنتج المكون
-                    var componentValue = componentBalance.AverageCost * detail.Quantity;
+                    var componentValue = (componentBalance.SalePrice - componentBalance.Product.CommissionPerKg.Value) * detail.Quantity;
                     totalValue += componentValue;
                 }
             }
+
+            var averageCost = resultingQuantity > 0 ? totalValue / resultingQuantity : 0;
+            var salePriceWithCommission = compositeProduct.SalePrice + compositeProduct.CommissionPerKg;
 
             // إضافة المنتج المركب إلى المخزون
             var resultingBalance = await _productBalanceRepository.GetByProductIdAsync(compositeProduct.ResultingProductId, cancellationToken);
@@ -134,16 +129,16 @@ namespace MarketZone.Application.Features.Products.Commands.PostCompositeProduct
                     resultingQuantity,
                     resultingQuantity,
                     totalValue,
-                    compositeProduct.SalePrice);
+                    salePriceWithCommission);
                 await _productBalanceRepository.AddAsync(resultingBalance);
             }
             else
             {
                 // تحديث ProductBalance الموجود
                 resultingBalance.AdjustWithValue(resultingQuantity, resultingQuantity, totalValue);
-                if (compositeProduct.SalePrice > 0)
+                if (salePriceWithCommission > 0)
                 {
-                    resultingBalance.SetSalePrice(compositeProduct.SalePrice);
+                    resultingBalance.SetSalePrice(salePriceWithCommission);
                 }
                 _productBalanceRepository.Update(resultingBalance);
             }
@@ -170,16 +165,8 @@ namespace MarketZone.Application.Features.Products.Commands.PostCompositeProduct
             compositeProduct.SetStatus(CompositeProductStatus.Posted);
             _compositeProductRepository.Update(compositeProduct);
 
-            try
-            {
-                await _unitOfWork.SaveChangesAsync();
-            }
-            catch (System.Exception)
-            {
-                throw;
-            }
-
-            return new BaseResult();
+            await _unitOfWork.SaveChangesAsync();
+            return BaseResult.Ok();
         }
     }
 }

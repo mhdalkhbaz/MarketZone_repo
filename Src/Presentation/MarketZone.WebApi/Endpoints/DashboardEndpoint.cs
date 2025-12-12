@@ -71,7 +71,7 @@ namespace MarketZone.WebApi.Endpoints
 
         private async Task<DollarRateDto> GetDollarRateData(ApplicationDbContext db)
         {
-            var latestExchange = await db.ExchangeTransactions
+            var latestExchange = await db.ExchangeRates
                 .OrderByDescending(et => et.Created)
                 .FirstOrDefaultAsync();
 
@@ -82,7 +82,7 @@ namespace MarketZone.WebApi.Endpoints
 
             return new DollarRateDto
             {
-                Rate = latestExchange.ExchangeRate,
+                Rate = latestExchange.Rate,
                 LastUpdated = latestExchange.Created
             };
         }
