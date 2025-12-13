@@ -104,20 +104,18 @@ namespace MarketZone.Application.Features.Products.Commands.PostCompositeProduct
                 await _inventoryHistoryRepository.AddAsync(inventoryHistory);
             }
 
-            // حساب القيمة والتكلفة للمنتج المركب (من المكونات)
+            // حساب القيمة للمنتج المركب (من المكونات)
             decimal totalValue = 0;
             foreach (var detail in compositeProduct.Details)
             {
                 var componentBalance = await _productBalanceRepository.GetByProductIdAsync(detail.ComponentProductId, cancellationToken);
                 if (componentBalance != null)
                 {
-                    var componentValue = (componentBalance.SalePrice - componentBalance.Product.CommissionPerKg.Value) * detail.Quantity;
+                    // استخدام AverageCost للمنتج المكون
+                    var componentValue = componentBalance.AverageCost * detail.Quantity;
                     totalValue += componentValue;
                 }
             }
-
-            var averageCost = resultingQuantity > 0 ? totalValue / resultingQuantity : 0;
-            var salePriceWithCommission = compositeProduct.SalePrice + compositeProduct.CommissionPerKg;
 
             // إضافة المنتج المركب إلى المخزون
             var resultingBalance = await _productBalanceRepository.GetByProductIdAsync(compositeProduct.ResultingProductId, cancellationToken);
@@ -129,16 +127,16 @@ namespace MarketZone.Application.Features.Products.Commands.PostCompositeProduct
                     resultingQuantity,
                     resultingQuantity,
                     totalValue,
-                    salePriceWithCommission);
+                    compositeProduct.SalePrice);
                 await _productBalanceRepository.AddAsync(resultingBalance);
             }
             else
             {
                 // تحديث ProductBalance الموجود
                 resultingBalance.AdjustWithValue(resultingQuantity, resultingQuantity, totalValue);
-                if (salePriceWithCommission > 0)
+                if (compositeProduct.SalePrice > 0)
                 {
-                    resultingBalance.SetSalePrice(salePriceWithCommission);
+                    resultingBalance.SetSalePrice(compositeProduct.SalePrice);
                 }
                 _productBalanceRepository.Update(resultingBalance);
             }

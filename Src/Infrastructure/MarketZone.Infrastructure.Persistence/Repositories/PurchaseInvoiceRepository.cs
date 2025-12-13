@@ -182,7 +182,7 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 					pi.InvoiceDate,
 					PaidAmount = dbContext.Payments
 						.Where(p => p.PaymentType == PaymentType.PurchasePayment 
-							&& p.Status == MarketZone.Domain.Cash.Entities.PaymentStatus.Posted
+							//&& p.Status == MarketZone.Domain.Cash.Entities.PaymentStatus.Posted
 							&& p.InvoiceId == pi.Id)
 						.Sum(p => (decimal?)(p.AmountInPaymentCurrency ?? p.Amount)) ?? 0
 				})
