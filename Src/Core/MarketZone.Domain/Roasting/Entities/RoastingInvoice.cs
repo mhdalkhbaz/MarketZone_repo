@@ -49,6 +49,12 @@ namespace MarketZone.Domain.Roasting.Entities
             InvoiceNumber = invoiceNumber;
         }
 
+        public void SetTotalValue(decimal value)
+        {
+            TotalAmount = value;
+        }
+
+
         public void SetEmployeeId(long? employeeId)
         {
             EmployeeId = employeeId;

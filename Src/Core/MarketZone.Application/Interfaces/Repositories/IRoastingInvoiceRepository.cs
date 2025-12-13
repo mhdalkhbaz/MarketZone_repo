@@ -10,6 +10,7 @@ namespace MarketZone.Application.Interfaces.Repositories
     public interface IRoastingInvoiceRepository : IGenericRepository<RoastingInvoice>
     {
         Task<RoastingInvoice> GetWithDetailsByIdAsync(long id);
+        Task<RoastingInvoice> GetById(long id);
         Task<PaginationResponseDto<RoastingInvoiceDto>> GetPagedListAsync(RoastingInvoiceFilter filter);
         Task<List<RoastingInvoiceUnpaidDto>> GetUnpaidInvoicesByEmployeeAsync(long employeeId, System.Threading.CancellationToken cancellationToken = default);
         Task<bool> EmployeeExistsAsync(long employeeId);

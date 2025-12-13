@@ -57,7 +57,7 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 			query = query.Where(p => (int)p.Type == filter.Type.Value);
 		}
 
-		query = query.OrderByDescending(p => p.InvoiceDate);
+		query = query.OrderByDescending(p => p.Id);
 
 		// استخدام Select مباشرة لإضافة اسم العميل و PaymentStatus
 		var dtoQuery = query
@@ -175,7 +175,7 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 					}).ToList()
 				})
 				.Where(x => x.UnpaidAmount > 0) // فواتير لم يتم دفعها بالكامل (جزئياً أو غير مسددة)
-				.OrderByDescending(x => x.InvoiceDate)
+				.OrderByDescending(x => x.Id)
 				.ToListAsync(cancellationToken);
 
 		return unpaidInvoices;
@@ -212,7 +212,7 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 					InvoiceDate = x.InvoiceDate
 				})
 				.Where(x => x.UnpaidAmount > 0) // فواتير لم يتم دفعها بالكامل (جزئياً أو غير مسددة)
-				.OrderByDescending(x => x.InvoiceDate)
+				.OrderByDescending(x => x.Id)
 				.ToList();
 
 			return unpaidInvoices;

@@ -8,6 +8,7 @@ using MarketZone.Application.Wrappers;
 using MarketZone.Domain.Cash.Entities;
 using MarketZone.Domain.Cash.Enums;
 using MarketZone.Application.DTOs;
+using MarketZone.Application.Features.Cash.ExchangeRates.Queries.GetLatestRate;
 
 namespace MarketZone.Application.Features.Cash.Payments.Commands.CreatePayment
 {
@@ -54,7 +55,7 @@ namespace MarketZone.Application.Features.Cash.Payments.Commands.CreatePayment
 							currency = invoice.Currency.Value;
 
 						invoiceTotal = invoice.TotalAmount - invoice.Discount;
-						invoicePaid = await repository.GetPostedTotalForInvoiceAsync(invoice.Id, cancellationToken);
+						invoicePaid = await repository.GetPostedTotalForInvoiceAsync(invoice.Id,InvoiceType.PurchaseInvoice, cancellationToken);
 						break;
 					}
 					case PaymentType.SalesPayment:
@@ -67,7 +68,7 @@ namespace MarketZone.Application.Features.Cash.Payments.Commands.CreatePayment
 							currency = invoice.Currency.Value;
 
 						invoiceTotal = invoice.TotalAmount - invoice.Discount;
-						invoicePaid = await repository.GetPostedTotalForInvoiceAsync(invoice.Id, cancellationToken);
+						invoicePaid = await repository.GetPostedTotalForInvoiceAsync(invoice.Id,  InvoiceType.SalesInvoice, cancellationToken);
 						break;
 					}
 					case PaymentType.RoastingPayment:
@@ -77,7 +78,7 @@ namespace MarketZone.Application.Features.Cash.Payments.Commands.CreatePayment
 							return new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.SalaryPaymentMessages.SalaryPayment_NotFound_with_id(request.InvoiceId.Value)), nameof(request.InvoiceId));
 
 						invoiceTotal = invoice.TotalAmount;
-						invoicePaid = await repository.GetPostedTotalForInvoiceAsync(invoice.Id, cancellationToken);
+						invoicePaid = await repository.GetPostedTotalForInvoiceAsync(invoice.Id, InvoiceType.RoastingInvoice, cancellationToken);
 						break;
 					}
 				}
@@ -126,6 +127,8 @@ namespace MarketZone.Application.Features.Cash.Payments.Commands.CreatePayment
 						}
 					}
 				}
+
+                request.InvoiceType = (InvoiceType)request.PaymentType;
 
 				entity = new Payment(
 					request.PaymentType,

@@ -127,7 +127,7 @@ namespace MarketZone.Application.Features.Products.Commands.PostCompositeProduct
                     resultingQuantity,
                     resultingQuantity,
                     totalValue,
-                    compositeProduct.SalePrice);
+                    compositeProduct.SalePrice + compositeProduct.CommissionPerKg);
                 await _productBalanceRepository.AddAsync(resultingBalance);
             }
             else

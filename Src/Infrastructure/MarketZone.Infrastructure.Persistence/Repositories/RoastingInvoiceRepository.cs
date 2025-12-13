@@ -87,7 +87,7 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
             // جلب جميع المدفوعات للفواتير
             var payments = await dbContext.Payments
                 .Where(p => p.PaymentType == PaymentType.RoastingPayment 
-                    && p.Status == MarketZone.Domain.Cash.Entities.PaymentStatus.Posted
+                    //&& p.Status == MarketZone.Domain.Cash.Entities.PaymentStatus.Posted
                     && invoiceIds.Contains(p.InvoiceId.Value))
                 .GroupBy(p => p.InvoiceId.Value)
                 .Select(g => new { InvoiceId = g.Key, PaidAmount = g.Sum(p => p.AmountInPaymentCurrency ?? p.Amount) })
@@ -132,6 +132,13 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
             // نتحقق من الفواتير المرحلة (Posted) فقط، لأن الفواتير المسودة (Draft) يمكن تعديلها أو حذفها
             return await dbContext.RoastingInvoices
                 .AnyAsync(ri => ri.EmployeeId == employeeId && ri.Status == RoastingInvoiceStatus.Posted, cancellationToken);
+        }
+
+        public async Task<RoastingInvoice> GetById(long id)
+        {
+            return await dbContext.RoastingInvoices
+                .Include(x => x.Details)
+                .FirstOrDefaultAsync(x => x.Id == id);
         }
     }
 }

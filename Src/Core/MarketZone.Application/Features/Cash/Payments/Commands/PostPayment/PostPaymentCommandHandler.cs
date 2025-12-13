@@ -128,7 +128,7 @@ namespace MarketZone.Application.Features.Cash.Payments.Commands.PostPayment
 				var invoice = await purchaseInvoiceRepository.GetByIdAsync(payment.InvoiceId.Value);
 				if (invoice != null)
 				{
-					var totalPosted = await paymentRepository.GetPostedTotalForInvoiceAsync(payment.InvoiceId.Value, cancellationToken);
+					var totalPosted = await paymentRepository.GetPostedTotalForInvoiceAsync(payment.InvoiceId.Value,payment.InvoiceType, cancellationToken);
 					var totalAfter = totalPosted + payment.Amount;
 					var due = invoice.TotalAmount - invoice.Discount;
 					invoice.SetPaymentStatus(totalAfter >= due ? PurchasePaymentStatus.CompletePayment : PurchasePaymentStatus.PartialPayment);

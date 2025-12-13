@@ -57,6 +57,7 @@ namespace MarketZone.Application.Features.Roasting.Commands.PostRoastingInvoice
                 throw new InvalidOperationException("Roasting invoice is already posted.");
             }
 
+            decimal totalAmount = 0;
             // Process each detail with its ready products
             foreach (var detailItem in request.Details)
             {
@@ -98,8 +99,7 @@ namespace MarketZone.Application.Features.Roasting.Commands.PostRoastingInvoice
                     var rawConsumedValue = rawAvgCost * detail.QuantityKg;
                     // Commission is calculated on the ready product quantity (after roasting)
                     var commissionValue = readyDetail.CommissionPerKg * readyDetail.ActualQuantityAfterRoasting;
-                    var totalValue = rawConsumedValue + commissionValue;
-
+                   var totalValue = rawConsumedValue + commissionValue;
                     // عند الترحيل: نقص فقط من TotalValue (لأن Qty و AvailableQty تم تقليلها عند الإنشاء)
                     //rawProductBalance.AdjustValue(-rawConsumedValue);
                     //_productBalanceRepository.Update(rawProductBalance);
@@ -126,6 +126,7 @@ namespace MarketZone.Application.Features.Roasting.Commands.PostRoastingInvoice
                         readyDetail.CommissionPerKg,
                         readyDetail.NetSalePricePerKg
                     );
+                      totalAmount += readyDetail.RoastingCostPerKg * readyDetail.ActualQuantityAfterRoasting;
 
                     roastingInvoice.AddReceipt(receipt);
                     detail.AddReceipt(receipt);
@@ -134,6 +135,7 @@ namespace MarketZone.Application.Features.Roasting.Commands.PostRoastingInvoice
 
             // Set status to Posted
             roastingInvoice.SetStatus(RoastingInvoiceStatus.Posted);
+            roastingInvoice.SetTotalValue(totalAmount);
             _repository.Update(roastingInvoice);
 
             // Update employee balance if employee is assigned

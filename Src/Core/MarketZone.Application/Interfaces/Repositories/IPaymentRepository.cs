@@ -14,7 +14,7 @@ namespace MarketZone.Application.Interfaces.Repositories
 	{
 		Task<PagedResponse<PaymentDto>> GetPagedListAsync(PaymentFilter filter);
 		Task<Payment> GetByIdAsync(long id, CancellationToken cancellationToken);
-		Task<decimal> GetPostedTotalForInvoiceAsync(long invoiceId, CancellationToken cancellationToken = default);
+		Task<decimal> GetPostedTotalForInvoiceAsync(long invoiceId, InvoiceType? invoiceType = InvoiceType.SalesInvoice, CancellationToken cancellationToken = default);
 	}
 }
 

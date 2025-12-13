@@ -24,10 +24,11 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 		{
 			return await dbContext.Set<Payment>().FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 		}
-		public async Task<decimal> GetPostedTotalForInvoiceAsync(long invoiceId, CancellationToken cancellationToken = default)
+		public async Task<decimal> GetPostedTotalForInvoiceAsync(long invoiceId,InvoiceType? invoiceType = InvoiceType.SalesInvoice, CancellationToken cancellationToken = default)
 		{
 			return await dbContext.Set<Payment>()
-				.Where(p => p.InvoiceId == invoiceId && p.Status == PaymentStatus.Posted)
+				.Where(p => p.InvoiceId == invoiceId && p.Status == PaymentStatus.Posted 
+												    	&& p.InvoiceType == invoiceType)
 				.SumAsync(p => (decimal?)p.AmountInPaymentCurrency, cancellationToken) ?? 0m;
 		}
 
@@ -68,7 +69,7 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 
 				// Get salary payments and convert to PaymentDto
 				var salaryPayments = await salaryPaymentQuery
-					.OrderByDescending(sp => sp.PaymentDate)
+					.OrderByDescending(sp => sp.Id)
 					.Skip((filter.PageNumber - 1) * filter.PageSize)
 					.Take(filter.PageSize)
 					.ToListAsync();
@@ -148,7 +149,7 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 
 			var totalCount = await paymentQuery.CountAsync();
 			var items = await paymentQuery
-				.OrderByDescending(p => p.PaymentDate)
+				.OrderByDescending(p => p.Id)
 				.Skip((filter.PageNumber - 1) * filter.PageSize)
 				.Take(filter.PageSize)
 				.ProjectTo<PaymentDto>(mapper.ConfigurationProvider)
