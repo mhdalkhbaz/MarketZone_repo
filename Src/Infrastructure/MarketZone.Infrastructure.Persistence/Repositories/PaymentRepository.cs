@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -122,7 +122,25 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 					paymentDtos.Add(paymentDto);
 				}
 
-				return PagedResponse<PaymentDto>.Ok(new PaginationResponseDto<PaymentDto>(paymentDtos, salaryTotalCount, filter.PageNumber, filter.PageSize));
+                foreach (var item in paymentDtos)
+                {
+                    switch (item.InvoiceType)
+                    {
+                        case InvoiceType.SalesInvoice:
+						 item.InvoiceNumber = dbContext.SalesInvoices.FirstOrDefault(x => x.Id == item.InvoiceId).InvoiceNumber;
+                            break;
+
+                        case InvoiceType.PurchaseInvoice:
+                            item.InvoiceNumber = dbContext.PurchaseInvoices.FirstOrDefault(x => x.Id == item.InvoiceId).InvoiceNumber;
+                            break;
+
+                        case InvoiceType.RoastingInvoice:
+                            item.InvoiceNumber = dbContext.RoastingInvoices.FirstOrDefault(x => x.Id == item.InvoiceId).InvoiceNumber;
+                            break;
+                    }
+
+                }
+                return PagedResponse<PaymentDto>.Ok(new PaginationResponseDto<PaymentDto>(paymentDtos, salaryTotalCount, filter.PageNumber, filter.PageSize));
 			}
 
 			// Apply filters using FilterBuilder pattern
@@ -155,7 +173,25 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
 				.ProjectTo<PaymentDto>(mapper.ConfigurationProvider)
 				.ToListAsync();
 
-			return PagedResponse<PaymentDto>.Ok(new PaginationResponseDto<PaymentDto>(items, totalCount, filter.PageNumber, filter.PageSize));
+            foreach (var item in items)
+            {
+                switch (item.InvoiceType)
+                {
+                    case InvoiceType.SalesInvoice:
+                        item.InvoiceNumber = dbContext.SalesInvoices.FirstOrDefault(x => x.Id == item.InvoiceId).InvoiceNumber;
+                        break;
+
+                    case InvoiceType.PurchaseInvoice:
+                        item.InvoiceNumber = dbContext.PurchaseInvoices.FirstOrDefault(x => x.Id == item.InvoiceId).InvoiceNumber;
+                        break;
+
+                    case InvoiceType.RoastingInvoice:
+                        item.InvoiceNumber = dbContext.RoastingInvoices.FirstOrDefault(x => x.Id == item.InvoiceId).InvoiceNumber;
+                        break;
+                }
+
+            }
+            return PagedResponse<PaymentDto>.Ok(new PaginationResponseDto<PaymentDto>(items, totalCount, filter.PageNumber, filter.PageSize));
 		}
 	}
 }

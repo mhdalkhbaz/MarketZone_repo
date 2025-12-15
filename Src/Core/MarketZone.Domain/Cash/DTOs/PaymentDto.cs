@@ -37,7 +37,8 @@ namespace MarketZone.Domain.Cash.DTOs
 		public long? CashRegisterId { get; set; }
 		public PaymentType PaymentType { get; set; }
 		public long? InvoiceId { get; set; }
-		public InvoiceType? InvoiceType { get; set; }
+		public string InvoiceNumber { get; set; }
+        public InvoiceType? InvoiceType { get; set; }
 		public DateTime PaymentDate { get; set; }
 		public decimal Amount { get; set; }
 		public Currency Currency { get; set; }                    // عملة المورد/الفاتورة

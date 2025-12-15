@@ -76,6 +76,7 @@ namespace MarketZone.Application.Features.Cash.Payments.Queries.GetPaymentById
                 IsExpense = true
             };
 
+
             return BaseResult<PaymentDto>.Ok(paymentDtoFromSalary);
         }
     }
