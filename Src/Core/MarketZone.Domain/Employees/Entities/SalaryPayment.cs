@@ -12,7 +12,22 @@ namespace MarketZone.Domain.Employees.Entities
         }
 #pragma warning restore
 
-        public SalaryPayment(long employeeId, int year, int month, decimal amount, DateTime paymentDate, long? cashRegisterId, string notes, SalaryType salaryType, long? distributionTripId = null)
+        public long EmployeeId { get; private set; }
+        public Employee Employee { get; private set; }
+        public int Year { get; private set; }
+        public int Month { get; private set; }
+        public decimal Amount { get; private set; }
+        public DateTime PaymentDate { get; private set; }
+        public long? CashRegisterId { get; private set; }
+        public MarketZone.Domain.Cash.Entities.CashRegister CashRegister { get; private set; }
+        public string Notes { get; private set; }
+        public SalaryType SalaryType { get; private set; }
+        public long? DistributionTripId { get; private set; }
+        public MarketZone.Domain.Logistics.Entities.DistributionTrip DistributionTrip { get; private set; }
+        public decimal Deduction { get; private set; }
+        public string DeductionNote { get; private set; }
+
+        public SalaryPayment(long employeeId, int year, int month, decimal amount, DateTime paymentDate, long? cashRegisterId, string notes, SalaryType salaryType, long? distributionTripId = null, decimal deduction = 0, string deductionNote = null)
         {
             if (amount <= 0)
                 throw new ArgumentException("Amount must be greater than zero", nameof(amount));
@@ -26,20 +41,9 @@ namespace MarketZone.Domain.Employees.Entities
             Notes = notes;
             SalaryType = salaryType;
             DistributionTripId = distributionTripId;
+            Deduction = deduction;
+            DeductionNote = deductionNote;
         }
-
-        public long EmployeeId { get; private set; }
-        public Employee Employee { get; private set; }
-        public int Year { get; private set; }
-        public int Month { get; private set; }
-        public decimal Amount { get; private set; }
-        public DateTime PaymentDate { get; private set; }
-        public long? CashRegisterId { get; private set; }
-        public MarketZone.Domain.Cash.Entities.CashRegister CashRegister { get; private set; }
-        public string Notes { get; private set; }
-        public SalaryType SalaryType { get; private set; }
-        public long? DistributionTripId { get; private set; }  // ربط برحلة التوزيع إذا كانت النسبة من عمولة
-        public MarketZone.Domain.Logistics.Entities.DistributionTrip DistributionTrip { get; private set; }
 
         public void UpdateAmount(decimal amount)
         {

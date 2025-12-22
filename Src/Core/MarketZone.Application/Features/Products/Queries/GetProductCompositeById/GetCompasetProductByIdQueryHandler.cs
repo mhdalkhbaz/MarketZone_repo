@@ -22,6 +22,21 @@ namespace MarketZone.Application.Features.Products.Queries.GetProductById
 
             var productDto = mapper.Map<CompositeProductDto>(product);
 
+            foreach (var detail in productDto.Details)
+            {
+                var balance = await productBalanceRepository.GetByProductIdAsync(detail.ComponentProductId, cancellationToken);
+                if (balance != null)
+                {
+                    detail.SalePrice = balance.SalePrice;
+                }
+                
+                // Assuming CommissionPerKg is on the Product entity, which we can access via balance.Product
+                if (balance?.Product != null)
+                {
+                    detail.CommissionPerKg = balance.Product.CommissionPerKg ?? 0;
+                }
+            }
+
             return productDto;
         }
     }

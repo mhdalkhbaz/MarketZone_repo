@@ -66,7 +66,7 @@ namespace MarketZone.Infrastructure.Persistence.Repositories
                 {
                     Id = r.Id,
                     Rate = r.Rate,
-                    EffectiveDate = r.EffectiveDate,
+                    EffectiveDate = r.Created, // Use Created to ensure time is included
                     IsActive = r.IsActive
                 })
                 .ToListAsync();

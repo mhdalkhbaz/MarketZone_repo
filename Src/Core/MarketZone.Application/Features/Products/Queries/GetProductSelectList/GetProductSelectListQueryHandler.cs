@@ -72,11 +72,23 @@ namespace MarketZone.Application.Features.Products.Queries.GetProductSelectList
                 
                 if (remainingQty > 0)
                 {
+                    decimal price = detail.ExpectedPrice;
+
+                    // If ExpectedPrice is 0, try to get the current SalePrice from ProductBalance
+                    if (price == 0)
+                    {
+                        var balance = await _productBalanceRepository.GetByProductIdAsync(detail.ProductId, cancellationToken);
+                        if (balance != null)
+                        {
+                            price = balance.SalePrice;
+                        }
+                    }
+
                     result.Add(new ProductSelectListDto(
                         detail.ProductId.ToString(),
                         detail.Product?.Name  ,
 						remainingQty,
-						detail.ExpectedPrice
+						price
                     ));
                 }
             }
@@ -88,16 +100,20 @@ namespace MarketZone.Application.Features.Products.Queries.GetProductSelectList
         {
             var productBalances = await _productBalanceRepository.GetAllProductBalanceAsync();
 
-            var result = new List<ProductSelectListDto>();
-            productBalances.Where(x => x.AvailableQty > 0 && x.Product.IsActive && !x.Product.NeedsRoasting).ToList();
+            var result = productBalances
+                .Where(x => x.AvailableQty > 0 && x.Product.IsActive && !x.Product.NeedsRoasting)
+                .Select(x => new ProductSelectListDto(
+                    x.Product.Id.ToString(),
+                    x.Product.Name,
+                    x.AvailableQty,
+                    x.SalePrice
+                ))
+                .OrderBy(p => p.Value)
+                .ToList();
 
-            result.AddRange(productBalances.Select(x => new ProductSelectListDto(
-                x.Product.Id.ToString(),
-                x.Product.Name,
-				x.AvailableQty,
-				x.SalePrice
-            )));
-            return result.OrderBy(p => p.Value).ToList();
+            return result;
+
+
         }
     }
 }
