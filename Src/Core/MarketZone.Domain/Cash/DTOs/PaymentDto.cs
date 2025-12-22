@@ -54,6 +54,9 @@ namespace MarketZone.Domain.Cash.DTOs
 		public bool IsIncome { get; set; }
 		public bool IsExpense { get; set; }
 		public SelectList User { get; set; }
+		public SelectList Invoice { get; set; }
+		public decimal Deduction { get; set; }
+		public string DeductionNote { get; set; }
 	}
 }
 

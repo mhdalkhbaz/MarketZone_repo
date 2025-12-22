@@ -130,7 +130,9 @@ namespace MarketZone.Application.Features.Employees.Commands.CreateSalaryPayment
                 request.CashRegisterId,
                 request.Notes ?? string.Empty,
                 request.SalaryType,
-                request.DistributionTripId);
+                request.DistributionTripId,
+                deduction,
+                request.DeductionNote);
 
             await salaryPaymentRepository.AddAsync(salaryPayment);
 
